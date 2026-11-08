@@ -32,6 +32,7 @@ function getBlocked() {
    1. INICIALIZACIÓN
    -------------------------------------------------------------------------- */
 function initApp() {
+  renderSpecialtiesSection();
   renderCalendarDays();
   renderTimeSlots();
   updateSummary();
@@ -40,6 +41,61 @@ function initApp() {
   initGoldDustCanvas();
   checkMercadoPagoReturnUrl();
   if (!IS_HEATMAP_PREVIEW) initAnalyticsTracking();
+}
+
+function renderSpecialtiesSection() {
+  const list = VDT.getSpecialties();
+  const sec = document.getElementById('especialidades');
+  const grid = document.getElementById('specialties-grid');
+  const navItem = document.getElementById('nav-item-especialidades');
+  const heroBtn = document.getElementById('hero-btn-especialidades');
+  const focusSel = document.getElementById('focus-select');
+
+  // Si la nutrióloga no tiene especialidades añadidas, se oculta toda la sección y sus enlaces
+  if (!list || list.length === 0) {
+    if (sec) sec.style.display = 'none';
+    if (navItem) navItem.style.display = 'none';
+    if (heroBtn) heroBtn.style.display = 'none';
+    if (focusSel) {
+      focusSel.innerHTML = `<option value="Valoración General">Valoración General</option>`;
+      bookingState.focus = 'Valoración General';
+    }
+    return;
+  }
+
+  if (sec) sec.style.display = '';
+  if (navItem) navItem.style.display = '';
+  if (heroBtn) heroBtn.style.display = '';
+
+  if (grid) {
+    grid.innerHTML = list.map((sp, idx) => {
+      const delayClass = idx % 4 === 1 ? 'delay-1' : idx % 4 === 2 ? 'delay-2' : idx % 4 === 3 ? 'delay-3' : '';
+      const safeTitle = (sp.title || '').replace(/'/g, "\\'");
+      const spType = sp.type === 'seguimiento' ? 'seguimiento' : 'primera';
+      return `
+        <div class="spec-card tilt-card reveal-up is-visible ${delayClass}">
+          <div>
+            <span class="pill-tag" style="margin-bottom: 0.8rem;">${sp.tag || '🌿 Especialidad'}</span>
+            <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">${sp.title}</h3>
+            <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
+              ${sp.desc || ''}
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
+            <span class="spec-price">${sp.priceText || 'Desde $650 MXN'}</span>
+            <button type="button" onclick="selectServiceAndScroll('${safeTitle}', '${spType}')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
+              Elegir y Agendar →
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (focusSel) {
+    const opts = ['Valoración General', ...list.map(sp => sp.title)];
+    focusSel.innerHTML = opts.map(o => `<option value="${o.replace(/"/g, '&quot;')}">${o}</option>`).join('');
+  }
 }
 
 function checkMercadoPagoReturnUrl() {

@@ -628,8 +628,11 @@
       <button type="button" class="tab-btn" data-tab="tab-cuestionario">
         📝 3. Cuestionario 1ª Vez (Métricas y Editor)
       </button>
+      <button type="button" class="tab-btn" data-tab="tab-especialidades">
+        🌿 4. Especialidades en la Web
+      </button>
       <button type="button" class="tab-btn" data-tab="tab-heatmap">
-        🔥 4. Mapa de Calor y Atractivo Web
+        🔥 5. Mapa de Calor y Atractivo Web
       </button>
     </nav>
 
@@ -774,7 +777,46 @@
     </section>
 
     <!-- =====================================================================
-         PESTAÑA 4: MAPA DE CALOR Y ATRACTIVO DE SECCIONES
+         PESTAÑA 4: ESPECIALIDADES EN SALUD HORMONAL (AÑADIR / EDITAR / OCULTAR)
+         ===================================================================== -->
+    <section id="tab-especialidades" class="tab-pane">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Especialidades en Salud Hormonal (Visibles en la Página Web)</h2>
+            <p style="margin:0.2rem 0 0; font-size:0.84rem; color:var(--color-sage-dark);">
+              Añade, edita o elimina las especialidades que ofreces. <strong>Regla automática:</strong> Si dejas esta lista vacía (0 especialidades), la sección completa de <em>"Especialidades en Salud Hormonal"</em> se ocultará automáticamente en la página pública.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <span id="spec-status-pill" class="status-pill status-paid">✓ Sección Visible en la Web</span>
+            <button type="button" id="btn-add-specialty" class="btn btn-gold" style="padding:0.48rem 0.95rem; font-size:0.78rem;">
+              + Añadir Especialidad
+            </button>
+            <button type="button" id="btn-clear-specialties" class="btn-mini danger">
+              Vaciar Todas (Ocultar Sección)
+            </button>
+            <button type="button" id="btn-reset-specialties" class="btn-mini">
+              Restaurar 4 Base
+            </button>
+          </div>
+        </div>
+
+        <div id="specialties-editor-list"></div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:1.1rem; padding-top:1rem; border-top:1px solid var(--color-cream-soft);">
+          <span id="spec-save-feedback" style="font-size:0.82rem; font-weight:700; color:var(--color-pine);">
+            Cualquier cambio actualiza la sección de Especialidades y el selector del calendario en la página principal.
+          </span>
+          <button type="button" id="btn-save-specialties" class="btn btn-primary" style="padding:0.65rem 1.35rem; font-size:0.84rem;">
+            💾 Guardar Especialidades
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 5: MAPA DE CALOR Y ATRACTIVO DE SECCIONES
          ===================================================================== -->
     <section id="tab-heatmap" class="tab-pane">
       <div class="two-col-grid">
@@ -1504,7 +1546,130 @@
       Object.values(VDT.KEYS).forEach(k => localStorage.removeItem(k));
       VDT.seedIfEmpty();
       draftQuestionnaire = VDT.getQuestionnaire();
+      draftSpecialties = VDT.getSpecialties();
       refreshAll();
+    });
+
+    /* ----------------------------------------------------------------------
+       PESTAÑA 4: Especialidades en Salud Hormonal (Añadir / Editar / Ocultar)
+       ---------------------------------------------------------------------- */
+    let draftSpecialties = VDT.getSpecialties();
+
+    function renderSpecialtiesEditor() {
+      const listEl = document.getElementById('specialties-editor-list');
+      const statusPill = document.getElementById('spec-status-pill');
+
+      if (draftSpecialties.length === 0) {
+        statusPill.className = 'status-pill status-pending';
+        statusPill.textContent = '⚠️ Sección Oculta en la Web (0 especialidades)';
+        listEl.innerHTML = `
+          <div style="background:#FFF4E0; border:1px dashed #DEB074; border-radius:14px; padding:1.4rem; text-align:center; color:#8C5820; font-size:0.88rem;">
+            <strong>Actualmente no hay especialidades añadidas.</strong><br>
+            Mientras no añadas ninguna opción y guardes, la sección completa de <em>"Especialidades en Salud Hormonal"</em> permanecerá oculta en la página pública.
+          </div>
+        `;
+        return;
+      }
+
+      statusPill.className = 'status-pill status-paid';
+      statusPill.textContent = `✓ Sección Visible en la Web (${draftSpecialties.length} activas)`;
+
+      listEl.innerHTML = draftSpecialties.map((sp, idx) => `
+        <div class="q-editor-item spec-editor-item" data-idx="${idx}">
+          <div style="display:grid; grid-template-columns: 0.9fr 1.6fr 0.8fr 0.8fr auto; gap:0.65rem; align-items:center;">
+            <div>
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Etiqueta / Icono</label>
+              <input type="text" class="input-sm sp-tag-input" value="${(sp.tag || '').replace(/"/g, '&quot;')}" placeholder="🌿 Equilibrio Metabólico" />
+            </div>
+            <div>
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Título de la Especialidad *</label>
+              <input type="text" class="input-sm sp-title-input" value="${(sp.title || '').replace(/"/g, '&quot;')}" placeholder="Ej. Síndrome de Ovario Poliquístico (SOP)" />
+            </div>
+            <div>
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Texto de Precio</label>
+              <input type="text" class="input-sm sp-price-input" value="${(sp.priceText || '').replace(/"/g, '&quot;')}" placeholder="Desde $650 MXN" />
+            </div>
+            <div>
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Preselecciona</label>
+              <select class="input-sm sp-type-select">
+                <option value="primera" ${sp.type !== 'seguimiento' ? 'selected' : ''}>1ª Consulta</option>
+                <option value="seguimiento" ${sp.type === 'seguimiento' ? 'selected' : ''}>Seguimiento</option>
+              </select>
+            </div>
+            <div style="padding-top:1.1rem;">
+              <button type="button" class="btn-mini danger sp-del-btn" title="Eliminar especialidad">✕ Eliminar</button>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Descripción clínica para las pacientes</label>
+            <input type="text" class="input-sm sp-desc-input" value="${(sp.desc || '').replace(/"/g, '&quot;')}" placeholder="Explica brevemente qué incluye o qué síntomas atiende esta especialidad..." />
+          </div>
+        </div>
+      `).join('');
+
+      listEl.querySelectorAll('.spec-editor-item').forEach(item => {
+        const idx = parseInt(item.dataset.idx, 10);
+        item.querySelector('.sp-del-btn').addEventListener('click', () => {
+          syncSpecialtiesFromDOM();
+          draftSpecialties.splice(idx, 1);
+          renderSpecialtiesEditor();
+        });
+      });
+    }
+
+    function syncSpecialtiesFromDOM() {
+      const items = document.querySelectorAll('#specialties-editor-list .spec-editor-item');
+      items.forEach((item, idx) => {
+        const sp = draftSpecialties[idx];
+        if (!sp) return;
+        sp.tag = item.querySelector('.sp-tag-input').value.trim() || '🌿 Especialidad';
+        sp.title = item.querySelector('.sp-title-input').value.trim() || `Especialidad ${idx + 1}`;
+        sp.priceText = item.querySelector('.sp-price-input').value.trim() || 'Desde $650 MXN';
+        sp.type = item.querySelector('.sp-type-select').value;
+        sp.desc = item.querySelector('.sp-desc-input').value.trim();
+      });
+    }
+
+    document.getElementById('btn-add-specialty').addEventListener('click', () => {
+      syncSpecialtiesFromDOM();
+      draftSpecialties.push({
+        id: VDT.newId('sp'),
+        tag: '🌿 Nueva Especialidad',
+        title: 'Nueva Área de Atención Hormonal',
+        desc: 'Describe aquí los beneficios y síntomas que atiendes en esta especialidad.',
+        priceText: 'Desde $650 MXN',
+        type: 'primera'
+      });
+      renderSpecialtiesEditor();
+    });
+
+    document.getElementById('btn-clear-specialties').addEventListener('click', () => {
+      draftSpecialties = [];
+      VDT.write(VDT.KEYS.specialties, draftSpecialties);
+      renderSpecialtiesEditor();
+      const fb = document.getElementById('spec-save-feedback');
+      fb.textContent = '⚠️ Lista vaciada y guardada: la sección de Especialidades ahora está OCULTA en la página pública.';
+      fb.style.color = '#8C5820';
+    });
+
+    document.getElementById('btn-reset-specialties').addEventListener('click', () => {
+      draftSpecialties = VDT.defaultSpecialties();
+      VDT.write(VDT.KEYS.specialties, draftSpecialties);
+      renderSpecialtiesEditor();
+      const fb = document.getElementById('spec-save-feedback');
+      fb.textContent = '✓ Se restauraron las 4 especialidades base y la sección ya es visible.';
+      fb.style.color = '#253B2E';
+    });
+
+    document.getElementById('btn-save-specialties').addEventListener('click', () => {
+      syncSpecialtiesFromDOM();
+      VDT.write(VDT.KEYS.specialties, draftSpecialties);
+      renderSpecialtiesEditor();
+      const fb = document.getElementById('spec-save-feedback');
+      fb.textContent = draftSpecialties.length > 0
+        ? `✓ ¡Guardado! Las ${draftSpecialties.length} especialidades ya se muestran en la página web.`
+        : '⚠️ Guardado sin especialidades: la sección se ha ocultado de la página web.';
+      fb.style.color = '#253B2E';
     });
 
     function refreshAll() {
@@ -1515,6 +1680,7 @@
       renderClientsMetrics();
       renderQuestionnaireStats();
       renderQuestionnaireEditor();
+      renderSpecialtiesEditor();
     }
 
     /* ----------------------------------------------------------------------

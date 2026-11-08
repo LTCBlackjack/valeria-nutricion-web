@@ -80,3 +80,17 @@ CREATE TABLE IF NOT EXISTS `analitica_eventos` (
   INDEX `idx_seccion` (`seccion`),
   INDEX `idx_tipo` (`tipo_evento`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Especialidades en Salud Hormonal administrables por la nutrióloga (si está vacía, la sección se oculta en la web)
+CREATE TABLE IF NOT EXISTS `especialidades` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `etiqueta` VARCHAR(80) NOT NULL DEFAULT '🌿 Especialidad',
+  `titulo` VARCHAR(160) NOT NULL,
+  `descripcion` TEXT NOT NULL,
+  `precio_texto` VARCHAR(60) NOT NULL DEFAULT 'Desde $650 MXN',
+  `tipo_preseleccion` ENUM('primera', 'seguimiento') NOT NULL DEFAULT 'primera',
+  `orden` INT UNSIGNED NOT NULL DEFAULT 1,
+  `activa` TINYINT(1) NOT NULL DEFAULT 1,
+  `actualizado_en` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

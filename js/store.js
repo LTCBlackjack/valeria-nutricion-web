@@ -15,7 +15,54 @@ const VDT = {
     analytics: 'vdt_analytics_v1',
     session: 'vdt_patient_session',
     adminAuth: 'vdt_admin_auth_v1',
-    adminCreds: 'vdt_admin_creds_v1'
+    adminCreds: 'vdt_admin_creds_v1',
+    specialties: 'vdt_specialties_v1'
+  },
+
+  defaultSpecialties() {
+    return [
+      {
+        id: 'sp1',
+        tag: '🌿 Equilibrio Metabólico',
+        title: 'Síndrome de Ovario Poliquístico (SOP)',
+        desc: 'Estrategia nutricional para mejorar la sensibilidad a la insulina, reducir inflamación crónica, acné hormonal y regular la ovulación.',
+        priceText: 'Desde $650 MXN',
+        type: 'primera'
+      },
+      {
+        id: 'sp2',
+        tag: '✨ Vitalidad y Tiroides',
+        title: 'Salud Tiroidea y Energía',
+        desc: 'Abordaje nutricional con micronutrientes clave para hipotiroidismo, tiroiditis de Hashimoto, fatiga persistente y control de peso saludable.',
+        priceText: 'Desde $650 MXN',
+        type: 'primera'
+      },
+      {
+        id: 'sp3',
+        tag: '🌸 Salud Cíclica',
+        title: 'Ciclo Menstrual, Endometriosis y Fertilidad',
+        desc: 'Alimentación antiinflamatoria sincronizada con las fases de tu ciclo para disminuir cólicos, síndrome premenstrual y preparar la fertilidad.',
+        priceText: 'Desde $650 MXN',
+        type: 'primera'
+      },
+      {
+        id: 'sp4',
+        tag: '🔄 Seguimiento',
+        title: 'Consulta Subsecuente de Control',
+        desc: 'Evaluación de avances, ajuste de plan de alimentación, revisión de síntomas hormonales y actualización de objetivos (60 min).',
+        priceText: 'Desde $400 MXN',
+        type: 'seguimiento'
+      }
+    ];
+  },
+
+  getSpecialties() {
+    let s = this.read(this.KEYS.specialties, null);
+    if (s === null) {
+      s = this.defaultSpecialties();
+      this.write(this.KEYS.specialties, s);
+    }
+    return s;
   },
 
   defaultAdminCreds() {

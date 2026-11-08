@@ -582,7 +582,7 @@
       <ul class="nav-links">
         <li><a href="#inicio">Inicio</a></li>
         <li><a href="#sobre-mi">Sobre Mí</a></li>
-        <li><a href="#especialidades">Especialidades</a></li>
+        <li id="nav-item-especialidades"><a href="#especialidades">Especialidades</a></li>
         <li><a href="#tarifas">Tarifas</a></li>
         <li><a href="#testimonios">Testimonios</a></li>
         <li><a href="#faq">Dudas</a></li>
@@ -617,7 +617,7 @@
           <a href="#reservar" class="btn-primary">
             📅 Agendar y Reservar mi Horario →
           </a>
-          <a href="#especialidades" class="btn-outline">
+          <a href="#especialidades" id="hero-btn-especialidades" class="btn-outline">
             Ver Especialidades
           </a>
         </div>
@@ -775,71 +775,7 @@
       </p>
     </div>
 
-    <div class="spec-grid">
-      <div class="spec-card tilt-card reveal-up">
-        <div>
-          <span class="pill-tag" style="margin-bottom: 0.8rem;">🌿 Equilibrio Metabólico</span>
-          <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">Síndrome de Ovario Poliquístico (SOP)</h3>
-          <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
-            Estrategia nutricional para mejorar la sensibilidad a la insulina, reducir inflamación crónica, acné hormonal y regular la ovulación.
-          </p>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">Desde $650 MXN</span>
-          <button onclick="selectServiceAndScroll('SOP y Resistencia a la Insulina')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
-            Elegir y Agendar →
-          </button>
-        </div>
-      </div>
-
-      <div class="spec-card tilt-card reveal-up delay-1">
-        <div>
-          <span class="pill-tag" style="margin-bottom: 0.8rem;">✨ Vitalidad y Tiroides</span>
-          <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">Salud Tiroidea y Energía</h3>
-          <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
-            Abordaje nutricional con micronutrientes clave para hipotiroidismo, tiroiditis de Hashimoto, fatiga persistente y control de peso saludable.
-          </p>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">Desde $650 MXN</span>
-          <button onclick="selectServiceAndScroll('Salud Tiroidea y Energía')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
-            Elegir y Agendar →
-          </button>
-        </div>
-      </div>
-
-      <div class="spec-card tilt-card reveal-up delay-2">
-        <div>
-          <span class="pill-tag" style="margin-bottom: 0.8rem;">🌸 Salud Cíclica</span>
-          <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">Ciclo Menstrual, Endometriosis y Fertilidad</h3>
-          <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
-            Alimentación antiinflamatoria sincronizada con las fases de tu ciclo para disminuir cólicos, síndrome premenstrual y preparar la fertilidad.
-          </p>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">Desde $650 MXN</span>
-          <button onclick="selectServiceAndScroll('Ciclo Menstrual y Fertilidad')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
-            Elegir y Agendar →
-          </button>
-        </div>
-      </div>
-
-      <div class="spec-card tilt-card reveal-up delay-3">
-        <div>
-          <span class="pill-tag" style="margin-bottom: 0.8rem;">🔄 Seguimiento</span>
-          <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">Consulta Subsecuente de Control</h3>
-          <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
-            Evaluación de avances, ajuste de plan de alimentación, revisión de síntomas hormonales y actualización de objetivos (45 min).
-          </p>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">Desde $400 MXN</span>
-          <button onclick="selectServiceAndScroll('Seguimiento de Plan', 'seguimiento')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
-            Elegir y Agendar →
-          </button>
-        </div>
-      </div>
-    </div>
+    <div class="spec-grid" id="specialties-grid"></div>
   </section>
 
   <!-- ================= 3.5 TARIFAS OFICIALES ================= -->
