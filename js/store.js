@@ -13,7 +13,26 @@ const VDT = {
     questionnaire: 'vdt_questionnaire_v1',
     responses: 'vdt_responses_v1',
     analytics: 'vdt_analytics_v1',
-    session: 'vdt_patient_session'
+    session: 'vdt_patient_session',
+    adminAuth: 'vdt_admin_auth_v1',
+    adminCreds: 'vdt_admin_creds_v1'
+  },
+
+  defaultAdminCreds() {
+    return {
+      email: 'valeria.delatorre.nutricion@gmail.com',
+      pass: 'Valeria2026!',
+      name: 'Lic. Valeria de la Torre'
+    };
+  },
+
+  getAdminCreds() {
+    let c = this.read(this.KEYS.adminCreds, null);
+    if (!c) {
+      c = this.defaultAdminCreds();
+      this.write(this.KEYS.adminCreds, c);
+    }
+    return c;
   },
 
   // Horario de atención: 13:00 a 21:00 hrs, sesiones de 1 hora (última inicia 20:00)

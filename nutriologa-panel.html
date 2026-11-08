@@ -454,9 +454,109 @@
       border-color: rgba(180, 75, 55, 0.35);
       background: #FDF2EE;
     }
+
+    /* Admin Login Screen */
+    .admin-login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: radial-gradient(circle at top right, #3D5540 0%, #253B2E 58%, #18271E 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .admin-login-screen.hidden {
+      display: none;
+    }
+    .admin-login-card {
+      background: #FEFAFA;
+      color: var(--color-forest);
+      border: 2px solid var(--color-gold);
+      border-radius: 24px;
+      max-width: 460px;
+      width: 100%;
+      padding: 2.2rem 2rem;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
+    }
+    .login-field {
+      margin-bottom: 1rem;
+    }
+    .login-field label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-pine);
+      margin-bottom: 0.35rem;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ================= PANTALLA DE INICIO DE SESIÓN (EXCLUSIVO NUTRIÓLOGA) ================= -->
+  <div class="admin-login-screen" id="admin-login-screen">
+    <div class="admin-login-card anim-up">
+      <div style="text-align:center; margin-bottom:1.4rem;">
+        <img src="assets/logo/isotipo-loto.svg" alt="Lic. Valeria de la Torre" style="width:62px; height:62px; margin-bottom:0.5rem;" />
+        <div>
+          <span class="badge" style="margin-bottom:0.35rem;">🔒 Acceso Exclusivo · Nutrióloga</span>
+        </div>
+        <h1 style="font-family:var(--font-heading); font-size:1.75rem; margin:0.2rem 0; color:var(--color-forest);">
+          Iniciar Sesión en el Panel
+        </h1>
+        <p style="font-size:0.82rem; color:var(--color-sage-dark); margin:0;">
+          Ingresa tus credenciales para gestionar la agenda (13:00–21:00), métricas por cliente, cuestionario y mapa de calor.
+        </p>
+      </div>
+
+      <form id="admin-login-form">
+        <div class="login-field">
+          <label for="admin-login-email">Correo de la Nutrióloga</label>
+          <input type="email" id="admin-login-email" class="input-sm" required placeholder="valeria.delatorre.nutricion@gmail.com" />
+        </div>
+        <div class="login-field">
+          <label for="admin-login-pass">Contraseña de Acceso</label>
+          <div style="position:relative;">
+            <input type="password" id="admin-login-pass" class="input-sm" required placeholder="••••••••••••" style="padding-right:4.5rem;" />
+            <button type="button" id="toggle-pass-btn" class="btn-mini" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); padding:0.25rem 0.55rem; font-size:0.7rem;">
+              Mostrar
+            </button>
+          </div>
+        </div>
+
+        <div id="admin-login-error" style="display:none; background:#FDF2EE; color:#8C3B2B; border:1px solid #D99B82; border-radius:10px; padding:0.6rem 0.8rem; font-size:0.79rem; font-weight:600; margin-bottom:0.9rem;">
+          Correo o contraseña incorrectos. Verifica tus datos.
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.78rem; font-size:0.9rem;">
+          Entrar al Panel Clínico →
+        </button>
+      </form>
+
+      <div style="margin-top:1.15rem; padding-top:1rem; border-top:1px dashed rgba(167,114,55,0.35); background:#FAF6F0; padding:0.85rem; border-radius:12px; font-size:0.77rem;">
+        <div style="font-weight:700; color:var(--color-bronze); margin-bottom:0.25rem;">
+          💡 Acceso rápido para tu demostración con la nutrióloga:
+        </div>
+        <div style="color:var(--color-pine); margin-bottom:0.5rem;">
+          Correo: <code id="demo-cred-email">valeria.delatorre.nutricion@gmail.com</code><br>
+          Contraseña: <code id="demo-cred-pass">Valeria2026!</code>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" id="btn-autofill-admin" class="btn-mini" style="width:100%;">
+            ⚡ Autocompletar y Entrar (Demo)
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:1rem;">
+        <a href="index.html" style="font-size:0.78rem; color:var(--color-sage-dark); text-decoration:none; font-weight:600;">
+          ← Volver a la Página Principal
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= HEADER DEL PANEL DE LA NUTRIÓLOGA ================= -->
   <header class="admin-header">
@@ -483,6 +583,9 @@
         <a href="index.html" class="btn btn-gold" style="padding:0.55rem 1.1rem; font-size:0.8rem;">
           ← Ver Sitio Público
         </a>
+        <button type="button" id="btn-admin-logout" class="btn btn-outline" style="background:rgba(140,59,43,0.28); color:#FEFAFA; border-color:rgba(235,190,124,0.45); padding:0.55rem 0.95rem; font-size:0.78rem; cursor:pointer;">
+          🔒 Cerrar Sesión
+        </button>
       </div>
     </div>
   </header>
@@ -1006,8 +1109,8 @@
                   <div style="font-size:0.68rem; color:var(--color-pine);">MXN Pagado</div>
                 </div>
                 <div>
-                  <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Energía Inicial</div>
-                  <div style="font-weight:700; font-size:1.05rem;">${energyScore}</div>
+                  <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Modalidad</div>
+                  <div style="font-weight:700; font-size:0.95rem;">${c.presencialCount > c.virtualCount ? '🏥 Presencial' : '💻 Virtual'}</div>
                   <div style="font-size:0.68rem; color:var(--color-pine);">${c.virtualCount} Virt · ${c.presencialCount} Pres</div>
                 </div>
               </div>
@@ -1414,6 +1517,63 @@
       renderQuestionnaireEditor();
     }
 
+    /* ----------------------------------------------------------------------
+       Autenticación de la Nutrióloga (Login & Cerrar Sesión)
+       ---------------------------------------------------------------------- */
+    const loginScreen = document.getElementById('admin-login-screen');
+    const loginForm   = document.getElementById('admin-login-form');
+    const emailInput  = document.getElementById('admin-login-email');
+    const passInput   = document.getElementById('admin-login-pass');
+    const errorBox    = document.getElementById('admin-login-error');
+
+    function checkAdminSession() {
+      const creds = VDT.getAdminCreds();
+      document.getElementById('demo-cred-email').textContent = creds.email;
+      document.getElementById('demo-cred-pass').textContent = creds.pass;
+
+      const session = VDT.read(VDT.KEYS.adminAuth, null);
+      if (session && session.loggedIn) {
+        loginScreen.classList.add('hidden');
+      } else {
+        loginScreen.classList.remove('hidden');
+      }
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const creds = VDT.getAdminCreds();
+      const enteredEmail = emailInput.value.trim().toLowerCase();
+      const enteredPass  = passInput.value;
+
+      if (enteredEmail === creds.email.toLowerCase() && enteredPass === creds.pass) {
+        errorBox.style.display = 'none';
+        VDT.write(VDT.KEYS.adminAuth, { loggedIn: true, email: creds.email, loggedAt: new Date().toISOString() });
+        checkAdminSession();
+      } else {
+        errorBox.style.display = 'block';
+      }
+    });
+
+    document.getElementById('btn-autofill-admin').addEventListener('click', () => {
+      const creds = VDT.getAdminCreds();
+      emailInput.value = creds.email;
+      passInput.value  = creds.pass;
+      loginForm.requestSubmit();
+    });
+
+    document.getElementById('toggle-pass-btn').addEventListener('click', (e) => {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      e.currentTarget.textContent = isPass ? 'Ocultar' : 'Mostrar';
+    });
+
+    document.getElementById('btn-admin-logout').addEventListener('click', () => {
+      localStorage.removeItem(VDT.KEYS.adminAuth);
+      passInput.value = '';
+      checkAdminSession();
+    });
+
+    checkAdminSession();
     refreshAll();
   </script>
 </body>
