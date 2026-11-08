@@ -51,6 +51,22 @@ function initApp() {
   initScrollReveal();
   init3DTiltCards();
   initGoldDustCanvas();
+  checkMercadoPagoReturnUrl();
+}
+
+function checkMercadoPagoReturnUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const pagoStatus = params.get('pago');
+  const folioParam = params.get('folio');
+  if (pagoStatus === 'aprobado') {
+    if (folioParam) bookingState.folio = folioParam;
+    document.getElementById('conf-folio').textContent = bookingState.folio;
+    document.getElementById('booking-main-view').style.display = 'none';
+    document.getElementById('step-3-panel').style.display = 'block';
+    setActivePill(3);
+    document.getElementById('reservar').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(launchGoldenCelebration, 350);
+  }
 }
 
 /* --------------------------------------------------------------------------
