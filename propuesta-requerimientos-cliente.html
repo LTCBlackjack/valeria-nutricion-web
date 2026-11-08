@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propuesta y Documento de Requerimientos Web | LeonardLance &amp; Lic. Valeria de la Torre</title>
+  <link rel="stylesheet" href="css/theme.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #FAF6F0;
+      color: var(--color-forest);
+      padding: 2rem 1rem 4rem;
+    }
+    .doc-sheet {
+      max-width: 920px;
+      margin: 0 auto;
+      background: #FEFAFA;
+      border: 1px solid rgba(167, 114, 55, 0.28);
+      border-radius: 20px;
+      padding: 3rem 3.2rem;
+      box-shadow: 0 15px 40px -10px rgba(37, 59, 46, 0.1);
+    }
+    @media (max-width: 680px) {
+      .doc-sheet { padding: 2rem 1.5rem; }
+    }
+    .top-bar-actions {
+      max-width: 920px;
+      margin: 0 auto 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #253B2E;
+      color: #FEFAFA;
+      padding: 0.85rem 1.4rem;
+      border-radius: 12px;
+    }
+    .dual-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      border-bottom: 2px solid rgba(167, 114, 55, 0.25);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.8rem;
+      align-items: center;
+    }
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #FAF6F0;
+      padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      border: 1px solid rgba(167, 114, 55, 0.2);
+    }
+    .section-num {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      background: rgba(239, 219, 198, 0.65);
+      padding: 0.22rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.4rem;
+    }
+    h2 {
+      font-size: 1.65rem;
+      margin: 0 0 0.7rem 0;
+      color: var(--color-forest);
+    }
+    .req-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0 2rem;
+    }
+    @media (max-width: 680px) {
+      .req-grid, .dual-header { grid-template-columns: 1fr; }
+    }
+    .req-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(167, 114, 55, 0.22);
+      border-left: 4px solid var(--color-pine);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+    }
+    .req-card.highlight {
+      border-left-color: var(--color-gold);
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
+    }
+    .req-card h3 {
+      font-size: 1.2rem;
+      margin: 0 0 0.35rem 0;
+      color: var(--color-forest);
+    }
+    .req-card p {
+      font-size: 0.84rem;
+      color: #4A5A4E;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .table-reqs {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.8rem 0 2rem;
+      font-size: 0.85rem;
+    }
+    .table-reqs th {
+      background: var(--color-forest);
+      color: #FEFAFA;
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+      font-weight: 500;
+    }
+    .table-reqs td {
+      padding: 0.8rem 0.9rem;
+      border-bottom: 1px solid rgba(167, 114, 55, 0.18);
+      color: var(--color-forest);
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .status-done { background: #E3EFE6; color: #253B2E; }
+    .status-next { background: #F5E8D5; color: #8F622B; }
+    .logos-showcase {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0 2.2rem;
+    }
+    .logo-card {
+      border: 1px solid rgba(167, 114, 55, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      text-align: center;
+      background: #FAF6F0;
+    }
+    .logo-card-img {
+      height: 175px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .logo-card-img img {
+      max-height: 145px;
+      max-width: 100%;
+      object-fit: contain;
+    }
+    .logo-card-cap {
+      padding: 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-top: 1px solid rgba(167, 114, 55, 0.18);
+    }
+    .signature-grid {
+      margin-top: 2.5rem;
+      padding-top: 1.8rem;
+      border-top: 1px dashed rgba(167, 114, 55, 0.45);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #FFFFFF; padding: 0; }
+      .top-bar-actions { display: none !important; }
+      .doc-sheet { box-shadow: none; border: none; padding: 1rem; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar-actions">
+    <div style="font-size: 0.85rem;">
+      📄 <strong>Propuesta Oficial:</strong> LeonardLance &amp; Lic. Valeria de la Torre (Plazo: 2 Meses)
+    </div>
+    <button onclick="window.print()" class="btn-gold" style="padding: 0.55rem 1.2rem; font-size: 0.78rem;">
+      Guardar / Imprimir como PDF
+    </button>
+  </div>
+
+  <div class="doc-sheet">
+    <!-- Encabezado Dual: LeonardLance & Lic. Valeria de la Torre -->
+    <div class="dual-header">
+      <div class="brand-box">
+        <img src="assets/logo/png/leonard-logo-transparente.png" alt="Logo LeonardLance" style="height: 64px; width: auto;" />
+        <div>
+          <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase;">Desarrollador del Proyecto</div>
+          <div style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 700; color: var(--color-forest);">LeonardLance</div>
+          <div style="font-size: 0.76rem; color: var(--color-sage-dark);">Desarrollo Web &amp; Automatización</div>
+        </div>
+      </div>
+
+      <div class="brand-box">
+        <img src="assets/logo/png/isotipo-loto-transparente.png" alt="Logo Valeria de la Torre" style="height: 64px; width: auto;" />
+        <div>
+          <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase;">Proyecto Desarrollado Para</div>
+          <div style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 700; color: var(--color-forest);">Lic. Valeria de la Torre</div>
+          <div style="font-size: 0.76rem; color: var(--color-sage-dark);">Nutrición Hormonal Femenina</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Título Principal -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <span class="section-num">Documento de Alcance, Cronograma (2 Meses) y Estado de Requerimientos</span>
+      <h1 style="font-size: 2.2rem; margin: 0.2rem 0;" class="text-gold-gradient">Sitio Web y Sistema de Reservas con Pago</h1>
+      <p style="font-size: 0.85rem; color: var(--color-sage-dark); margin: 0.2rem 0 0;">
+        Inicio del proyecto: <strong>A partir de este lunes</strong> · Duración estimada: <strong>2 meses (8 semanas)</strong>
+      </p>
+    </div>
+
+    <!-- 1. Objetivo -->
+    <section style="margin-bottom: 1.8rem;">
+      <span class="section-num">01 · Objetivo General</span>
+      <h2>Propósito del Sistema</h2>
+      <p style="font-size: 0.9rem; color: #3D4D42; margin: 0;">
+        Desarrollar una plataforma web profesional para la <strong>Lic. Valeria de la Torre</strong> que permita a sus pacientes agendar su consulta en línea con mayor administración y orden: <strong>únicamente cuando el usuario realice el pago de su reserva, el sistema agendará la cita en el calendario y enviará la confirmación por correo electrónico tanto al cliente como a la nutrióloga</strong>.
+      </p>
+    </section>
+
+    <!-- 2. Requerimientos -->
+    <section>
+      <span class="section-num">02 · Requerimientos Solicitados</span>
+      <h2>Funcionalidades Incluidas</h2>
+      <div class="req-grid">
+        <div class="req-card">
+          <h3>1. Agenda de Horarios Disponibles</h3>
+          <p>Visualización en tiempo real de días y horas libres en la página web para que el paciente elija su horario sin traslapes.</p>
+        </div>
+        <div class="req-card highlight">
+          <h3>2. Condición Obligatoria de Pago</h3>
+          <p><strong>Regla clave:</strong> Si el usuario no paga la reserva en línea, el horario no se bloquea y permanece disponible.</p>
+        </div>
+        <div class="req-card highlight">
+          <h3>3. Registro en Calendario</h3>
+          <p>En cuanto el pago es válido, la reserva se agrega automáticamente al <strong>Calendario de la nutrióloga</strong> y del cliente.</p>
+        </div>
+        <div class="req-card">
+          <h3>4. Correo al Cliente y a la Nutrióloga</h3>
+          <p>Envío automático de correo de confirmación + recibo de pago tanto al <strong>paciente</strong> como a la <strong>Lic. Valeria</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Cronograma de 2 Meses -->
+    <section>
+      <span class="section-num">03 · Cronograma de Trabajo (2 Meses / 8 Semanas)</span>
+      <h2>Etapas de Desarrollo y Estado de Avance</h2>
+      <table class="table-reqs">
+        <thead>
+          <tr>
+            <th>Periodo</th>
+            <th>Fase del Proyecto</th>
+            <th>Entregables Incluidos</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Semanas 1 y 2</strong><br><small>(Mes 1)</small></td>
+            <td><strong>Fase 1: Identidad Digital y Diseño Base</strong></td>
+            <td>Vectorización de las 3 versiones del logotipo (<code>.SVG</code> y <code>.PNG</code>), extracción de paleta de colores oficial y guía de estilos web.</td>
+            <td><span class="status-pill status-done">✓ Completado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Semanas 3 y 4</strong><br><small>(Mes 1)</small></td>
+            <td><strong>Fase 2: Desarrollo de Página Web</strong></td>
+            <td>Programación de la página web completa (Inicio, Sobre la Lic. Valeria, Especialidades en Nutrición Hormonal, Beneficios y Contacto).</td>
+            <td><span class="status-pill status-next">En Proceso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Semanas 5 y 6</strong><br><small>(Mes 2)</small></td>
+            <td><strong>Fase 3: Motor de Reservas y Pago</strong></td>
+            <td>Integración de calendario interactivo conectado a pasarela de cobro con tarjeta (condición de pago previo para confirmar cita).</td>
+            <td><span class="status-pill status-next">Programado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Semanas 7 y 8</strong><br><small>(Mes 2)</small></td>
+            <td><strong>Fase 4: Calendario, Correos y Lanzamiento</strong></td>
+            <td>Sincronización con Google Calendar, correos automáticos para cliente y nutrióloga, pruebas de cobro real y publicación oficial.</td>
+            <td><span class="status-pill status-next">Programado</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. Evidencia Visual de Avance (Los 3 Logos abajo de todo) -->
+    <section>
+      <span class="section-num">04 · Evidencia de Avance (Fase 1 Completada)</span>
+      <h2>Logotipos Oficiales Digitalizados para la Web</h2>
+      <div class="logos-showcase">
+        <div class="logo-card">
+          <div class="logo-card-img" style="background: #FEFAFA;">
+            <img src="assets/logo/png/logo-completo-loto-fondo-marfil.png" alt="Logo Completo" />
+          </div>
+          <div class="logo-card-cap">1. Versión Principal Completa<br><span style="font-weight:400; color:var(--color-sage-dark);">Portada Principal (Hero)</span></div>
+        </div>
+
+        <div class="logo-card">
+          <div class="logo-card-img" style="background: #FAF6F0;">
+            <img src="assets/logo/png/isotipo-loto-transparente.png" alt="Isotipo Loto" />
+          </div>
+          <div class="logo-card-cap">2. Isotipo con Flor de Loto<br><span style="font-weight:400; color:var(--color-sage-dark);">Barra de Navegación</span></div>
+        </div>
+
+        <div class="logo-card">
+          <div class="logo-card-img" style="background: #253B2E;">
+            <img src="assets/logo/png/isotipo-simbolo-dorado-fondo-verde.png" alt="Símbolo Dorado" />
+          </div>
+          <div class="logo-card-cap">3. Símbolo Dorado sobre Verde<br><span style="font-weight:400; color:var(--color-sage-dark);">Pie de Página y Favicon</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Vistas del Sistema (Prototipo de Pantallas) -->
+    <section>
+      <span class="section-num">05 · Vistas del Sistema (Prototipo Visual de Pantallas)</span>
+      <h2>¿Cómo se verá y funcionará la Plataforma Paso a Paso?</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1rem 0 2.2rem;">
+        <div class="logo-card">
+          <img src="assets/vistas/vista-1-inicio.png" alt="Vista 1 Inicio" style="width: 100%; display: block;" />
+          <div class="logo-card-cap">Vista 1: Página Principal (Landing Page)<br><span style="font-weight:400; color:var(--color-sage-dark);">Presentación, especialidades y botón de cita</span></div>
+        </div>
+        <div class="logo-card">
+          <img src="assets/vistas/vista-2-calendario.png" alt="Vista 2 Calendario" style="width: 100%; display: block;" />
+          <div class="logo-card-cap">Vista 2: Selección de Fecha y Horario<br><span style="font-weight:400; color:var(--color-sage-dark);">Calendario interactivo con horarios libres</span></div>
+        </div>
+        <div class="logo-card">
+          <img src="assets/vistas/vista-3-pago.png" alt="Vista 3 Pago" style="width: 100%; display: block;" />
+          <div class="logo-card-cap">Vista 3: Pasarela de Pago Obligatorio<br><span style="font-weight:400; color:var(--color-sage-dark);">Sin pago no se bloquea la hora en agenda</span></div>
+        </div>
+        <div class="logo-card">
+          <img src="assets/vistas/vista-4-confirmacion-correo.png" alt="Vista 4 Confirmación" style="width: 100%; display: block;" />
+          <div class="logo-card-cap">Vista 4: Confirmación en Calendario y Correos<br><span style="font-weight:400; color:var(--color-sage-dark);">Agendado en Google Calendar + Email a ambos</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Tecnologías Propuestas y Cláusula de Flexibilidad -->
+    <section>
+      <span class="section-num">06 · Tecnologías y Herramientas Propuestas (Arquitectura Flexible)</span>
+      <h2>Stack Tecnológico Recomendado</h2>
+      <table class="table-reqs">
+        <thead>
+          <tr>
+            <th>Módulo del Sistema</th>
+            <th>Tecnologías / Herramientas Convenientes</th>
+            <th>Beneficio para el Proyecto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Diseño e Interfaz Web (Frontend)</strong></td>
+            <td>HTML5, CSS3 Moderno (Variables CSS / Tailwind) y JavaScript / React (Next.js)</td>
+            <td>Carga ultrarrápida en celulares, diseño elegante y posicionamiento en buscadores (SEO).</td>
+          </tr>
+          <tr>
+            <td><strong>2. Pasarela de Pagos en Línea</strong></td>
+            <td>Stripe Checkout y/o Mercado Pago</td>
+            <td>Cobro seguro con tarjetas de crédito y débito; valida el pago antes de confirmar la cita.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Agenda y Calendario</strong></td>
+            <td>Google Calendar API / Motor de Reservas (Cal.com / Node.js)</td>
+            <td>Sincronización automática de horarios libres y bloqueo inmediato en el calendario al pagar.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Correos Automáticos y Base de Datos</strong></td>
+            <td>Resend / Brevo / Nodemailer (SMTP) + Supabase / Firebase</td>
+            <td>Envío instantáneo de confirmaciones y recibos por correo al cliente y a la nutrióloga.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Alojamiento Web (Hosting y SSL)</strong></td>
+            <td>Vercel / Netlify / Hostinger Cloud con Certificado SSL (HTTPS)</td>
+            <td>Alta disponibilidad 24/7 y conexión cifrada segura para proteger los datos de los pacientes.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="background: #FAF6F0; border-left: 4px solid var(--color-gold); padding: 0.9rem 1.2rem; border-radius: 10px; font-size: 0.84rem; margin-bottom: 2rem;">
+        <strong style="color: var(--color-gold);">Nota de Flexibilidad Tecnológica:</strong> Las tecnologías, librerías, pasarelas de pago y servicios mencionados en esta propuesta representan la arquitectura recomendada inicial; sin embargo, <strong>podrán adaptarse, actualizarse o cambiarse a lo largo del desarrollo del proyecto</strong> según la conveniencia técnica, facilidad de administración para la nutrióloga o mejoras de rendimiento, manteniendo siempre el cumplimiento íntegro de todos los requerimientos funcionales acordados.
+      </div>
+    </section>
+
+    <!-- Firmas Duales -->
+    <div class="signature-grid">
+      <div>
+        <img src="assets/logo/png/leonard-logo-transparente.png" alt="LeonardLance" style="height: 48px; margin-bottom: 0.4rem;" />
+        <div style="border-top: 1.5px solid var(--color-gold); width: 75%; margin: 0.3rem auto 0.4rem;"></div>
+        <div style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700;">LeonardLance</div>
+        <div style="font-size: 0.78rem; color: var(--color-sage-dark);">Desarrollador Web y Responsable del Proyecto</div>
+      </div>
+
+      <div>
+        <img src="assets/logo/png/isotipo-loto-transparente.png" alt="Valeria de la Torre" style="height: 48px; margin-bottom: 0.4rem;" />
+        <div style="border-top: 1.5px solid var(--color-gold); width: 75%; margin: 0.3rem auto 0.4rem;"></div>
+        <div style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700;">Lic. Valeria de la Torre</div>
+        <div style="font-size: 0.78rem; color: var(--color-sage-dark);">Conformidad del Cliente · Nutrición Hormonal Femenina</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

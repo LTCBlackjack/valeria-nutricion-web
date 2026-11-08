@@ -1,0 +1,15 @@
+# Archivos de configuración con credenciales privadas (NUNCA subir a GitHub)
+.env
+backend/.env
+api/config.local.php
+*.json.key
+google-service-account.json
+
+# Archivos temporales de Office / Windows / macOS
+~$*.docx
+Thumbs.db
+.DS_Store
+
+# Dependencias locales
+node_modules/
+vendor/

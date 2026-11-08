@@ -1,0 +1,174 @@
+/* ==========================================================================
+   SISTEMA DE DISEÑO & VARIABLES CSS - VALERIA DE LA TORRE
+   Lic. en Nutrición Aplicada | Nutrición Hormonal Femenina
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap');
+
+:root {
+  /* ---------------- 1. PALETA DE COLORES OFICIAL ---------------- */
+  /* Verdes Botánicos */
+  --color-forest: #253B2E;        /* Verde Bosque Profundo - Textos principales y fondos oscuros */
+  --color-pine: #3D5540;          /* Verde Pino / Eucalipto - Botones primarios (CTA) y acentos */
+  --color-sage-dark: #7C8776;     /* Verde Salvia Oscuro - Subtítulos y textos secundarios */
+  --color-sage: #83917B;          /* Verde Salvia Medio - Bordes suaves, iconos y etiquetas */
+  --color-sage-light: #A6B49B;    /* Verde Salvia Claro - Fondos de badges y detalles sutiles */
+
+  /* Dorados & Bronce */
+  --color-gold-dark: #8F622B;     /* Bronce Profundo */
+  --color-gold: #A77237;          /* Dorado Antiguo / Bronce - Color primario de marca */
+  --color-champagne: #DEB074;     /* Dorado Champán - Iluminaciones y bordes destacados */
+  --color-champagne-light: #EBBE7C;/* Luz Dorada */
+
+  /* Fondos Cálidos & Neutros */
+  --color-ivory: #FEFAFA;         /* Blanco Marfil Cálido - Fondo general de la web */
+  --color-cream: #FAF6F0;         /* Crema Suave - Fondo de tarjetas y secciones */
+  --color-sand: #EFDBC6;          /* Crema Arena / Nude - Secciones alternas y resaltados */
+  --color-white: #FFFFFF;         /* Blanco puro para tarjetas elevadas */
+
+  /* Estados Semánticos (Formularios y Pagos) */
+  --color-success: #2E6F40;       /* Pago / Reserva confirmada */
+  --color-warning: #C88A32;       /* Horario pendiente */
+  --color-error: #A93B3B;         /* Error en formulario */
+
+  /* ---------------- 2. GRADIENTES DE MARCA ---------------- */
+  --gradient-gold: linear-gradient(135deg, #9A6B32 0%, #C99E5A 28%, #F2D29B 50%, #C2924C 72%, #8F622B 100%);
+  --gradient-gold-subtle: linear-gradient(135deg, #FBF4E6 0%, #EFDBC6 100%);
+  --gradient-forest: linear-gradient(160deg, #3D5540 0%, #253B2E 100%);
+  --gradient-lotus: linear-gradient(180deg, #A6B49B 0%, #3D5540 65%, #253B2E 100%);
+
+  /* ---------------- 3. TIPOGRAFÍAS ---------------- */
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-script: 'Great Vibes', cursive;
+
+  /* ---------------- 4. SOMBRAS & BORDES ---------------- */
+  --shadow-soft: 0 10px 30px -5px rgba(37, 59, 46, 0.07);
+  --shadow-gold: 0 8px 25px -4px rgba(167, 114, 55, 0.18);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+}
+
+/* ==========================================================================
+   ESTILOS BASE & COMPONENTES REUTILIZABLES
+   ========================================================================== */
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-forest);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif-brand {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-forest);
+  line-height: 1.2;
+}
+
+.text-gold-gradient {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.font-script-brand {
+  font-family: var(--font-script);
+  color: var(--color-forest);
+  font-weight: 400;
+}
+
+/* Botón Principal: Agendar Consulta (Verde Pino / Bosque) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--gradient-forest);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.9rem 2rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(222, 176, 116, 0.35);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(37, 59, 46, 0.25);
+  border-color: var(--color-champagne);
+}
+
+/* Botón Secundario: Dorado Metálico */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--gradient-gold);
+  color: #253B2E;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.9rem 2rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  box-shadow: var(--shadow-gold);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+/* Botón Outline Elegante */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-gold);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.8rem;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-gold);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-outline:hover {
+  background: var(--color-sand);
+  color: var(--color-forest);
+}
+
+/* Tarjeta Elegante (Servicios / Reserva) */
+.card-brand {
+  background: var(--color-white);
+  border: 1px solid rgba(167, 114, 55, 0.2);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+}

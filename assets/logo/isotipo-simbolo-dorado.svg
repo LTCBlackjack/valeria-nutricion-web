@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340" width="100%" height="100%">
+  <defs>
+    <!-- Metallic Gold Gradient -->
+    <linearGradient id="goldRingGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#9A6B32" />
+      <stop offset="25%" stop-color="#D4A964" />
+      <stop offset="50%" stop-color="#F7DFAD" />
+      <stop offset="75%" stop-color="#C69650" />
+      <stop offset="100%" stop-color="#8F622B" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(170, 170)">
+    <!-- Outer Golden Circle -->
+    <circle cx="0" cy="0" r="152" fill="none" stroke="url(#goldRingGrad)" stroke-width="5" />
+
+    <!-- Sacred Geometry: Seed of Life (7 Equal Circles, r = 61) -->
+    <g fill="none" stroke="url(#goldRingGrad)" stroke-width="2.8">
+      <circle cx="0" cy="0" r="61" />
+      <circle cx="0" cy="-61" r="61" />
+      <circle cx="0" cy="61" r="61" />
+      <circle cx="52.83" cy="-30.5" r="61" />
+      <circle cx="52.83" cy="30.5" r="61" />
+      <circle cx="-52.83" cy="30.5" r="61" />
+      <circle cx="-52.83" cy="-30.5" r="61" />
+    </g>
+  </g>
+</svg>

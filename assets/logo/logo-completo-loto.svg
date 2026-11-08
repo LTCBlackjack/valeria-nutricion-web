@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 750" width="100%" height="100%">
+  <defs>
+    <!-- Import Google Fonts for standalone viewing -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&amp;family=Montserrat:wght@400;500&amp;display=swap');
+      .title-top {
+        font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+        font-size: 27px;
+        font-weight: 500;
+        fill: #7C8776;
+        letter-spacing: 0.06em;
+      }
+      .brand-name {
+        font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+        font-size: 68px;
+        font-weight: 600;
+        fill: url(#goldTextGrad);
+        letter-spacing: 0.01em;
+      }
+      .subtitle-bottom {
+        font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+        font-size: 16.5px;
+        font-weight: 500;
+        fill: #7C8776;
+        letter-spacing: 0.24em;
+      }
+    </style>
+
+    <!-- Metallic Gold Gradient for Outer Ring & Sacred Geometry -->
+    <linearGradient id="goldRingGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#9A6B32" />
+      <stop offset="28%" stop-color="#C99E5A" />
+      <stop offset="50%" stop-color="#F2D29B" />
+      <stop offset="72%" stop-color="#C2924C" />
+      <stop offset="100%" stop-color="#8F622B" />
+    </linearGradient>
+
+    <!-- Soft Metallic Gold Gradient for Text -->
+    <linearGradient id="goldTextGrad" x1="0%" y1="0%" x2="100%" y2="20%">
+      <stop offset="0%" stop-color="#8E642F" />
+      <stop offset="35%" stop-color="#B98E4E" />
+      <stop offset="55%" stop-color="#CDA466" />
+      <stop offset="80%" stop-color="#A67B3D" />
+      <stop offset="100%" stop-color="#8B612C" />
+    </linearGradient>
+
+    <!-- Sage to Deep Forest Green Gradient for Lotus Petals -->
+    <linearGradient id="lotusCenterGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#C2CBB4" />
+      <stop offset="45%" stop-color="#8D9C82" />
+      <stop offset="100%" stop-color="#3D5540" />
+    </linearGradient>
+
+    <linearGradient id="lotusMidGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#B4C0A6" />
+      <stop offset="50%" stop-color="#7E8F74" />
+      <stop offset="100%" stop-color="#354B39" />
+    </linearGradient>
+
+    <linearGradient id="lotusOuterGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#A3B196" />
+      <stop offset="50%" stop-color="#6E8066" />
+      <stop offset="100%" stop-color="#253B2E" />
+    </linearGradient>
+  </defs>
+
+  <!-- Optional Warm Ivory Background (can be removed for transparent use) -->
+  <rect width="800" height="750" fill="#FEFAFA" rx="0" />
+
+  <!-- ================= SYMBOL GROUP (Centered at 400, 235) ================= -->
+  <g transform="translate(400, 235)">
+    <!-- Outer Golden Circle -->
+    <circle cx="0" cy="0" r="152" fill="none" stroke="url(#goldRingGrad)" stroke-width="4.2" />
+
+    <!-- Sacred Geometry: Seed of Life (7 Equal Circles, r = 61) -->
+    <g fill="none" stroke="url(#goldRingGrad)" stroke-width="2.3" opacity="0.96">
+      <!-- Central Circle -->
+      <circle cx="0" cy="0" r="61" />
+      <!-- 12 o'clock (Top) -->
+      <circle cx="0" cy="-61" r="61" />
+      <!-- 6 o'clock (Bottom) -->
+      <circle cx="0" cy="61" r="61" />
+      <!-- 2 o'clock (-30 deg: cos=0.866025, sin=-0.5) -->
+      <circle cx="52.83" cy="-30.5" r="61" />
+      <!-- 4 o'clock (+30 deg: cos=0.866025, sin=0.5) -->
+      <circle cx="52.83" cy="30.5" r="61" />
+      <!-- 8 o'clock (+150 deg: cos=-0.866025, sin=0.5) -->
+      <circle cx="-52.83" cy="30.5" r="61" />
+      <!-- 10 o'clock (-150 deg: cos=-0.866025, sin=-0.5) -->
+      <circle cx="-52.83" cy="-30.5" r="61" />
+    </g>
+
+    <!-- Subtle Lotus Flower at the bottom of the ring (Pivot near y = 148) -->
+    <g transform="translate(0, 148)" stroke="#FEFAFA" stroke-width="2.4" stroke-linejoin="round">
+      <!-- Outer Left Petal -->
+      <path d="M 0,0 C -22,-2 -48,-12 -64,-30 C -46,-34 -22,-24 0,0 Z" fill="url(#lotusOuterGrad)" />
+      <!-- Outer Right Petal -->
+      <path d="M 0,0 C 22,-2 48,-12 64,-30 C 46,-34 22,-24 0,0 Z" fill="url(#lotusOuterGrad)" />
+      <!-- Mid Left Petal -->
+      <path d="M 0,0 C -20,-12 -36,-34 -40,-58 C -20,-50 -6,-28 0,0 Z" fill="url(#lotusMidGrad)" />
+      <!-- Mid Right Petal -->
+      <path d="M 0,0 C 20,-12 36,-34 40,-58 C 20,-50 6,-28 0,0 Z" fill="url(#lotusMidGrad)" />
+      <!-- Center Upright Petal -->
+      <path d="M 0,2 C -19,-18 -21,-46 0,-70 C 21,-46 19,-18 0,2 Z" fill="url(#lotusCenterGrad)" />
+    </g>
+  </g>
+
+  <!-- ================= TYPOGRAPHY GROUP ================= -->
+  <g text-anchor="middle">
+    <!-- Top Subtitle -->
+    <text x="400" y="458" class="title-top">Lic. en Nutrición Aplicada</text>
+
+    <!-- Main Name -->
+    <text x="400" y="528" class="brand-name">Valeria de la Torre</text>
+
+    <!-- Bottom Specialty -->
+    <text x="400" y="576" class="subtitle-bottom">NUTRICIÓN HORMONAL FEMENINA</text>
+  </g>
+</svg>

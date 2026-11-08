@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Administración de Reservas</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #FAF6F0;
+      color: var(--color-forest);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Animaciones suaves */
+    @keyframes fadeSlideUp {
+      0%   { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .anim-up { animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+    /* Top Admin Header */
+    .admin-header {
+      background: linear-gradient(135deg, #253B2E 0%, #3D5540 100%);
+      color: #FEFAFA;
+      padding: 1rem 2rem;
+      border-bottom: 2px solid var(--color-gold);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 10px 30px -10px rgba(37, 59, 46, 0.25);
+    }
+    .admin-header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+    .admin-brand img {
+      width: 46px;
+      height: 46px;
+    }
+    .admin-badge {
+      background: rgba(235, 190, 124, 0.2);
+      color: #EBBE7C;
+      border: 1px solid rgba(235, 190, 124, 0.45);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Main Container */
+    .admin-container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.2rem 1.5rem 4rem;
+      flex: 1;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(167, 114, 55, 0.25);
+      border-radius: 18px;
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px -10px rgba(167, 114, 55, 0.2);
+    }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--gradient-gold);
+    }
+    .kpi-label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-sage-dark);
+    }
+    .kpi-value {
+      font-family: var(--font-heading);
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--color-forest);
+      margin: 0.2rem 0;
+      line-height: 1.1;
+    }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: var(--color-pine);
+      font-weight: 600;
+    }
+
+    /* Layout Grid: Left Reservations Table | Right Schedule Control */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 0.85fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(167, 114, 55, 0.25);
+      border-radius: 20px;
+      padding: 1.6rem;
+      box-shadow: var(--shadow-soft);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid rgba(167, 114, 55, 0.18);
+    }
+    .panel-title {
+      font-size: 1.45rem;
+      margin: 0;
+      color: var(--color-forest);
+    }
+
+    /* Tabla de Reservas Pagadas */
+    .bookings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .bookings-table th {
+      text-align: left;
+      padding: 0.75rem 0.8rem;
+      background: #FAF6F0;
+      color: var(--color-gold-dark);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1.5px solid rgba(167, 114, 55, 0.25);
+    }
+    .bookings-table td {
+      padding: 0.9rem 0.8rem;
+      border-bottom: 1px solid rgba(167, 114, 55, 0.14);
+      vertical-align: middle;
+    }
+    .bookings-table tr:hover td {
+      background: #FEFAFA;
+    }
+
+    .pill-paid {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #E3EFE6;
+      color: #253B2E;
+      padding: 0.22rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .pill-sync {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #F5E8D5;
+      color: #8F622B;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Control de Horarios de la Nutrióloga */
+    .slot-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.95rem;
+      border-radius: 12px;
+      border: 1px solid rgba(131, 145, 123, 0.3);
+      margin-bottom: 0.55rem;
+      background: #FEFAFA;
+      transition: all 0.2s;
+    }
+    .slot-toggle-row.is-blocked {
+      background: #F5ECE6;
+      border-color: rgba(169, 59, 59, 0.35);
+    }
+    .slot-toggle-btn {
+      padding: 0.38rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-free {
+      background: #E3EFE6;
+      color: #253B2E;
+    }
+    .btn-blocked {
+      background: #A93B3B;
+      color: #FFFFFF;
+    }
+
+    /* Modal de Detalle de Correo y Calendario */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(37, 59, 46, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+    .modal-card {
+      background: #FEFAFA;
+      border: 2px solid var(--color-gold);
+      border-radius: 20px;
+      max-width: 580px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+      animation: fadeSlideUp 0.3s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= ENCABEZADO DE LA VISTA DE LA NUTRIÓLOGA ================= -->
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div class="admin-brand">
+        <img src="assets/logo/isotipo-simbolo-dorado.svg" alt="Logo Valeria de la Torre" />
+        <div>
+          <span class="admin-badge">👩‍⚕️ Vista Exclusiva de la Nutrióloga</span>
+          <div style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 700; color: #FEFAFA; margin-top: 0.15rem;">
+            Panel de Administración y Orden de Reservas
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+        <span style="font-size: 0.8rem; color: #C2CBB4;">
+          🟢 Google Calendar: <strong style="color: #EBBE7C;">Conectado</strong>
+        </span>
+        <a href="index.html#reservar" class="btn-gold" style="padding: 0.55rem 1.2rem; font-size: 0.78rem;">
+          ← Ir a Vista del Paciente (Web Pública)
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENIDO PRINCIPAL DEL DASHBOARD ================= -->
+  <main class="admin-container">
+
+    <!-- 1. TARJETAS KPI DE ADMINISTRACIÓN -->
+    <div class="kpi-grid anim-up">
+      <div class="kpi-card">
+        <div class="kpi-label">Reservas Pagadas y Agendadas</div>
+        <div class="kpi-value" id="kpi-total-count">5</div>
+        <div class="kpi-sub">✓ 100% con pago verificado antes de agendar</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Ingresos Confirmados (Mes)</div>
+        <div class="kpi-value" id="kpi-total-revenue" style="color: var(--color-gold);">$4,050 MXN</div>
+        <div class="kpi-sub">Cobros acreditados vía Pasarela Segura</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Sincronización en Calendario</div>
+        <div class="kpi-value" style="font-size: 1.75rem; margin-top: 0.45rem;">Automática</div>
+        <div class="kpi-sub">📅 Google Calendar + Recordatorios Activos</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Notificaciones por Correo</div>
+        <div class="kpi-value" id="kpi-emails-sent">10 Enviados</div>
+        <div class="kpi-sub">📩 Dual: Al Paciente y a la Nutrióloga</div>
+      </div>
+    </div>
+
+    <!-- 2. GRID PRINCIPAL: TABLA DE CITAS PAGADAS + CONTROL DE HORARIOS -->
+    <div class="dashboard-grid">
+
+      <!-- COLUMNA IZQUIERDA: AGENDA DE PACIENTES CON PAGO CONFIRMADO -->
+      <div class="panel-card anim-up delay-1">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Pacientes con Reserva Pagada y Confirmada</h2>
+            <p style="font-size: 0.82rem; color: var(--color-sage-dark); margin: 0.2rem 0 0;">
+              Aquí sólo aparecen las citas cuyo pago fue acreditado (evitando inasistencias y horarios falsos).
+            </p>
+          </div>
+          <button onclick="simulateNewPatientBooking()" class="btn-outline" style="padding: 0.45rem 0.95rem; font-size: 0.74rem;">
+            + Simular Nueva Cita Pagada
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="bookings-table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Paciente &amp; Contacto</th>
+                <th>Consulta y Modalidad</th>
+                <th>Fecha y Horario</th>
+                <th>Pago</th>
+                <th>Calendario &amp; Correo</th>
+              </tr>
+            </thead>
+            <tbody id="admin-bookings-tbody">
+              <!-- Renderizado por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: ADMINISTRACIÓN Y BLOQUEO DE HORARIOS DE LA NUTRIÓLOGA -->
+      <div class="panel-card anim-up delay-2">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Control de Horarios Disponibles</h2>
+            <p style="font-size: 0.82rem; color: var(--color-sage-dark); margin: 0.2rem 0 0;">
+              Abre o bloquea horarios de tu agenda. Los cambios se reflejan al instante en la página web del paciente.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-gold);">
+            Selecciona el Día a Administrar (Noviembre 2026):
+          </label>
+          <select id="admin-day-select" class="form-input" onchange="renderAdminDaySlots()" style="margin-top: 0.35rem; font-weight: 600;">
+            <option value="5">Jueves 5 de Noviembre, 2026</option>
+            <option value="12" selected>Jueves 12 de Noviembre, 2026</option>
+            <option value="13">Viernes 13 de Noviembre, 2026</option>
+            <option value="19">Jueves 19 de Noviembre, 2026</option>
+            <option value="20">Viernes 20 de Noviembre, 2026</option>
+          </select>
+        </div>
+
+        <div id="admin-slots-list">
+          <!-- Renderizado por JS -->
+        </div>
+
+        <div style="margin-top: 1.2rem; background: #FAF6F0; border-left: 4px solid var(--color-gold); padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.79rem; color: var(--color-forest); line-height: 1.5;">
+          💡 <strong>Sincronización en vivo:</strong> Si bloqueas un horario aquí (por ejemplo <em>12:30 PM</em>) y abres la <a href="index.html#reservar" style="color: var(--color-pine); font-weight: 700;">Vista del Paciente</a>, verás que esa hora aparece inmediatamente como <strong>Ocupado</strong>.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL PARA VER EL COMPROBANTE Y CORREOS ENVIADOS DEL PACIENTE -->
+  <div id="detail-modal" class="modal-backdrop" onclick="closeDetailModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+        <span class="admin-badge" style="background: #E3EFE6; color: #253B2E; border-color: #3D5540;">
+          ✓ Registro de Calendario y Correo Dual
+        </span>
+        <button onclick="closeDetailModal()" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--color-forest);">✕</button>
+      </div>
+
+      <h3 id="mod-title" style="font-size: 1.55rem; margin: 0 0 0.4rem;">Detalle de Reserva Confirmada</h3>
+      <div id="mod-body" style="font-size: 0.86rem; color: var(--color-forest); line-height: 1.6;"></div>
+
+      <div style="margin-top: 1.4rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button onclick="closeDetailModal()" class="btn-primary" style="padding: 0.6rem 1.4rem; font-size: 0.8rem;">
+          Cerrar Ficha
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="background: var(--color-forest); color: #C2CBB4; text-align: center; padding: 1.5rem; font-size: 0.8rem;">
+    Panel Administrativo de la Nutrióloga · Lic. Valeria de la Torre · Desarrollado por <strong style="color: #EBBE7C;">LeonardLance</strong>
+  </footer>
+
+  <script>
+    const standardHours = ['09:30 AM', '11:00 AM', '12:30 PM', '04:00 PM', '05:30 PM', '06:30 PM'];
+
+    const defaultBookings = [
+      {
+        folio: 'VT-8410',
+        patientName: 'Ana Sofía Martínez',
+        patientEmail: 'anasofia.mtz@gmail.com',
+        patientPhone: '+52 55 4829 1034',
+        serviceName: 'Consulta SOP y Resistencia a la Insulina',
+        modality: 'Online (Videollamada Google Meet)',
+        day: 5,
+        dateLabel: 'Jueves 5 Nov, 2026',
+        time: '09:30 AM',
+        price: 850
+      },
+      {
+        folio: 'VT-8425',
+        patientName: 'Valeria Hernández Ruiz',
+        patientEmail: 'val.hernandez@outlook.com',
+        patientPhone: '+52 33 1920 4412',
+        serviceName: 'Consulta Salud Tiroidea y Metabolismo',
+        modality: 'Presencial en Consultorio',
+        day: 5,
+        dateLabel: 'Jueves 5 Nov, 2026',
+        time: '04:00 PM',
+        price: 850
+      },
+      {
+        folio: 'VT-8451',
+        patientName: 'Carolina Vega Soto',
+        patientEmail: 'caro.vega@gmail.com',
+        patientPhone: '+52 81 8392 7710',
+        serviceName: 'Consulta Ciclo Menstrual y Fertilidad',
+        modality: 'Online (Videollamada Google Meet)',
+        day: 12,
+        dateLabel: 'Jueves 12 Nov, 2026',
+        time: '09:30 AM',
+        price: 850
+      },
+      {
+        folio: 'VT-8478',
+        patientName: 'Mariana López Téllez',
+        patientEmail: 'mariana.lt@gmail.com',
+        patientPhone: '+52 55 9182 3341',
+        serviceName: 'Consulta Subsecuente de Seguimiento',
+        modality: 'Online (Videollamada Google Meet)',
+        day: 12,
+        dateLabel: 'Jueves 12 Nov, 2026',
+        time: '05:30 PM',
+        price: 650
+      },
+      {
+        folio: 'VT-8489',
+        patientName: 'Daniela Castillo Mora',
+        patientEmail: 'dcastillo.mora@gmail.com',
+        patientPhone: '+52 55 6723 8911',
+        serviceName: 'Consulta de Valoración Nutricional Hormonal',
+        modality: 'Presencial en Consultorio',
+        day: 13,
+        dateLabel: 'Viernes 13 Nov, 2026',
+        time: '11:00 AM',
+        price: 850
+      }
+    ];
+
+    function getStoredBookings() {
+      const raw = localStorage.getItem('valeria_paid_bookings');
+      if (!raw) {
+        localStorage.setItem('valeria_paid_bookings', JSON.stringify(defaultBookings));
+        return defaultBookings;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return defaultBookings;
+      }
+    }
+
+    function getStoredBlockedSlots() {
+      const raw = localStorage.getItem('valeria_blocked_slots');
+      const initial = {
+        5: ['09:30 AM', '04:00 PM'],
+        12: ['09:30 AM', '05:30 PM'],
+        13: ['11:00 AM'],
+        19: ['12:30 PM']
+      };
+      if (!raw) {
+        localStorage.setItem('valeria_blocked_slots', JSON.stringify(initial));
+        return initial;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return initial;
+      }
+    }
+
+    function renderDashboard() {
+      const bookings = getStoredBookings();
+      const tbody = document.getElementById('admin-bookings-tbody');
+      tbody.innerHTML = '';
+
+      let totalRev = 0;
+      bookings.slice().reverse().forEach((b, idx) => {
+        totalRev += Number(b.price) || 850;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="color: var(--color-gold); font-family: monospace;">${b.folio}</strong></td>
+          <td>
+            <div style="font-weight: 700; color: var(--color-forest);">${b.patientName}</div>
+            <div style="font-size: 0.76rem; color: var(--color-sage-dark);">${b.patientEmail} · ${b.patientPhone}</div>
+          </td>
+          <td>
+            <div style="font-weight: 600;">${b.serviceName}</div>
+            <div style="font-size: 0.75rem; color: var(--color-sage-dark);">${b.modality}</div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--color-pine);">${b.dateLabel}</div>
+            <div style="font-size: 0.78rem; font-weight: 600;">⏰ ${b.time}</div>
+          </td>
+          <td>
+            <span class="pill-paid">✓ PAGADO ($${b.price})</span>
+          </td>
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start;">
+              <span class="pill-sync">📅 En Calendario</span>
+              <button onclick="openBookingDetail('${b.folio}')" style="background: none; border: none; color: var(--color-gold); font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline;">
+                📩 Ver 2 Correos Enviados
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('kpi-total-count').textContent = bookings.length;
+      document.getElementById('kpi-total-revenue').textContent = `$${totalRev.toLocaleString('es-MX')} MXN`;
+      document.getElementById('kpi-emails-sent').textContent = `${bookings.length * 2} Enviados`;
+
+      renderAdminDaySlots();
+    }
+
+    function renderAdminDaySlots() {
+      const day = Number(document.getElementById('admin-day-select').value);
+      const blockedMap = getStoredBlockedSlots();
+      const dayBlocked = blockedMap[day] || [];
+      const bookings = getStoredBookings();
+
+      const container = document.getElementById('admin-slots-list');
+      container.innerHTML = '';
+
+      standardHours.forEach(hr => {
+        const isTaken = dayBlocked.includes(hr);
+        const patientForSlot = bookings.find(b => Number(b.day) === day && b.time === hr);
+
+        const row = document.createElement('div');
+        row.className = 'slot-toggle-row' + (isTaken ? ' is-blocked' : '');
+
+        const statusText = patientForSlot
+          ? `Reservado y Pagado por: <strong>${patientForSlot.patientName}</strong>`
+          : (isTaken ? 'Bloqueado manualmente por la Nutrióloga' : 'Horario Libre para recibir reserva');
+
+        row.innerHTML = `
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: var(--color-forest);">⏰ ${hr}</div>
+            <div style="font-size: 0.75rem; color: var(--color-sage-dark);">${statusText}</div>
+          </div>
+          <button onclick="toggleSlotAvailability(${day}, '${hr}')" class="slot-toggle-btn ${isTaken ? 'btn-blocked' : 'btn-free'}">
+            ${isTaken ? '🔒 Ocupado / Liberar' : '🟢 Disponible / Bloquear'}
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function toggleSlotAvailability(day, hr) {
+      const blockedMap = getStoredBlockedSlots();
+      if (!blockedMap[day]) blockedMap[day] = [];
+
+      const idx = blockedMap[day].indexOf(hr);
+      if (idx >= 0) {
+        blockedMap[day].splice(idx, 1);
+      } else {
+        blockedMap[day].push(hr);
+      }
+      localStorage.setItem('valeria_blocked_slots', JSON.stringify(blockedMap));
+      renderAdminDaySlots();
+    }
+
+    function openBookingDetail(folio) {
+      const bookings = getStoredBookings();
+      const b = bookings.find(item => item.folio === folio);
+      if (!b) return;
+
+      document.getElementById('mod-title').textContent = `Reserva ${b.folio} — ${b.patientName}`;
+      document.getElementById('mod-body').innerHTML = `
+        <div style="background:#FAF6F0; padding:0.9rem 1rem; border-radius:12px; margin-bottom:0.9rem; border:1px solid rgba(167,114,55,0.25);">
+          <strong>1. Estado de Pago:</strong> Acreditado ($${b.price}.00 MXN)<br>
+          <strong>2. Google Calendar:</strong> Horario bloqueado el <strong>${b.dateLabel} a las ${b.time}</strong><br>
+          <strong>3. Contacto del Paciente:</strong> ${b.patientEmail} | WhatsApp: ${b.patientPhone}
+        </div>
+        <div style="background:#FFFFFF; padding:0.85rem 1rem; border-radius:10px; border-left:4px solid #3D5540; margin-bottom:0.7rem;">
+          <strong>📩 Correo #1 enviado al Paciente (${b.patientEmail}):</strong><br>
+          <span style="color:#4A5B4F;">"¡Tu consulta de ${b.serviceName} con la Lic. Valeria de la Torre está confirmada para el ${b.dateLabel} a las ${b.time}! Adjuntamos tu invitación de calendario y recibo de pago."</span>
+        </div>
+        <div style="background:#FFFFFF; padding:0.85rem 1rem; border-radius:10px; border-left:4px solid #A77237;">
+          <strong>📩 Correo #2 enviado a la Nutrióloga (Lic. Valeria):</strong><br>
+          <span style="color:#4A5B4F;">"Nueva reserva pagada (${b.folio}): ${b.patientName} agendó para el ${b.dateLabel} a las ${b.time} (${b.modality}). Ya quedó registrado en tu Google Calendar."</span>
+        </div>
+      `;
+      document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    function simulateNewPatientBooking() {
+      const bookings = getStoredBookings();
+      const blockedMap = getStoredBlockedSlots();
+      const newFolio = 'VT-' + Math.floor(8500 + Math.random() * 1400);
+      const newBooking = {
+        folio: newFolio,
+        patientName: 'Paulina Morales Garza',
+        patientEmail: 'paulina.mg@gmail.com',
+        patientPhone: '+52 55 3019 8821',
+        serviceName: 'Consulta SOP y Resistencia a la Insulina',
+        modality: 'Online (Videollamada Google Meet)',
+        day: 12,
+        dateLabel: 'Jueves 12 Nov, 2026',
+        time: '12:30 PM',
+        price: 850
+      };
+      bookings.push(newBooking);
+      localStorage.setItem('valeria_paid_bookings', JSON.stringify(bookings));
+
+      if (!blockedMap[12]) blockedMap[12] = [];
+      if (!blockedMap[12].includes('12:30 PM')) {
+        blockedMap[12].push('12:30 PM');
+      }
+      localStorage.setItem('valeria_blocked_slots', JSON.stringify(blockedMap));
+      renderDashboard();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderDashboard);
+  </script>
+</body>
+</html>
