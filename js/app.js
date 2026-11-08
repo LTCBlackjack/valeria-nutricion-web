@@ -1,50 +1,37 @@
 /* ==========================================================================
-   LÓGICA DE RESERVAS, VALIDACIÓN DE PAGO, CALENDARIO, CORREOS Y ANIMACIONES
+   MOTOR DE RESERVAS, TARIFAS, CALENDARIO, ANIMACIONES Y ANALÍTICA
    Desarrollado por LeonardLance para Lic. Valeria de la Torre
+   Requiere: js/store.js
    ========================================================================== */
 
 const bookingState = {
-  serviceName: 'Consulta de Valoración Nutricional Hormonal',
-  price: 850,
-  modality: 'Online (Videollamada Google Meet)',
+  type: 'primera',          // primera | seguimiento
+  modality: 'virtual',      // virtual | presencial
+  focus: 'Valoración General',
+  price: VDT.getPrice('virtual', 'primera'),
   selectedDay: 12,
   selectedDateLabel: 'Jueves 12 de Noviembre, 2026',
-  selectedTime: '11:00 AM',
-  folio: 'VT-8492',
-  bookedSlotsByDay: {
-    5: ['09:30 AM', '04:00 PM'],
-    12: ['09:30 AM', '05:30 PM'],
-    13: ['11:00 AM'],
-    19: ['12:30 PM']
-  }
+  selectedTime: '13:00',
+  folio: '',
+  lastEmail: ''
 };
 
 const availableDaysInNov = [3, 5, 6, 10, 12, 13, 17, 19, 20, 24, 26, 27];
-const dayNamesMap = {
-  2: 'Lunes', 3: 'Martes', 4: 'Miércoles', 5: 'Jueves', 6: 'Viernes', 7: 'Sábado',
-  9: 'Lunes', 10: 'Martes', 11: 'Miércoles', 12: 'Jueves', 13: 'Viernes', 14: 'Sábado',
-  16: 'Lunes', 17: 'Martes', 18: 'Miércoles', 19: 'Jueves', 20: 'Viernes', 21: 'Sábado',
-  23: 'Lunes', 24: 'Martes', 25: 'Miércoles', 26: 'Jueves', 27: 'Viernes', 28: 'Sábado'
-};
+const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const IS_HEATMAP_PREVIEW = new URLSearchParams(location.search).get('heatmap') === '1';
 
-const standardHours = ['09:30 AM', '11:00 AM', '12:30 PM', '04:00 PM', '05:30 PM', '06:30 PM'];
-
-/* --------------------------------------------------------------------------
-   1. INICIALIZACIÓN DE CALENDARIO Y ANIMACIONES ÚNICAS
-   -------------------------------------------------------------------------- */
-function syncFromAdminStorage() {
-  const storedBlocked = localStorage.getItem('valeria_blocked_slots');
-  if (storedBlocked) {
-    try {
-      bookingState.bookedSlotsByDay = JSON.parse(storedBlocked);
-    } catch (e) {}
-  } else {
-    localStorage.setItem('valeria_blocked_slots', JSON.stringify(bookingState.bookedSlotsByDay));
-  }
+function dayName(d) {
+  return DAY_NAMES[new Date(2026, 10, d).getDay()];
 }
 
+function getBlocked() {
+  return VDT.read(VDT.KEYS.blocked, {});
+}
+
+/* --------------------------------------------------------------------------
+   1. INICIALIZACIÓN
+   -------------------------------------------------------------------------- */
 function initApp() {
-  syncFromAdminStorage();
   renderCalendarDays();
   renderTimeSlots();
   updateSummary();
@@ -52,32 +39,103 @@ function initApp() {
   init3DTiltCards();
   initGoldDustCanvas();
   checkMercadoPagoReturnUrl();
+  if (!IS_HEATMAP_PREVIEW) initAnalyticsTracking();
 }
 
 function checkMercadoPagoReturnUrl() {
   const params = new URLSearchParams(window.location.search);
-  const pagoStatus = params.get('pago');
-  const folioParam = params.get('folio');
-  if (pagoStatus === 'aprobado') {
-    if (folioParam) bookingState.folio = folioParam;
+  if (params.get('pago') === 'aprobado') {
+    bookingState.folio = params.get('folio') || bookingState.folio;
     document.getElementById('conf-folio').textContent = bookingState.folio;
-    document.getElementById('booking-main-view').style.display = 'none';
-    document.getElementById('step-3-panel').style.display = 'block';
-    setActivePill(3);
-    document.getElementById('reservar').scrollIntoView({ behavior: 'smooth' });
+    showStep3();
     setTimeout(launchGoldenCelebration, 350);
   }
 }
 
 /* --------------------------------------------------------------------------
-   2. ANIMACIÓN DE PARTÍCULAS DE POLVO DORADO EN EL HERO (#gold-dust-canvas)
+   2. ANALÍTICA DE INTERACCIÓN (MAPA DE CALOR + TIEMPO POR SECCIÓN)
+   En producción se envía a /api/tracking.php; aquí se guarda en localStorage.
+   -------------------------------------------------------------------------- */
+function initAnalyticsTracking() {
+  const data = VDT.read(VDT.KEYS.analytics, { sessions: 0, sections: {}, clicks: [], elements: {} });
+  data.sessions = (data.sessions || 0) + 1;
+  data.docHeight = document.documentElement.scrollHeight;
+  VDT.write(VDT.KEYS.analytics, data);
+
+  const save = (mutator) => {
+    const d = VDT.read(VDT.KEYS.analytics, data);
+    mutator(d);
+    if (d.clicks.length > 3000) d.clicks = d.clicks.slice(-3000);
+    VDT.write(VDT.KEYS.analytics, d);
+  };
+
+  // Clics con posición relativa a la página
+  document.addEventListener('click', (e) => {
+    const docW = document.documentElement.scrollWidth;
+    const docH = document.documentElement.scrollHeight;
+    const sectionEl = e.target.closest('section[id], nav');
+    const actionable = e.target.closest('a, button, select, input, summary, .cal-day, .time-slot, .spec-card, .price-card');
+    let label = actionable
+      ? (actionable.getAttribute('data-track') || actionable.textContent || actionable.tagName).trim().replace(/\s+/g, ' ').slice(0, 42)
+      : 'Área sin acción';
+    if (actionable && actionable.classList.contains('cal-day')) label = 'Selección de día';
+    if (actionable && actionable.classList.contains('time-slot')) label = 'Selección de horario';
+
+    save(d => {
+      d.docHeight = docH;
+      d.clicks.push({
+        xPct: +(e.pageX / docW).toFixed(4),
+        yPct: +(e.pageY / docH).toFixed(4),
+        section: sectionEl ? (sectionEl.id || 'menu') : 'otro',
+        el: label,
+        t: Date.now()
+      });
+      d.elements[label] = (d.elements[label] || 0) + 1;
+    });
+  }, { capture: true });
+
+  // Tiempo de permanencia por sección
+  const visibleSince = {};
+  const flushSection = (id) => {
+    if (!visibleSince[id]) return;
+    const elapsed = Date.now() - visibleSince[id];
+    delete visibleSince[id];
+    if (elapsed < 400) return;
+    save(d => {
+      d.sections[id] = d.sections[id] || { views: 0, ms: 0 };
+      d.sections[id].ms += elapsed;
+    });
+  };
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      if (entry.isIntersecting) {
+        visibleSince[id] = Date.now();
+        save(d => {
+          d.sections[id] = d.sections[id] || { views: 0, ms: 0 };
+          d.sections[id].views += 1;
+        });
+      } else {
+        flushSection(id);
+      }
+    });
+  }, { threshold: 0.35 });
+
+  document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+  const flushAll = () => Object.keys(visibleSince).forEach(flushSection);
+  window.addEventListener('pagehide', flushAll);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flushAll(); });
+}
+
+/* --------------------------------------------------------------------------
+   3. POLVO DORADO EN EL HERO
    -------------------------------------------------------------------------- */
 function initGoldDustCanvas() {
   const canvas = document.getElementById('gold-dust-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let width = 0, height = 0;
-  let mouseX = -1000, mouseY = -1000;
+  let width = 0, height = 0, mouseX = -1000, mouseY = -1000;
 
   function resize() {
     width = canvas.width = canvas.parentElement.offsetWidth;
@@ -85,53 +143,30 @@ function initGoldDustCanvas() {
   }
   resize();
   window.addEventListener('resize', resize);
-
   canvas.parentElement.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     mouseX = e.clientX - rect.left;
     mouseY = e.clientY - rect.top;
   });
 
-  const palette = [
-    'rgba(222, 176, 116, 0.55)', // Dorado Champán
-    'rgba(167, 114, 55, 0.45)',  // Bronce Dorado
-    'rgba(166, 180, 155, 0.45)', // Verde Salvia Claro
-    'rgba(235, 190, 124, 0.65)'  // Luz Dorada
-  ];
-
+  const palette = ['rgba(222,176,116,0.55)', 'rgba(167,114,55,0.45)', 'rgba(166,180,155,0.45)', 'rgba(235,190,124,0.65)'];
   const particles = Array.from({ length: 46 }, () => ({
-    x: Math.random() * (width || 1200),
-    y: Math.random() * (height || 650),
-    r: 1.4 + Math.random() * 2.8,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: -0.2 - Math.random() * 0.4,
-    alphaPhase: Math.random() * Math.PI * 2,
-    color: palette[Math.floor(Math.random() * palette.length)]
+    x: Math.random() * (width || 1200), y: Math.random() * (height || 650),
+    r: 1.4 + Math.random() * 2.8, vx: (Math.random() - 0.5) * 0.35, vy: -0.2 - Math.random() * 0.4,
+    phase: Math.random() * Math.PI * 2, color: palette[Math.floor(Math.random() * palette.length)]
   }));
 
-  function animateDust() {
+  (function loop() {
     ctx.clearRect(0, 0, width, height);
     particles.forEach(p => {
-      p.alphaPhase += 0.025;
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Sutil repulsión magnética al acercar el cursor
-      const dx = p.x - mouseX;
-      const dy = p.y - mouseY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 110 && dist > 0) {
-        p.x += (dx / dist) * 0.7;
-        p.y += (dy / dist) * 0.7;
-      }
-
+      p.phase += 0.025; p.x += p.vx; p.y += p.vy;
+      const dx = p.x - mouseX, dy = p.y - mouseY, dist = Math.hypot(dx, dy);
+      if (dist < 110 && dist > 0) { p.x += (dx / dist) * 0.7; p.y += (dy / dist) * 0.7; }
       if (p.y < -10) p.y = height + 10;
       if (p.x < -10) p.x = width + 10;
       if (p.x > width + 10) p.x = -10;
-
-      const twinkle = 0.55 + 0.45 * Math.sin(p.alphaPhase);
       ctx.save();
-      ctx.globalAlpha = twinkle;
+      ctx.globalAlpha = 0.55 + 0.45 * Math.sin(p.phase);
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = p.color;
@@ -140,65 +175,41 @@ function initGoldDustCanvas() {
       ctx.fill();
       ctx.restore();
     });
-    requestAnimationFrame(animateDust);
-  }
-  animateDust();
+    requestAnimationFrame(loop);
+  })();
 }
 
 /* --------------------------------------------------------------------------
-   3. INCLINACIÓN 3D MAGNÉTICA + LUZ DORADA EN TARJETAS (.tilt-card)
+   4. TARJETAS 3D + SCROLL REVEAL
    -------------------------------------------------------------------------- */
 function init3DTiltCards() {
-  const cards = document.querySelectorAll('.tilt-card');
-  cards.forEach(card => {
+  document.querySelectorAll('.tilt-card').forEach(card => {
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      // Posición del foco de luz dorado CSS
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
       card.style.setProperty('--mouse-x', `${x}px`);
       card.style.setProperty('--mouse-y', `${y}px`);
-
-      // Inclinación suave en 3D
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4.5;
-      const rotateY = ((x - centerX) / centerX) * 4.5;
-
-      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+      const rx = ((y - rect.height / 2) / (rect.height / 2)) * -4.5;
+      const ry = ((x - rect.width / 2) / (rect.width / 2)) * 4.5;
+      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-5px)`;
     });
-
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateY(0)';
     });
   });
 }
 
-/* --------------------------------------------------------------------------
-   4. SCROLL-REVEAL EDITORIAL E INTERACCIÓN DE NAVBAR
-   -------------------------------------------------------------------------- */
 function initScrollReveal() {
   const navbar = document.getElementById('main-navbar');
-  window.addEventListener('scroll', () => {
-    if (navbar) {
-      navbar.classList.toggle('scrolled', window.scrollY > 25);
-    }
-  });
-
+  window.addEventListener('scroll', () => navbar && navbar.classList.toggle('scrolled', window.scrollY > 25));
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-      }
-    });
+    entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('is-visible'));
   }, { threshold: 0.14 });
-
   document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
 }
 
 /* --------------------------------------------------------------------------
-   5. EXPLOSIÓN DE DESTELLOS DORADOS Y VERDES AL CONFIRMAR PAGO
+   5. CELEBRACIÓN DORADA AL CONFIRMAR PAGO
    -------------------------------------------------------------------------- */
 function launchGoldenCelebration() {
   const canvas = document.getElementById('celebration-canvas');
@@ -206,32 +217,19 @@ function launchGoldenCelebration() {
   const ctx = canvas.getContext('2d');
   const w = canvas.width = canvas.parentElement.offsetWidth;
   const h = canvas.height = canvas.parentElement.offsetHeight;
-
   const colors = ['#A77237', '#DEB074', '#EBBE7C', '#3D5540', '#A6B49B', '#253B2E'];
   const sparks = Array.from({ length: 75 }, () => ({
-    x: w / 2,
-    y: h * 0.32,
-    vx: (Math.random() - 0.5) * 12,
-    vy: (Math.random() - 0.85) * 10,
-    size: 4 + Math.random() * 5,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    alpha: 1,
-    rot: Math.random() * Math.PI
+    x: w / 2, y: h * 0.25, vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.85) * 10,
+    size: 4 + Math.random() * 5, color: colors[Math.floor(Math.random() * colors.length)], alpha: 1, rot: Math.random() * Math.PI
   }));
-
   let frame = 0;
-  function drawSparks() {
+  (function draw() {
     ctx.clearRect(0, 0, w, h);
     sparks.forEach(s => {
-      s.x += s.vx;
-      s.y += s.vy;
-      s.vy += 0.22; // Gravedad suave
-      s.alpha -= 0.014;
-      s.rot += 0.08;
-
+      s.x += s.vx; s.y += s.vy; s.vy += 0.22; s.alpha -= 0.014; s.rot += 0.08;
       if (s.alpha > 0) {
         ctx.save();
-        ctx.globalAlpha = Math.max(0, s.alpha);
+        ctx.globalAlpha = s.alpha;
         ctx.translate(s.x, s.y);
         ctx.rotate(s.rot);
         ctx.fillStyle = s.color;
@@ -239,46 +237,33 @@ function launchGoldenCelebration() {
         ctx.restore();
       }
     });
-    frame++;
-    if (frame < 85) {
-      requestAnimationFrame(drawSparks);
-    } else {
-      ctx.clearRect(0, 0, w, h);
-    }
-  }
-  drawSparks();
+    if (++frame < 85) requestAnimationFrame(draw); else ctx.clearRect(0, 0, w, h);
+  })();
 }
 
 /* --------------------------------------------------------------------------
-   6. MOTOR DE CALENDARIO Y FLUJO DE RESERVAS
+   6. CALENDARIO Y HORARIOS (13:00 – 21:00, sesiones de 1 hora)
    -------------------------------------------------------------------------- */
 function renderCalendarDays() {
   const grid = document.getElementById('calendar-days-grid');
   if (!grid) return;
   grid.innerHTML = '';
-
-  const headers = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-  headers.forEach(h => {
+  ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].forEach(h => {
     const div = document.createElement('div');
     div.className = 'cal-day-hdr';
     div.textContent = h;
     grid.appendChild(div);
   });
-
   for (let d = 1; d <= 30; d++) {
     const btn = document.createElement('button');
     btn.type = 'button';
     const isAvail = availableDaysInNov.includes(d);
-    const isSel = bookingState.selectedDay === d;
-
-    btn.className = 'cal-day' + (!isAvail ? ' disabled' : '') + (isSel ? ' selected' : '');
+    btn.className = 'cal-day' + (!isAvail ? ' disabled' : '') + (bookingState.selectedDay === d ? ' selected' : '');
     btn.textContent = d;
-
     if (isAvail) {
       btn.onclick = () => {
         bookingState.selectedDay = d;
-        const dName = dayNamesMap[d] || 'Día';
-        bookingState.selectedDateLabel = `${dName} ${d} de Noviembre, 2026`;
+        bookingState.selectedDateLabel = `${dayName(d)} ${d} de Noviembre, 2026`;
         renderCalendarDays();
         renderTimeSlots();
         updateSummary();
@@ -292,28 +277,22 @@ function renderTimeSlots() {
   const container = document.getElementById('time-slots-container');
   const labelEl = document.getElementById('selected-date-label');
   if (!container) return;
+  if (labelEl) labelEl.textContent = bookingState.selectedDateLabel.replace(', 2026', '');
 
-  if (labelEl) {
-    labelEl.textContent = bookingState.selectedDateLabel.replace(', 2026', '');
+  const taken = getBlocked()[bookingState.selectedDay] || [];
+  if (taken.includes(bookingState.selectedTime)) {
+    const free = VDT.HOURS.find(h => !taken.includes(h));
+    if (free) bookingState.selectedTime = free;
   }
 
   container.innerHTML = '';
-  const takenList = bookingState.bookedSlotsByDay[bookingState.selectedDay] || [];
-
-  if (takenList.includes(bookingState.selectedTime)) {
-    const firstFree = standardHours.find(h => !takenList.includes(h));
-    if (firstFree) bookingState.selectedTime = firstFree;
-  }
-
-  standardHours.forEach(hr => {
-    const isTaken = takenList.includes(hr);
+  VDT.HOURS.forEach(hr => {
+    const isTaken = taken.includes(hr);
     const isSelected = bookingState.selectedTime === hr && !isTaken;
-
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'time-slot' + (isTaken ? ' taken' : '') + (isSelected ? ' selected' : '');
-    btn.textContent = isTaken ? `${hr} (Ocupado)` : (isSelected ? `${hr} ✓` : hr);
-
+    btn.textContent = isTaken ? `${hr} (Ocupado)` : `${VDT.slotLabel(hr)}${isSelected ? ' ✓' : ''}`;
     if (!isTaken) {
       btn.onclick = () => {
         bookingState.selectedTime = hr;
@@ -325,41 +304,48 @@ function renderTimeSlots() {
   });
 }
 
+/* --------------------------------------------------------------------------
+   7. TIPO DE CONSULTA, MODALIDAD Y TARIFAS
+   -------------------------------------------------------------------------- */
 function updateServiceSelection() {
-  const sel = document.getElementById('service-select');
-  if (!sel) return;
-  const [name, priceStr] = sel.value.split('|');
-  bookingState.serviceName = name;
-  bookingState.price = parseInt(priceStr, 10);
+  bookingState.type = document.getElementById('service-select').value;
+  bookingState.modality = document.getElementById('modality-select').value;
+  const focusSel = document.getElementById('focus-select');
+  if (focusSel) bookingState.focus = focusSel.value;
   updateSummary();
 }
 
-function selectServiceAndScroll(serviceName, price) {
-  const sel = document.getElementById('service-select');
-  if (sel) {
-    for (let i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value.startsWith(serviceName)) {
-        sel.selectedIndex = i;
-        break;
-      }
-    }
-  }
-  bookingState.serviceName = serviceName;
-  bookingState.price = price;
+function selectServiceAndScroll(focus, type = 'primera') {
+  bookingState.focus = focus;
+  bookingState.type = type;
+  const focusSel = document.getElementById('focus-select');
+  if (focusSel) focusSel.value = focus;
+  document.getElementById('service-select').value = type;
+  updateSummary();
+  document.getElementById('reservar').scrollIntoView({ behavior: 'smooth' });
+}
+
+function selectPlanAndScroll(modality, type) {
+  bookingState.modality = modality;
+  bookingState.type = type;
+  document.getElementById('modality-select').value = modality;
+  document.getElementById('service-select').value = type;
   updateSummary();
   document.getElementById('reservar').scrollIntoView({ behavior: 'smooth' });
 }
 
 function updateSummary() {
-  const modSel = document.getElementById('modality-select');
-  if (modSel) bookingState.modality = modSel.value;
+  bookingState.price = VDT.getPrice(bookingState.modality, bookingState.type);
 
-  document.getElementById('sum-service').textContent = bookingState.serviceName;
-  document.getElementById('sum-modality').textContent = bookingState.modality;
-  document.getElementById('sum-datetime').textContent = `${bookingState.selectedDateLabel} · ${bookingState.selectedTime}`;
-  document.getElementById('sum-price').textContent = `$${bookingState.price} MXN`;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('sum-service', `${VDT.TYPES[bookingState.type]} · ${bookingState.focus}`);
+  set('sum-modality', VDT.MODALITIES[bookingState.modality]);
+  set('sum-datetime', `${bookingState.selectedDateLabel} · ${VDT.slotLabel(bookingState.selectedTime)} hrs`);
+  set('sum-price', `$${bookingState.price} MXN`);
 
-  // Pulso sutil en la tarjeta de resumen al actualizar
+  const qNote = document.getElementById('sum-questionnaire-note');
+  if (qNote) qNote.style.display = bookingState.type === 'primera' ? 'block' : 'none';
+
   const sumCard = document.getElementById('summary-card-box');
   if (sumCard) {
     sumCard.style.transform = 'scale(1.015)';
@@ -367,12 +353,13 @@ function updateSummary() {
   }
 }
 
-function setActivePill(stepNum) {
-  [1, 2, 3].forEach(n => {
-    const el = document.getElementById(`pill-step-${n}`);
-    if (el) {
-      el.classList.toggle('active', n === stepNum);
-    }
+/* --------------------------------------------------------------------------
+   8. NAVEGACIÓN ENTRE PASOS
+   -------------------------------------------------------------------------- */
+function setActivePill(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById(`pill-step-${i}`);
+    if (el) el.classList.toggle('active', i === n);
   });
 }
 
@@ -392,138 +379,134 @@ function goToStep2() {
   setActivePill(2);
 }
 
+function showStep3() {
+  document.getElementById('booking-main-view').style.display = 'none';
+  document.getElementById('step-3-panel').style.display = 'block';
+  setActivePill(3);
+  document.getElementById('reservar').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* --------------------------------------------------------------------------
+   9. PAGO (SIMULADO) → BLOQUEO DE AGENDA → CORREOS → CUESTIONARIO
+   En producción: api/crear-preferencia-mp.php + api/webhook-mercadopago.php
+   -------------------------------------------------------------------------- */
 function processPaymentAndBook(event) {
   event.preventDefault();
-
   const submitBtn = document.getElementById('pay-submit-btn');
   submitBtn.disabled = true;
-  submitBtn.textContent = '✨ Validando Pago y Sincronizando con Calendario...';
+  submitBtn.textContent = '✨ Validando pago y sincronizando con calendario...';
 
   const patientName = document.getElementById('patient-name').value.trim();
-  const patientEmail = document.getElementById('patient-email').value.trim();
+  const patientEmail = document.getElementById('patient-email').value.trim().toLowerCase();
   const patientPhone = document.getElementById('patient-phone').value.trim();
 
   setTimeout(() => {
+    // Revalidar que el horario siga libre (evita doble reserva)
+    const blocked = getBlocked();
+    const dayList = blocked[bookingState.selectedDay] || [];
+    if (dayList.includes(bookingState.selectedTime)) {
+      alert('Este horario acaba de ser reservado. Por favor elige otro.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '🔒 Pagar Reserva Ahora y Confirmar en Calendario →';
+      goToStep1();
+      renderTimeSlots();
+      return;
+    }
+
     bookingState.folio = 'VT-' + Math.floor(1000 + Math.random() * 9000);
-    if (!bookingState.bookedSlotsByDay[bookingState.selectedDay]) {
-      bookingState.bookedSlotsByDay[bookingState.selectedDay] = [];
-    }
-    if (!bookingState.bookedSlotsByDay[bookingState.selectedDay].includes(bookingState.selectedTime)) {
-      bookingState.bookedSlotsByDay[bookingState.selectedDay].push(bookingState.selectedTime);
-    }
-    localStorage.setItem('valeria_blocked_slots', JSON.stringify(bookingState.bookedSlotsByDay));
+    bookingState.lastEmail = patientEmail;
 
-    // Guardar en la lista de Reservas Pagadas para que aparezca en el Panel de la Nutrióloga
-    let storedBookings = [];
-    try {
-      storedBookings = JSON.parse(localStorage.getItem('valeria_paid_bookings') || '[]');
-    } catch (e) {}
-    storedBookings.push({
+    blocked[bookingState.selectedDay] = [...dayList, bookingState.selectedTime];
+    VDT.write(VDT.KEYS.blocked, blocked);
+
+    const bookings = VDT.read(VDT.KEYS.bookings, []);
+    bookings.push({
       folio: bookingState.folio,
-      patientName: patientName,
-      patientEmail: patientEmail,
-      patientPhone: patientPhone,
-      serviceName: bookingState.serviceName,
-      modality: bookingState.modality,
+      patientName, patientEmail, patientPhone,
+      type: bookingState.type, typeLabel: VDT.TYPES[bookingState.type],
+      modality: bookingState.modality, modalityLabel: VDT.MODALITIES[bookingState.modality],
+      focus: bookingState.focus,
       day: bookingState.selectedDay,
-      dateLabel: bookingState.selectedDateLabel.replace(', 2026', ', 2026'),
+      dateLabel: `${bookingState.selectedDay} Nov 2026`,
       time: bookingState.selectedTime,
-      price: bookingState.price
+      price: bookingState.price,
+      notes: (document.getElementById('patient-notes') || {}).value || '',
+      status: 'pagado',
+      createdAt: new Date().toISOString()
     });
-    localStorage.setItem('valeria_paid_bookings', JSON.stringify(storedBookings));
+    VDT.write(VDT.KEYS.bookings, bookings);
 
-    document.getElementById('conf-folio').textContent = bookingState.folio;
-    document.getElementById('mail-patient-to').textContent = patientEmail;
-    document.getElementById('mail-patient-name').textContent = patientName;
-    document.getElementById('mail-patient-service').textContent = bookingState.serviceName;
-    document.getElementById('mail-patient-datetime').textContent = `${bookingState.selectedDateLabel} a las ${bookingState.selectedTime}`;
-    document.getElementById('mail-patient-modality').textContent = bookingState.modality;
+    const when = `${bookingState.selectedDateLabel} · ${VDT.slotLabel(bookingState.selectedTime)} hrs`;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('conf-folio', bookingState.folio);
+    set('mail-patient-to', patientEmail);
+    set('mail-patient-name', patientName);
+    set('mail-patient-service', `${VDT.TYPES[bookingState.type]} (${bookingState.focus})`);
+    set('mail-patient-datetime', when);
+    set('mail-patient-modality', VDT.MODALITIES[bookingState.modality]);
+    set('mail-nutri-patient', `${patientName} (${patientEmail})`);
+    set('mail-nutri-phone', patientPhone);
+    set('mail-nutri-amount', `$${bookingState.price}.00 MXN (PAGADO · ${bookingState.folio})`);
 
-    document.getElementById('mail-nutri-patient').textContent = `${patientName} (${patientEmail})`;
-    document.getElementById('mail-nutri-phone').textContent = patientPhone;
-    document.getElementById('mail-nutri-amount').textContent = `$${bookingState.price}.00 MXN (PAGADO - Folio ${bookingState.folio})`;
+    document.getElementById('gcal-link-btn').href = buildGoogleCalendarUrl(patientName);
 
-    const gcalUrl = buildGoogleCalendarUrl(patientName);
-    document.getElementById('gcal-link-btn').href = gcalUrl;
+    // Acceso al portal + cuestionario (solo primera consulta)
+    const qBox = document.getElementById('questionnaire-cta-box');
+    const qLink = document.getElementById('questionnaire-cta-link');
+    if (qBox && qLink) {
+      qBox.style.display = bookingState.type === 'primera' ? 'flex' : 'none';
+      qLink.href = `paciente.html?email=${encodeURIComponent(patientEmail)}&folio=${encodeURIComponent(bookingState.folio)}`;
+    }
 
-    document.getElementById('booking-main-view').style.display = 'none';
-    document.getElementById('step-3-panel').style.display = 'block';
-    setActivePill(3);
-
-    // Disparar animación de celebración dorada
+    showStep3();
     launchGoldenCelebration();
-
     submitBtn.disabled = false;
     submitBtn.textContent = '🔒 Pagar Reserva Ahora y Confirmar en Calendario →';
   }, 850);
 }
 
-function parseTime24(timeStr) {
-  const [timePart, ampm] = timeStr.split(' ');
-  let [hh, mm] = timePart.split(':').map(Number);
-  if (ampm === 'PM' && hh < 12) hh += 12;
-  if (ampm === 'AM' && hh === 12) hh = 0;
-  return { hh, mm };
+function calendarDates() {
+  const [hh] = bookingState.selectedTime.split(':').map(Number);
+  const dd = String(bookingState.selectedDay).padStart(2, '0');
+  return {
+    start: `202611${dd}T${String(hh).padStart(2, '0')}0000`,
+    end: `202611${dd}T${String(hh + 1).padStart(2, '0')}0000`
+  };
 }
 
 function buildGoogleCalendarUrl(patientName) {
-  const { hh, mm } = parseTime24(bookingState.selectedTime);
-  const dayPad = String(bookingState.selectedDay).padStart(2, '0');
-  const hhStart = String(hh).padStart(2, '0');
-  const hhEnd = String(hh + 1).padStart(2, '0');
-  const mmPad = String(mm).padStart(2, '0');
-
-  const startISO = `202611${dayPad}T${hhStart}${mmPad}00`;
-  const endISO = `202611${dayPad}T${hhEnd}${mmPad}00`;
-
-  const title = encodeURIComponent(`${bookingState.serviceName} - Lic. Valeria de la Torre`);
+  const { start, end } = calendarDates();
+  const title = encodeURIComponent(`${VDT.TYPES[bookingState.type]} - Lic. Valeria de la Torre`);
   const details = encodeURIComponent(
-    `Reserva Confirmada y Pagada (${bookingState.folio})\n` +
-    `Paciente: ${patientName}\n` +
-    `Especialista: Lic. Valeria de la Torre (Nutrición Hormonal Femenina)\n` +
-    `Modalidad: ${bookingState.modality}`
+    `Reserva Confirmada y Pagada (${bookingState.folio})\nPaciente: ${patientName}\nEnfoque: ${bookingState.focus}\nModalidad: ${VDT.MODALITIES[bookingState.modality]}`
   );
-  const location = encodeURIComponent(bookingState.modality);
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startISO}/${endISO}&details=${details}&location=${location}`;
+  const location = encodeURIComponent(VDT.MODALITIES[bookingState.modality]);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&ctz=America/Mexico_City&details=${details}&location=${location}`;
 }
 
 function downloadICSFile() {
   const patientName = document.getElementById('patient-name').value.trim() || 'Paciente';
-  const { hh, mm } = parseTime24(bookingState.selectedTime);
-  const dayPad = String(bookingState.selectedDay).padStart(2, '0');
-  const hhStart = String(hh).padStart(2, '0');
-  const hhEnd = String(hh + 1).padStart(2, '0');
-  const mmPad = String(mm).padStart(2, '0');
-
-  const startISO = `202611${dayPad}T${hhStart}${mmPad}00`;
-  const endISO = `202611${dayPad}T${hhEnd}${mmPad}00`;
-
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Valeria de la Torre//Nutricion Hormonal Femenina//ES',
+  const { start, end } = calendarDates();
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Valeria de la Torre//Nutricion Hormonal Femenina//ES',
     'BEGIN:VEVENT',
     `UID:${bookingState.folio}@valeriadelatorre.com`,
-    `DTSTAMP:${startISO}Z`,
-    `DTSTART:${startISO}`,
-    `DTEND:${endISO}`,
-    `SUMMARY:${bookingState.serviceName} - Lic. Valeria de la Torre`,
-    `DESCRIPTION:Reserva Pagada (${bookingState.folio}). Paciente: ${patientName}. Modalidad: ${bookingState.modality}`,
-    `LOCATION:${bookingState.modality}`,
-    'STATUS:CONFIRMED',
-    'END:VEVENT',
-    'END:VCALENDAR'
+    `DTSTAMP:${start}`,
+    `DTSTART;TZID=America/Mexico_City:${start}`,
+    `DTEND;TZID=America/Mexico_City:${end}`,
+    `SUMMARY:${VDT.TYPES[bookingState.type]} - Lic. Valeria de la Torre`,
+    `DESCRIPTION:Reserva Pagada (${bookingState.folio}). Paciente: ${patientName}. Modalidad: ${VDT.MODALITIES[bookingState.modality]}`,
+    `LOCATION:${VDT.MODALITIES[bookingState.modality]}`,
+    'STATUS:CONFIRMED', 'END:VEVENT', 'END:VCALENDAR'
   ].join('\r\n');
-
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `Reserva-${bookingState.folio}-Valeria-Nutricion.ics`;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 }
 

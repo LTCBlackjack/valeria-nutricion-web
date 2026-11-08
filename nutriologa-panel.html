@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Administración de Reservas</title>
+  <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Agenda, Expedientes, Cuestionario y Mapa de Calor</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
   <link rel="stylesheet" href="css/theme.css" />
   <style>
@@ -16,15 +16,11 @@
       flex-direction: column;
     }
 
-    /* Animaciones suaves */
     @keyframes fadeSlideUp {
-      0%   { opacity: 0; transform: translateY(20px); }
+      0%   { opacity: 0; transform: translateY(16px); }
       100% { opacity: 1; transform: translateY(0); }
     }
-    .anim-up { animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-    .delay-1 { animation-delay: 0.1s; opacity: 0; }
-    .delay-2 { animation-delay: 0.2s; opacity: 0; }
-    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .anim-up { animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
     /* Top Admin Header */
     .admin-header {
@@ -38,7 +34,7 @@
       box-shadow: 0 10px 30px -10px rgba(37, 59, 46, 0.25);
     }
     .admin-header-inner {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -52,8 +48,8 @@
       gap: 0.9rem;
     }
     .admin-brand img {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
     }
     .admin-badge {
       background: rgba(235, 190, 124, 0.2);
@@ -63,39 +59,38 @@
       border-radius: 999px;
       font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    /* Main Container */
     .admin-container {
-      max-width: 1280px;
+      max-width: 1320px;
       width: 100%;
       margin: 0 auto;
-      padding: 2.2rem 1.5rem 4rem;
+      padding: 1.8rem 1.5rem 4rem;
       flex: 1;
     }
 
     /* KPI Cards */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.6rem;
     }
     .kpi-card {
       background: #FFFFFF;
       border: 1px solid rgba(167, 114, 55, 0.25);
       border-radius: 18px;
-      padding: 1.4rem 1.5rem;
+      padding: 1.25rem 1.4rem;
       box-shadow: var(--shadow-soft);
       position: relative;
       overflow: hidden;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
     .kpi-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 32px -10px rgba(167, 114, 55, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px -10px rgba(167, 114, 55, 0.2);
     }
     .kpi-card::after {
       content: '';
@@ -107,598 +102,1319 @@
       background: var(--gradient-gold);
     }
     .kpi-label {
-      font-size: 0.76rem;
-      font-weight: 600;
+      font-size: 0.74rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--color-sage-dark);
     }
     .kpi-value {
       font-family: var(--font-heading);
-      font-size: 2.3rem;
+      font-size: 2.15rem;
       font-weight: 700;
       color: var(--color-forest);
       margin: 0.2rem 0;
       line-height: 1.1;
     }
     .kpi-sub {
-      font-size: 0.78rem;
+      font-size: 0.77rem;
       color: var(--color-pine);
       font-weight: 600;
     }
 
-    /* Layout Grid: Left Reservations Table | Right Schedule Control */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1.45fr 0.85fr;
-      gap: 1.75rem;
-      align-items: start;
+    /* Navigation Tabs */
+    .tabs-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      background: #FFFFFF;
+      padding: 0.55rem;
+      border-radius: 16px;
+      border: 1px solid rgba(167, 114, 55, 0.25);
+      margin-bottom: 1.6rem;
+      box-shadow: var(--shadow-soft);
     }
-    @media (max-width: 1024px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
+    .tab-btn {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--color-forest);
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      transition: all 0.2s ease;
     }
+    .tab-btn:hover {
+      background: #FAF6F0;
+      border-color: rgba(167, 114, 55, 0.25);
+    }
+    .tab-btn.active {
+      background: var(--gradient-forest);
+      color: #FEFAFA;
+      box-shadow: 0 8px 18px -6px rgba(37, 59, 46, 0.35);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeSlideUp 0.35s ease; }
 
+    /* Shared Card Styles */
     .panel-card {
       background: #FFFFFF;
       border: 1px solid rgba(167, 114, 55, 0.25);
       border-radius: 20px;
-      padding: 1.6rem;
+      padding: 1.5rem;
       box-shadow: var(--shadow-soft);
+      margin-bottom: 1.5rem;
     }
     .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 0.8rem;
+      gap: 0.75rem;
       padding-bottom: 1rem;
       margin-bottom: 1.2rem;
-      border-bottom: 1px solid rgba(167, 114, 55, 0.18);
+      border-bottom: 1px solid var(--color-cream-soft);
     }
     .panel-title {
-      font-size: 1.45rem;
-      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
       color: var(--color-forest);
+      margin: 0;
     }
 
-    /* Tabla de Reservas Pagadas */
-    .bookings-table {
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 0.85fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .dashboard-grid, .two-col-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; }
+    table.res-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.84rem;
+      font-size: 0.86rem;
     }
-    .bookings-table th {
+    .res-table th {
       text-align: left;
-      padding: 0.75rem 0.8rem;
-      background: #FAF6F0;
-      color: var(--color-gold-dark);
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border-bottom: 1.5px solid rgba(167, 114, 55, 0.25);
+      letter-spacing: 0.08em;
+      color: var(--color-sage-dark);
+      padding: 0.75rem 0.75rem;
+      border-bottom: 2px solid var(--color-cream);
+      background: #FAF6F0;
     }
-    .bookings-table td {
-      padding: 0.9rem 0.8rem;
-      border-bottom: 1px solid rgba(167, 114, 55, 0.14);
+    .res-table td {
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid #F1EAE0;
       vertical-align: middle;
     }
-    .bookings-table tr:hover td {
-      background: #FEFAFA;
-    }
+    .res-table tr:hover td { background: #FDFBF8; }
 
-    .pill-paid {
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
-      background: #E3EFE6;
-      color: #253B2E;
-      padding: 0.22rem 0.65rem;
+      padding: 0.24rem 0.65rem;
       border-radius: 999px;
-      font-size: 0.72rem;
+      font-size: 0.71rem;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .pill-sync {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: #F5E8D5;
-      color: #8F622B;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
+    .status-paid { background: #E3EFE6; color: #253B2E; border: 1px solid #83917B; }
+    .status-pending { background: #FFF4E0; color: #8C5820; border: 1px solid #DEB074; }
+    .status-mod-virtual { background: #EEF3FA; color: #284B7A; border: 1px solid #B7CBE8; }
+    .status-mod-presencial { background: #F7EFE4; color: #7C4F1E; border: 1px solid #DEB074; }
+
+    /* Schedule Blocker */
+    .day-selector {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .day-btn {
+      padding: 0.55rem 0.25rem;
+      border-radius: 10px;
+      border: 1px solid rgba(131, 145, 123, 0.35);
+      background: #FAF6F0;
+      color: var(--color-forest);
       font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .day-btn:hover { border-color: var(--color-bronze); }
+    .day-btn.active {
+      background: var(--color-forest);
+      color: #FEFAFA;
+      border-color: var(--color-forest);
     }
 
-    /* Control de Horarios de la Nutrióloga */
-    .slot-toggle-row {
+    .slot-toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+    .slot-toggle {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.7rem 0.95rem;
+      padding: 0.68rem 0.85rem;
       border-radius: 12px;
-      border: 1px solid rgba(131, 145, 123, 0.3);
-      margin-bottom: 0.55rem;
-      background: #FEFAFA;
-      transition: all 0.2s;
-    }
-    .slot-toggle-row.is-blocked {
-      background: #F5ECE6;
-      border-color: rgba(169, 59, 59, 0.35);
-    }
-    .slot-toggle-btn {
-      padding: 0.38rem 0.85rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      border: 1px solid rgba(131, 145, 123, 0.4);
+      background: #FFFFFF;
       cursor: pointer;
-      border: none;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      font-size: 0.82rem;
+      font-weight: 600;
     }
-    .btn-free {
-      background: #E3EFE6;
-      color: #253B2E;
+    .slot-toggle.available {
+      border-color: var(--color-sage);
+      background: #F4F8F4;
+      color: var(--color-forest);
     }
-    .btn-blocked {
-      background: #A93B3B;
-      color: #FFFFFF;
+    .slot-toggle.blocked {
+      border-color: #D99B82;
+      background: #FDF2EE;
+      color: #8C3B2B;
     }
 
-    /* Modal de Detalle de Correo y Calendario */
+    /* Client Cards */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
+    }
+    .client-card {
+      background: #FAF6F0;
+      border: 1px solid rgba(167, 114, 55, 0.28);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    /* Progress / Metric Bars */
+    .bar-row {
+      margin-bottom: 0.75rem;
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.28rem;
+    }
+    .bar-track {
+      height: 10px;
+      background: #EFE7DC;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--gradient-forest);
+      border-radius: 999px;
+    }
+    .bar-fill.gold {
+      background: var(--gradient-gold);
+    }
+
+    /* Question Editor Item */
+    .q-editor-item {
+      background: #FAF6F0;
+      border: 1px solid rgba(167, 114, 55, 0.28);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .q-editor-row {
+      display: grid;
+      grid-template-columns: 1.6fr 0.9fr auto;
+      gap: 0.65rem;
+      align-items: center;
+    }
+    @media (max-width: 720px) {
+      .q-editor-row { grid-template-columns: 1fr; }
+    }
+    .input-sm {
+      width: 100%;
+      padding: 0.58rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid rgba(131, 145, 123, 0.45);
+      background: #FFFFFF;
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      color: var(--color-forest);
+    }
+
+    /* Heatmap Visual */
+    .heatmap-stage {
+      position: relative;
+      background: #1E2E24;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--color-gold);
+      height: 540px;
+    }
+    .heatmap-sections-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .hm-band {
+      flex: 1;
+      border-bottom: 1px dashed rgba(239, 219, 198, 0.22);
+      padding: 0.45rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(254, 250, 250, 0.85);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    #heatmap-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(37, 59, 46, 0.55);
+      background: rgba(25, 40, 31, 0.62);
       backdrop-filter: blur(4px);
+      z-index: 300;
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 200;
-      padding: 1rem;
+      padding: 1.2rem;
     }
-    .modal-card {
-      background: #FEFAFA;
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: #FFFFFF;
       border: 2px solid var(--color-gold);
       border-radius: 20px;
-      max-width: 580px;
+      max-width: 680px;
       width: 100%;
-      padding: 2rem;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-      animation: fadeSlideUp 0.3s ease forwards;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 1.6rem;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .btn-mini {
+      padding: 0.42rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(167, 114, 55, 0.4);
+      background: #FAF6F0;
+      color: var(--color-forest);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-mini:hover {
+      background: var(--color-cream);
+      border-color: var(--color-bronze);
+    }
+    .btn-mini.danger {
+      color: #8C3B2B;
+      border-color: rgba(180, 75, 55, 0.35);
+      background: #FDF2EE;
     }
   </style>
 </head>
 <body>
 
-  <!-- ================= ENCABEZADO DE LA VISTA DE LA NUTRIÓLOGA ================= -->
+  <!-- ================= HEADER DEL PANEL DE LA NUTRIÓLOGA ================= -->
   <header class="admin-header">
     <div class="admin-header-inner">
       <div class="admin-brand">
-        <img src="assets/logo/isotipo-simbolo-dorado.svg" alt="Logo Valeria de la Torre" />
+        <img src="assets/logo/isotipo-loto.svg" alt="Isotipo Valeria de la Torre" />
         <div>
-          <span class="admin-badge">👩‍⚕️ Vista Exclusiva de la Nutrióloga</span>
-          <div style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 700; color: #FEFAFA; margin-top: 0.15rem;">
-            Panel de Administración y Orden de Reservas
+          <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+            <strong style="font-family:var(--font-heading); font-size:1.35rem; letter-spacing:0.02em;">
+              Lic. Valeria de la Torre
+            </strong>
+            <span class="admin-badge">Panel Clínico & Analítica</span>
           </div>
+          <p style="margin:0; font-size:0.78rem; color:#EFDBC6;">
+            Horario 13:00 a 21:00 hrs (1h por sesión) · Virtual ($650 / $400) · Presencial ($750)
+          </p>
         </div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
-        <span style="font-size: 0.8rem; color: #C2CBB4;">
-          🟢 Google Calendar: <strong style="color: #EBBE7C;">Conectado</strong>
-        </span>
-        <a href="index.html#reservar" class="btn-gold" style="padding: 0.55rem 1.2rem; font-size: 0.78rem;">
-          ← Ir a Vista del Paciente (Web Pública)
+      <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+        <a href="paciente.html" class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:#FEFAFA; border-color:rgba(239,219,198,0.45); padding:0.55rem 1rem; font-size:0.8rem;">
+          🔑 Ver Portal del Paciente
+        </a>
+        <a href="index.html" class="btn btn-gold" style="padding:0.55rem 1.1rem; font-size:0.8rem;">
+          ← Ver Sitio Público
         </a>
       </div>
     </div>
   </header>
 
-  <!-- ================= CONTENIDO PRINCIPAL DEL DASHBOARD ================= -->
+  <!-- ================= CONTENIDO PRINCIPAL ================= -->
   <main class="admin-container">
 
-    <!-- 1. TARJETAS KPI DE ADMINISTRACIÓN -->
-    <div class="kpi-grid anim-up">
+    <!-- Tarjetas de Resumen (KPIs Globales) -->
+    <section class="kpi-grid anim-up">
       <div class="kpi-card">
-        <div class="kpi-label">Reservas Pagadas y Agendadas</div>
-        <div class="kpi-value" id="kpi-total-count">5</div>
-        <div class="kpi-sub">✓ 100% con pago verificado antes de agendar</div>
+        <div class="kpi-label">Consultas Pagadas</div>
+        <div class="kpi-value" id="kpi-total-citas">0</div>
+        <div class="kpi-sub" id="kpi-modalidades-sub">Virtual vs Presencial</div>
       </div>
-
       <div class="kpi-card">
-        <div class="kpi-label">Ingresos Confirmados (Mes)</div>
-        <div class="kpi-value" id="kpi-total-revenue" style="color: var(--color-gold);">$4,050 MXN</div>
-        <div class="kpi-sub">Cobros acreditados vía Pasarela Segura</div>
+        <div class="kpi-label">Ingresos Confirmados (MXN)</div>
+        <div class="kpi-value" id="kpi-ingresos">$0</div>
+        <div class="kpi-sub">1ª Virtual $650 · Seg. $400 · Presencial $750</div>
       </div>
-
       <div class="kpi-card">
-        <div class="kpi-label">Sincronización en Calendario</div>
-        <div class="kpi-value" style="font-size: 1.75rem; margin-top: 0.45rem;">Automática</div>
-        <div class="kpi-sub">📅 Google Calendar + Recordatorios Activos</div>
+        <div class="kpi-label">Cuestionarios 1ª Consulta</div>
+        <div class="kpi-value" id="kpi-cuestionarios">0 / 0</div>
+        <div class="kpi-sub" id="kpi-cuestionarios-pct">Pacientes de 1ª vez respondidos</div>
       </div>
-
       <div class="kpi-card">
-        <div class="kpi-label">Notificaciones por Correo</div>
-        <div class="kpi-value" id="kpi-emails-sent">10 Enviados</div>
-        <div class="kpi-sub">📩 Dual: Al Paciente y a la Nutrióloga</div>
+        <div class="kpi-label">Interacciones Web (Mapa de Calor)</div>
+        <div class="kpi-value" id="kpi-clicks">0</div>
+        <div class="kpi-sub" id="kpi-top-section">Sección más atractiva: —</div>
       </div>
-    </div>
+    </section>
 
-    <!-- 2. GRID PRINCIPAL: TABLA DE CITAS PAGADAS + CONTROL DE HORARIOS -->
-    <div class="dashboard-grid">
+    <!-- Barra de Pestañas -->
+    <nav class="tabs-bar anim-up" role="tablist">
+      <button type="button" class="tab-btn active" data-tab="tab-agenda">
+        📅 1. Agenda y Horarios (13:00–21:00)
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-clientes">
+        👥 2. Métricas por Cliente
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-cuestionario">
+        📝 3. Cuestionario 1ª Vez (Métricas y Editor)
+      </button>
+      <button type="button" class="tab-btn" data-tab="tab-heatmap">
+        🔥 4. Mapa de Calor y Atractivo Web
+      </button>
+    </nav>
 
-      <!-- COLUMNA IZQUIERDA: AGENDA DE PACIENTES CON PAGO CONFIRMADO -->
-      <div class="panel-card anim-up delay-1">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Pacientes con Reserva Pagada y Confirmada</h2>
-            <p style="font-size: 0.82rem; color: var(--color-sage-dark); margin: 0.2rem 0 0;">
-              Aquí sólo aparecen las citas cuyo pago fue acreditado (evitando inasistencias y horarios falsos).
-            </p>
+    <!-- =====================================================================
+         PESTAÑA 1: AGENDA Y CONTROL DE HORARIOS (13:00 A 21:00 HRS)
+         ===================================================================== -->
+    <section id="tab-agenda" class="tab-pane active">
+      <div class="dashboard-grid">
+        <!-- Tabla de citas -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Citas Agendadas y Pagadas</h2>
+              <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                Sesiones de 1 hora entre las 13:00 y las 21:00 hrs. Incluye estado del cuestionario previo de 1ª consulta.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" id="btn-add-demo" class="btn btn-outline" style="padding:0.45rem 0.9rem; font-size:0.76rem;">
+                + Simular Cita Nueva
+              </button>
+              <button type="button" id="btn-reset-demo" class="btn-mini">
+                Restaurar Demo
+              </button>
+            </div>
           </div>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button onclick="exportBookingsToCSV()" class="btn-gold" style="padding: 0.45rem 0.95rem; font-size: 0.74rem;">
-              ⬇ Exportar a Excel (.CSV)
-            </button>
-            <button onclick="simulateNewPatientBooking()" class="btn-outline" style="padding: 0.45rem 0.95rem; font-size: 0.74rem;">
-              + Simular Nueva Cita Pagada
-            </button>
+
+          <div class="table-wrap">
+            <table class="res-table">
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Paciente</th>
+                  <th>Tipo / Modalidad</th>
+                  <th>Fecha y Horario (1h)</th>
+                  <th>Tarifa</th>
+                  <th>Cuestionario 1ª Vez</th>
+                </tr>
+              </thead>
+              <tbody id="reservations-tbody"></tbody>
+            </table>
           </div>
         </div>
 
-        <div style="overflow-x: auto;">
-          <table class="bookings-table">
-            <thead>
-              <tr>
-                <th>Folio</th>
-                <th>Paciente &amp; Contacto</th>
-                <th>Consulta y Modalidad</th>
-                <th>Fecha y Horario</th>
-                <th>Pago</th>
-                <th>Calendario &amp; Correo</th>
-              </tr>
-            </thead>
-            <tbody id="admin-bookings-tbody">
-              <!-- Renderizado por JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- COLUMNA DERECHA: ADMINISTRACIÓN Y BLOQUEO DE HORARIOS DE LA NUTRIÓLOGA -->
-      <div class="panel-card anim-up delay-2">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Control de Horarios Disponibles</h2>
-            <p style="font-size: 0.82rem; color: var(--color-sage-dark); margin: 0.2rem 0 0;">
-              Abre o bloquea horarios de tu agenda. Los cambios se reflejan al instante en la página web del paciente.
-            </p>
+        <!-- Bloqueador de Horarios 13:00 a 21:00 -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Control de Horarios (13:00 – 21:00)</h2>
+              <p style="margin:0.2rem 0 0; font-size:0.82rem; color:var(--color-sage-dark);">
+                Bloquea o libera horas de 60 min. Se sincroniza en vivo con el calendario público.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div style="margin-bottom: 1rem;">
-          <label style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-gold);">
-            Selecciona el Día a Administrar (Noviembre 2026):
+          <label style="display:block; font-size:0.76rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-pine); margin-bottom:0.5rem;">
+            1. Selecciona el día de Noviembre 2026:
           </label>
-          <select id="admin-day-select" class="form-input" onchange="renderAdminDaySlots()" style="margin-top: 0.35rem; font-weight: 600;">
-            <option value="5">Jueves 5 de Noviembre, 2026</option>
-            <option value="12" selected>Jueves 12 de Noviembre, 2026</option>
-            <option value="13">Viernes 13 de Noviembre, 2026</option>
-            <option value="19">Jueves 19 de Noviembre, 2026</option>
-            <option value="20">Viernes 20 de Noviembre, 2026</option>
-          </select>
-        </div>
+          <div class="day-selector" id="admin-day-selector"></div>
 
-        <div id="admin-slots-list">
-          <!-- Renderizado por JS -->
-        </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.65rem;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--color-forest);">
+              2. Sesiones del día <span id="selected-day-label" style="color:var(--color-bronze);">5 Nov</span> (1 hora c/u):
+            </span>
+            <span style="font-size:0.72rem; color:var(--color-sage-dark);">Clic para Bloquear / Liberar</span>
+          </div>
 
-        <div style="margin-top: 1.2rem; background: #FAF6F0; border-left: 4px solid var(--color-gold); padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.79rem; color: var(--color-forest); line-height: 1.5;">
-          💡 <strong>Sincronización en vivo:</strong> Si bloqueas un horario aquí (por ejemplo <em>12:30 PM</em>) y abres la <a href="index.html#reservar" style="color: var(--color-pine); font-weight: 700;">Vista del Paciente</a>, verás que esa hora aparece inmediatamente como <strong>Ocupado</strong>.
+          <div class="slot-toggle-grid" id="admin-slots-grid"></div>
         </div>
       </div>
+    </section>
 
-    </div>
+    <!-- =====================================================================
+         PESTAÑA 2: MÉTRICAS DE CADA UNO DE LOS CLIENTES
+         ===================================================================== -->
+    <section id="tab-clientes" class="tab-pane">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Métricas e Historial por Cliente</h2>
+            <p style="margin:0.2rem 0 0; font-size:0.84rem; color:var(--color-sage-dark);">
+              Seguimiento individual de cada paciente: número de consultas (1ª vez y seguimientos), inversión acumulada, modalidad preferida y respuestas a su cuestionario clínico.
+            </p>
+          </div>
+          <input type="search" id="client-search" class="input-sm" style="max-width:280px;" placeholder="🔍 Buscar paciente por nombre o correo..." />
+        </div>
+
+        <div class="clients-grid" id="clients-metrics-grid"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 3: CUESTIONARIO DE 1ª VEZ (ESTADO GENERAL + EDITOR DINÁMICO)
+         ===================================================================== -->
+    <section id="tab-cuestionario" class="tab-pane">
+      <div class="two-col-grid">
+        <!-- Columna Izquierda: Estado General del Cuestionario -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Estado General del Cuestionario (1ª Vez)</h2>
+              <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                Resumen estadístico de lo que responden las pacientes nuevas al iniciar sesión tras su pago.
+              </p>
+            </div>
+          </div>
+
+          <div id="questionnaire-stats-box"></div>
+        </div>
+
+        <!-- Columna Derecha: Constructor / Editor Personalizable -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Personalizar Preguntas del Cuestionario</h2>
+              <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                Modifica el cuestionario como prefieras: respuesta abierta (corta o larga), opción múltiple, casillas, escala 1–10 o Sí/No.
+              </p>
+            </div>
+            <div style="display:flex; gap:0.45rem;">
+              <button type="button" id="btn-add-question" class="btn btn-gold" style="padding:0.48rem 0.9rem; font-size:0.78rem;">
+                + Agregar Pregunta
+              </button>
+              <button type="button" id="btn-reset-questions" class="btn-mini">
+                Restaurar Base
+              </button>
+            </div>
+          </div>
+
+          <div id="questions-editor-list"></div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--color-cream-soft);">
+            <span id="q-save-feedback" style="font-size:0.82rem; font-weight:700; color:var(--color-pine);">
+              Los cambios se reflejan al instante en el Portal del Paciente.
+            </span>
+            <button type="button" id="btn-save-questionnaire" class="btn btn-primary" style="padding:0.65rem 1.35rem; font-size:0.84rem;">
+              💾 Guardar Cuestionario
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PESTAÑA 4: MAPA DE CALOR Y ATRACTIVO DE SECCIONES
+         ===================================================================== -->
+    <section id="tab-heatmap" class="tab-pane">
+      <div class="two-col-grid">
+        <!-- Mapa de calor visual por sección -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Mapa de Calor de Clics por Sección</h2>
+              <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                Visualiza dónde hacen clic los usuarios dentro de la página principal para identificar las zonas más calientes.
+              </p>
+            </div>
+            <button type="button" id="btn-simulate-traffic" class="btn-mini">
+              + Simular 25 visitas
+            </button>
+          </div>
+
+          <div class="heatmap-stage">
+            <div class="heatmap-sections-bg" id="heatmap-bands"></div>
+            <canvas id="heatmap-canvas" width="620" height="540"></canvas>
+          </div>
+        </div>
+
+        <!-- Ranking de secciones, botones más seleccionados y diagnóstico de atractivo -->
+        <div>
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Atractivo por Sección y Recomendaciones</h2>
+                <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                  Mide vistas, tiempo promedio y clics para saber a qué secciones darles mayor importancia visual.
+                </p>
+              </div>
+            </div>
+            <div id="sections-engagement-list"></div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Lo que Más Seleccionan los Usuarios</h2>
+                <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+                  Botones, especialidades y elementos con mayor número de clics reales.
+                </p>
+              </div>
+            </div>
+            <div id="top-elements-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- MODAL PARA VER EL COMPROBANTE Y CORREOS ENVIADOS DEL PACIENTE -->
-  <div id="detail-modal" class="modal-backdrop" onclick="closeDetailModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-        <span class="admin-badge" style="background: #E3EFE6; color: #253B2E; border-color: #3D5540;">
-          ✓ Registro de Calendario y Correo Dual
-        </span>
-        <button onclick="closeDetailModal()" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--color-forest);">✕</button>
+  <!-- ================= MODAL DE RESPUESTAS INDIVIDUALES DEL PACIENTE ================= -->
+  <div class="modal-backdrop" id="patient-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-cream-soft); padding-bottom:0.85rem; margin-bottom:1rem;">
+        <div>
+          <span class="badge" style="margin-bottom:0.25rem;">Expediente de Primera Consulta</span>
+          <h3 id="modal-patient-name" style="margin:0; font-size:1.45rem;">Paciente</h3>
+        </div>
+        <button type="button" id="modal-close-btn" class="btn-mini">✕ Cerrar</button>
       </div>
-
-      <h3 id="mod-title" style="font-size: 1.55rem; margin: 0 0 0.4rem;">Detalle de Reserva Confirmada</h3>
-      <div id="mod-body" style="font-size: 0.86rem; color: var(--color-forest); line-height: 1.6;"></div>
-
-      <div style="margin-top: 1.4rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
-        <button onclick="closeDetailModal()" class="btn-primary" style="padding: 0.6rem 1.4rem; font-size: 0.8rem;">
-          Cerrar Ficha
-        </button>
-      </div>
+      <div id="modal-patient-body"></div>
     </div>
   </div>
 
-  <footer style="background: var(--color-forest); color: #C2CBB4; text-align: center; padding: 1.5rem; font-size: 0.8rem;">
-    Panel Administrativo de la Nutrióloga · Lic. Valeria de la Torre · Desarrollado por <strong style="color: #EBBE7C;">LeonardLance</strong>
+  <!-- ================= FOOTER CON CRÉDITOS LEONARDLANCE ================= -->
+  <footer style="background:#1B2C22; color:#EFDBC6; padding:1.5rem 2rem; border-top:2px solid var(--color-bronze); margin-top:auto;">
+    <div style="max-width:1320px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; font-size:0.8rem;">
+      <div>
+        <strong>Lic. Valeria de la Torre</strong> · Panel Administrativo Clínico (Horario 13:00 a 21:00 hrs)
+      </div>
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <span>Desarrollado por</span>
+        <img src="assets/logo/png/leonard-logo-transparente.png" alt="LeonardLance" style="height:26px; width:auto;" />
+        <strong style="color:#EBBE7C;">LeonardLance</strong>
+      </div>
+    </div>
   </footer>
 
+  <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
+  <script src="js/store.js"></script>
   <script>
-    const standardHours = ['09:30 AM', '11:00 AM', '12:30 PM', '04:00 PM', '05:30 PM', '06:30 PM'];
+    const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
+    let currentAdminDay = 5;
 
-    const defaultBookings = [
-      {
-        folio: 'VT-8410',
-        patientName: 'Ana Sofía Martínez',
-        patientEmail: 'anasofia.mtz@gmail.com',
-        patientPhone: '+52 55 4829 1034',
-        serviceName: 'Consulta SOP y Resistencia a la Insulina',
-        modality: 'Online (Videollamada Google Meet)',
-        day: 5,
-        dateLabel: 'Jueves 5 Nov, 2026',
-        time: '09:30 AM',
-        price: 850
-      },
-      {
-        folio: 'VT-8425',
-        patientName: 'Valeria Hernández Ruiz',
-        patientEmail: 'val.hernandez@outlook.com',
-        patientPhone: '+52 33 1920 4412',
-        serviceName: 'Consulta Salud Tiroidea y Metabolismo',
-        modality: 'Presencial en Consultorio',
-        day: 5,
-        dateLabel: 'Jueves 5 Nov, 2026',
-        time: '04:00 PM',
-        price: 850
-      },
-      {
-        folio: 'VT-8451',
-        patientName: 'Carolina Vega Soto',
-        patientEmail: 'caro.vega@gmail.com',
-        patientPhone: '+52 81 8392 7710',
-        serviceName: 'Consulta Ciclo Menstrual y Fertilidad',
-        modality: 'Online (Videollamada Google Meet)',
-        day: 12,
-        dateLabel: 'Jueves 12 Nov, 2026',
-        time: '09:30 AM',
-        price: 850
-      },
-      {
-        folio: 'VT-8478',
-        patientName: 'Mariana López Téllez',
-        patientEmail: 'mariana.lt@gmail.com',
-        patientPhone: '+52 55 9182 3341',
-        serviceName: 'Consulta Subsecuente de Seguimiento',
-        modality: 'Online (Videollamada Google Meet)',
-        day: 12,
-        dateLabel: 'Jueves 12 Nov, 2026',
-        time: '05:30 PM',
-        price: 650
-      },
-      {
-        folio: 'VT-8489',
-        patientName: 'Daniela Castillo Mora',
-        patientEmail: 'dcastillo.mora@gmail.com',
-        patientPhone: '+52 55 6723 8911',
-        serviceName: 'Consulta de Valoración Nutricional Hormonal',
-        modality: 'Presencial en Consultorio',
-        day: 13,
-        dateLabel: 'Viernes 13 Nov, 2026',
-        time: '11:00 AM',
-        price: 850
-      }
-    ];
+    const SECTION_META = {
+      'inicio':         { label: '1. Hero / Inicio', yOrder: 0 },
+      'sobre-mi':       { label: '2. Sobre la Nutrióloga', yOrder: 1 },
+      'especialidades': { label: '3. Especialidades Clínicas', yOrder: 2 },
+      'tarifas':        { label: '4. Tarifas ($650/$400/$750)', yOrder: 3 },
+      'como-funciona':  { label: '5. Proceso de Atención', yOrder: 4 },
+      'reservar':       { label: '6. Calendario y Pago (13–21h)', yOrder: 5 },
+      'testimonios':    { label: '7. Testimonios de Pacientes', yOrder: 6 },
+      'faq':            { label: '8. Preguntas Frecuentes', yOrder: 7 }
+    };
 
-    function getStoredBookings() {
-      const raw = localStorage.getItem('valeria_paid_bookings');
-      if (!raw) {
-        localStorage.setItem('valeria_paid_bookings', JSON.stringify(defaultBookings));
-        return defaultBookings;
-      }
-      try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return defaultBookings;
-      }
-    }
+    const TYPE_LABELS = {
+      textarea: 'Respuesta abierta larga',
+      text:     'Respuesta abierta corta',
+      single:   'Opción múltiple (1 respuesta)',
+      multiple: 'Casillas múltiples (varias)',
+      scale:    'Escala del 1 al 10',
+      yesno:    'Sí / No'
+    };
 
-    function getStoredBlockedSlots() {
-      const raw = localStorage.getItem('valeria_blocked_slots');
-      const initial = {
-        5: ['09:30 AM', '04:00 PM'],
-        12: ['09:30 AM', '05:30 PM'],
-        13: ['11:00 AM'],
-        19: ['12:30 PM']
-      };
-      if (!raw) {
-        localStorage.setItem('valeria_blocked_slots', JSON.stringify(initial));
-        return initial;
-      }
-      try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return initial;
-      }
-    }
-
-    function renderDashboard() {
-      const bookings = getStoredBookings();
-      const tbody = document.getElementById('admin-bookings-tbody');
-      tbody.innerHTML = '';
-
-      let totalRev = 0;
-      bookings.slice().reverse().forEach((b, idx) => {
-        totalRev += Number(b.price) || 850;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong style="color: var(--color-gold); font-family: monospace;">${b.folio}</strong></td>
-          <td>
-            <div style="font-weight: 700; color: var(--color-forest);">${b.patientName}</div>
-            <div style="font-size: 0.76rem; color: var(--color-sage-dark);">${b.patientEmail} · ${b.patientPhone}</div>
-          </td>
-          <td>
-            <div style="font-weight: 600;">${b.serviceName}</div>
-            <div style="font-size: 0.75rem; color: var(--color-sage-dark);">${b.modality}</div>
-          </td>
-          <td>
-            <div style="font-weight: 700; color: var(--color-pine);">${b.dateLabel}</div>
-            <div style="font-size: 0.78rem; font-weight: 600;">⏰ ${b.time}</div>
-          </td>
-          <td>
-            <span class="pill-paid">✓ PAGADO ($${b.price})</span>
-          </td>
-          <td>
-            <div style="display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start;">
-              <span class="pill-sync">📅 En Calendario</span>
-              <button onclick="openBookingDetail('${b.folio}')" style="background: none; border: none; color: var(--color-gold); font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline;">
-                📩 Ver 2 Correos Enviados
-              </button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+    /* ----------------------------------------------------------------------
+       Navegación por pestañas
+       ---------------------------------------------------------------------- */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const pane = document.getElementById(btn.dataset.tab);
+        if (pane) pane.classList.add('active');
+        if (btn.dataset.tab === 'tab-heatmap') renderHeatmapTab();
       });
+    });
 
-      document.getElementById('kpi-total-count').textContent = bookings.length;
-      document.getElementById('kpi-total-revenue').textContent = `$${totalRev.toLocaleString('es-MX')} MXN`;
-      document.getElementById('kpi-emails-sent').textContent = `${bookings.length * 2} Enviados`;
+    /* ----------------------------------------------------------------------
+       KPIs Superiores
+       ---------------------------------------------------------------------- */
+    function renderKPIs() {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const analytics = VDT.read(VDT.KEYS.analytics, { clicks: [], sections: {} });
 
-      renderAdminDaySlots();
+      const totalRevenue = bookings.reduce((s, b) => s + Number(b.price || 0), 0);
+      const virtualCount = bookings.filter(b => b.modality === 'virtual').length;
+      const presencialCount = bookings.filter(b => b.modality === 'presencial').length;
+
+      const firstTimeBookings = bookings.filter(b => b.type === 'primera');
+      const answeredFolios = new Set(responses.map(r => r.folio));
+      const answeredCount = firstTimeBookings.filter(b => answeredFolios.has(b.folio)).length;
+
+      document.getElementById('kpi-total-citas').textContent = bookings.length;
+      document.getElementById('kpi-modalidades-sub').textContent = `${virtualCount} Virtual · ${presencialCount} Presencial`;
+      document.getElementById('kpi-ingresos').textContent = '$' + totalRevenue.toLocaleString('es-MX');
+      document.getElementById('kpi-cuestionarios').textContent = `${answeredCount} / ${firstTimeBookings.length}`;
+      const pct = firstTimeBookings.length ? Math.round((answeredCount / firstTimeBookings.length) * 100) : 100;
+      document.getElementById('kpi-cuestionarios-pct').textContent = `${pct}% completado antes de la cita`;
+
+      const clicks = analytics.clicks || [];
+      document.getElementById('kpi-clicks').textContent = clicks.length;
+      const bySec = {};
+      clicks.forEach(c => { bySec[c.section] = (bySec[c.section] || 0) + 1; });
+      const topSec = Object.entries(bySec).sort((a, b) => b[1] - a[1])[0];
+      document.getElementById('kpi-top-section').textContent = topSec
+        ? `Más activa: ${(SECTION_META[topSec[0]]?.label || topSec[0]).replace(/^\d+\.\s*/, '')}`
+        : 'Sin datos aún';
     }
 
-    function renderAdminDaySlots() {
-      const day = Number(document.getElementById('admin-day-select').value);
-      const blockedMap = getStoredBlockedSlots();
-      const dayBlocked = blockedMap[day] || [];
-      const bookings = getStoredBookings();
+    /* ----------------------------------------------------------------------
+       PESTAÑA 1: Tabla de Reservas + Control de Horarios (13:00 a 21:00)
+       ---------------------------------------------------------------------- */
+    function renderReservations() {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const tbody = document.getElementById('reservations-tbody');
 
-      const container = document.getElementById('admin-slots-list');
-      container.innerHTML = '';
+      if (bookings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem;">No hay reservas registradas.</td></tr>`;
+        return;
+      }
 
-      standardHours.forEach(hr => {
-        const isTaken = dayBlocked.includes(hr);
-        const patientForSlot = bookings.find(b => Number(b.day) === day && b.time === hr);
+      tbody.innerHTML = bookings.map(b => {
+        const resp = responses.find(r => r.folio === b.folio || r.patientEmail.toLowerCase() === b.patientEmail.toLowerCase());
+        let qBadge = '<span style="font-size:0.75rem; color:var(--color-sage-dark);">No aplica (Seguimiento)</span>';
+        if (b.type === 'primera') {
+          qBadge = resp
+            ? `<button type="button" class="btn-mini" onclick="openPatientModal('${b.patientEmail}')">✓ Ver Cuestionario</button>`
+            : `<a href="paciente.html?email=${encodeURIComponent(b.patientEmail)}&folio=${encodeURIComponent(b.folio)}" class="status-pill status-pending" style="text-decoration:none;">⏳ Pendiente (Abrir link)</a>`;
+        }
 
-        const row = document.createElement('div');
-        row.className = 'slot-toggle-row' + (isTaken ? ' is-blocked' : '');
+        const modClass = b.modality === 'presencial' ? 'status-mod-presencial' : 'status-mod-virtual';
+        const modText = b.modality === 'presencial' ? '🏥 Presencial' : '💻 Virtual';
+        const typeText = b.type === 'seguimiento' ? 'Seguimiento' : '1ª Consulta';
 
-        const statusText = patientForSlot
-          ? `Reservado y Pagado por: <strong>${patientForSlot.patientName}</strong>`
-          : (isTaken ? 'Bloqueado manualmente por la Nutrióloga' : 'Horario Libre para recibir reserva');
+        return `
+          <tr>
+            <td><strong style="color:var(--color-bronze); font-family:monospace;">${b.folio}</strong></td>
+            <td>
+              <div style="font-weight:700; color:var(--color-forest);">${b.patientName}</div>
+              <div style="font-size:0.74rem; color:var(--color-sage-dark);">${b.patientEmail} · ${b.patientPhone}</div>
+            </td>
+            <td>
+              <div style="font-weight:700; font-size:0.81rem;">${typeText}</div>
+              <span class="status-pill ${modClass}" style="margin-top:0.2rem;">${modText}</span>
+              <div style="font-size:0.72rem; color:var(--color-sage-dark); margin-top:0.2rem;">${b.focus || ''}</div>
+            </td>
+            <td>
+              <div style="font-weight:700;">${b.dateLabel}</div>
+              <div style="font-size:0.77rem; color:var(--color-pine); font-weight:700;">⏰ ${VDT.slotLabel(b.time)}</div>
+            </td>
+            <td>
+              <div style="font-weight:700; color:var(--color-forest);">$${Number(b.price).toLocaleString('es-MX')} MXN</div>
+              <span class="status-pill status-paid">✓ Pagado</span>
+            </td>
+            <td>${qBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
 
-        row.innerHTML = `
-          <div>
-            <div style="font-weight: 700; font-size: 0.9rem; color: var(--color-forest);">⏰ ${hr}</div>
-            <div style="font-size: 0.75rem; color: var(--color-sage-dark);">${statusText}</div>
+    function renderDaySelector() {
+      const container = document.getElementById('admin-day-selector');
+      container.innerHTML = ADMIN_DAYS.map(d => `
+        <button type="button" class="day-btn ${d === currentAdminDay ? 'active' : ''}" data-day="${d}">
+          ${d} Nov
+        </button>
+      `).join('');
+
+      container.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentAdminDay = parseInt(btn.dataset.day, 10);
+          document.getElementById('selected-day-label').textContent = `${currentAdminDay} Nov`;
+          renderDaySelector();
+          renderSlotsGrid();
+        });
+      });
+    }
+
+    function renderSlotsGrid() {
+      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
+      const blockedForDay = blockedMap[currentAdminDay] || [];
+      const grid = document.getElementById('admin-slots-grid');
+
+      grid.innerHTML = VDT.HOURS.map(time => {
+        const isBlocked = blockedForDay.includes(time);
+        return `
+          <div class="slot-toggle ${isBlocked ? 'blocked' : 'available'}" data-time="${time}">
+            <span>${VDT.slotLabel(time)}</span>
+            <span style="font-size:0.68rem; text-transform:uppercase; padding:0.15rem 0.45rem; border-radius:6px; background:${isBlocked ? 'rgba(140,59,43,0.12)' : 'rgba(37,59,46,0.1)'};">
+              ${isBlocked ? 'Ocupado' : 'Libre'}
+            </span>
           </div>
-          <button onclick="toggleSlotAvailability(${day}, '${hr}')" class="slot-toggle-btn ${isTaken ? 'btn-blocked' : 'btn-free'}">
-            ${isTaken ? '🔒 Ocupado / Liberar' : '🟢 Disponible / Bloquear'}
-          </button>
         `;
-        container.appendChild(row);
+      }).join('');
+
+      grid.querySelectorAll('.slot-toggle').forEach(item => {
+        item.addEventListener('click', () => {
+          const time = item.dataset.time;
+          const map = VDT.read(VDT.KEYS.blocked, {});
+          map[currentAdminDay] = map[currentAdminDay] || [];
+          const idx = map[currentAdminDay].indexOf(time);
+          if (idx > -1) map[currentAdminDay].splice(idx, 1);
+          else map[currentAdminDay].push(time);
+          VDT.write(VDT.KEYS.blocked, map);
+          renderSlotsGrid();
+        });
       });
     }
 
-    function toggleSlotAvailability(day, hr) {
-      const blockedMap = getStoredBlockedSlots();
-      if (!blockedMap[day]) blockedMap[day] = [];
+    /* ----------------------------------------------------------------------
+       PESTAÑA 2: Métricas por Cliente (Expediente Individual)
+       ---------------------------------------------------------------------- */
+    function renderClientsMetrics() {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const qTerm = (document.getElementById('client-search')?.value || '').toLowerCase().trim();
 
-      const idx = blockedMap[day].indexOf(hr);
-      if (idx >= 0) {
-        blockedMap[day].splice(idx, 1);
-      } else {
-        blockedMap[day].push(hr);
+      const byClient = {};
+      bookings.forEach(b => {
+        const key = b.patientEmail.toLowerCase();
+        if (!byClient[key]) {
+          byClient[key] = {
+            name: b.patientName,
+            email: b.patientEmail,
+            phone: b.patientPhone,
+            totalSpent: 0,
+            consultations: 0,
+            primeraCount: 0,
+            seguimientoCount: 0,
+            virtualCount: 0,
+            presencialCount: 0,
+            focuses: new Set(),
+            lastAppointment: `${b.dateLabel} (${VDT.slotLabel(b.time)})`,
+            bookings: []
+          };
+        }
+        const c = byClient[key];
+        c.totalSpent += Number(b.price || 0);
+        c.consultations += 1;
+        if (b.type === 'primera') c.primeraCount += 1;
+        else c.seguimientoCount += 1;
+        if (b.modality === 'presencial') c.presencialCount += 1;
+        else c.virtualCount += 1;
+        if (b.focus) c.focuses.add(b.focus);
+        c.bookings.push(b);
+      });
+
+      const list = Object.values(byClient).filter(c =>
+        !qTerm || c.name.toLowerCase().includes(qTerm) || c.email.toLowerCase().includes(qTerm)
+      );
+
+      const grid = document.getElementById('clients-metrics-grid');
+      if (list.length === 0) {
+        grid.innerHTML = `<p style="color:var(--color-sage-dark);">No se encontraron pacientes con ese criterio.</p>`;
+        return;
       }
-      localStorage.setItem('valeria_blocked_slots', JSON.stringify(blockedMap));
-      renderAdminDaySlots();
+
+      grid.innerHTML = list.map(c => {
+        const resp = responses.find(r => r.patientEmail.toLowerCase() === c.email.toLowerCase());
+        const energyScore = resp?.answers?.q4 ? `${resp.answers.q4}/10` : '—';
+        const goal = resp?.answers?.q5 || 'Pendiente de responder';
+
+        return `
+          <div class="client-card">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+                <div>
+                  <h3 style="margin:0; font-size:1.18rem; color:var(--color-forest);">${c.name}</h3>
+                  <div style="font-size:0.76rem; color:var(--color-sage-dark);">${c.email} · ${c.phone}</div>
+                </div>
+                <span class="status-pill ${resp ? 'status-paid' : 'status-pending'}">
+                  ${resp ? '✓ Cuestionario Listo' : '⏳ Sin Cuestionario'}
+                </span>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin:0.9rem 0; background:#FFFFFF; padding:0.7rem; border-radius:12px; border:1px solid rgba(167,114,55,0.18); text-align:center;">
+                <div>
+                  <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Consultas</div>
+                  <div style="font-weight:700; font-size:1.05rem;">${c.consultations}</div>
+                  <div style="font-size:0.68rem; color:var(--color-pine);">${c.primeraCount} 1ª · ${c.seguimientoCount} Seg</div>
+                </div>
+                <div>
+                  <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Inversión</div>
+                  <div style="font-weight:700; font-size:1.05rem; color:var(--color-bronze);">$${c.totalSpent.toLocaleString('es-MX')}</div>
+                  <div style="font-size:0.68rem; color:var(--color-pine);">MXN Pagado</div>
+                </div>
+                <div>
+                  <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Energía Inicial</div>
+                  <div style="font-weight:700; font-size:1.05rem;">${energyScore}</div>
+                  <div style="font-size:0.68rem; color:var(--color-pine);">${c.virtualCount} Virt · ${c.presencialCount} Pres</div>
+                </div>
+              </div>
+
+              <div style="font-size:0.8rem; line-height:1.5;">
+                <div><strong>Enfoque clínico:</strong> ${Array.from(c.focuses).join(', ') || 'General'}</div>
+                <div><strong>Objetivo reportado:</strong> ${goal}</div>
+                <div><strong>Última cita:</strong> ${c.lastAppointment}</div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; padding-top:0.65rem; border-top:1px solid rgba(167,114,55,0.2);">
+              <button type="button" class="btn-mini" onclick="openPatientModal('${c.email}')">
+                📋 Ver Expediente y Respuestas
+              </button>
+              <a href="paciente.html?email=${encodeURIComponent(c.email)}&folio=${encodeURIComponent(c.bookings[0].folio)}" class="btn-mini" style="text-decoration:none;">
+                🔑 Abrir su Portal
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function openBookingDetail(folio) {
-      const bookings = getStoredBookings();
-      const b = bookings.find(item => item.folio === folio);
-      if (!b) return;
+    window.openPatientModal = function(email) {
+      const bookings = VDT.read(VDT.KEYS.bookings, []).filter(b => b.patientEmail.toLowerCase() === email.toLowerCase());
+      const resp = VDT.read(VDT.KEYS.responses, []).find(r => r.patientEmail.toLowerCase() === email.toLowerCase());
+      const qConfig = VDT.getQuestionnaire();
 
-      document.getElementById('mod-title').textContent = `Reserva ${b.folio} — ${b.patientName}`;
-      document.getElementById('mod-body').innerHTML = `
-        <div style="background:#FAF6F0; padding:0.9rem 1rem; border-radius:12px; margin-bottom:0.9rem; border:1px solid rgba(167,114,55,0.25);">
-          <strong>1. Estado de Pago:</strong> Acreditado ($${b.price}.00 MXN)<br>
-          <strong>2. Google Calendar:</strong> Horario bloqueado el <strong>${b.dateLabel} a las ${b.time}</strong><br>
-          <strong>3. Contacto del Paciente:</strong> ${b.patientEmail} | WhatsApp: ${b.patientPhone}
-        </div>
-        <div style="background:#FFFFFF; padding:0.85rem 1rem; border-radius:10px; border-left:4px solid #3D5540; margin-bottom:0.7rem;">
-          <strong>📩 Correo #1 enviado al Paciente (${b.patientEmail}):</strong><br>
-          <span style="color:#4A5B4F;">"¡Tu consulta de ${b.serviceName} con la Lic. Valeria de la Torre está confirmada para el ${b.dateLabel} a las ${b.time}! Adjuntamos tu invitación de calendario y recibo de pago."</span>
-        </div>
-        <div style="background:#FFFFFF; padding:0.85rem 1rem; border-radius:10px; border-left:4px solid #A77237;">
-          <strong>📩 Correo #2 enviado a la Nutrióloga (Lic. Valeria):</strong><br>
-          <span style="color:#4A5B4F;">"Nueva reserva pagada (${b.folio}): ${b.patientName} agendó para el ${b.dateLabel} a las ${b.time} (${b.modality}). Ya quedó registrado en tu Google Calendar."</span>
+      const patientName = bookings[0]?.patientName || resp?.patientName || email;
+      document.getElementById('modal-patient-name').textContent = patientName;
+
+      let html = `
+        <div style="margin-bottom:1.1rem; font-size:0.84rem; background:#FAF6F0; padding:0.85rem 1rem; border-radius:12px;">
+          <div><strong>Correo:</strong> ${email} · <strong>Teléfono:</strong> ${bookings[0]?.patientPhone || '—'}</div>
+          <div><strong>Historial de Citas Pagadas (${bookings.length}):</strong></div>
+          <ul style="margin:0.35rem 0 0 1.1rem; padding:0;">
+            ${bookings.map(b => `<li><strong>${b.folio}</strong> — ${b.type === 'primera' ? '1ª Consulta' : 'Seguimiento'} (${b.modality === 'presencial' ? 'Presencial' : 'Virtual'}) · ${b.dateLabel}, ${VDT.slotLabel(b.time)} · <strong>$${b.price} MXN</strong></li>`).join('')}
+          </ul>
         </div>
       `;
-      document.getElementById('detail-modal').style.display = 'flex';
-    }
 
-    function closeDetailModal() {
-      document.getElementById('detail-modal').style.display = 'none';
-    }
-
-    function simulateNewPatientBooking() {
-      const bookings = getStoredBookings();
-      const blockedMap = getStoredBlockedSlots();
-      const newFolio = 'VT-' + Math.floor(8500 + Math.random() * 1400);
-      const newBooking = {
-        folio: newFolio,
-        patientName: 'Paulina Morales Garza',
-        patientEmail: 'paulina.mg@gmail.com',
-        patientPhone: '+52 55 3019 8821',
-        serviceName: 'Consulta SOP y Resistencia a la Insulina',
-        modality: 'Online (Videollamada Google Meet)',
-        day: 12,
-        dateLabel: 'Jueves 12 Nov, 2026',
-        time: '12:30 PM',
-        price: 850
-      };
-      bookings.push(newBooking);
-      localStorage.setItem('valeria_paid_bookings', JSON.stringify(bookings));
-
-      if (!blockedMap[12]) blockedMap[12] = [];
-      if (!blockedMap[12].includes('12:30 PM')) {
-        blockedMap[12].push('12:30 PM');
+      if (!resp) {
+        html += `
+          <div style="padding:1.2rem; border-radius:12px; background:#FFF4E0; color:#8C5820; font-size:0.86rem;">
+            Esta paciente aún no ha enviado su cuestionario de primera consulta.
+            <div style="margin-top:0.6rem;">
+              <a href="paciente.html?email=${encodeURIComponent(email)}&folio=${encodeURIComponent(bookings[0]?.folio || '')}" class="btn btn-gold" style="padding:0.45rem 0.95rem; font-size:0.78rem;">
+                Completar o previsualizar cuestionario como paciente →
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `<h4 style="margin:0 0 0.65rem; font-size:1.05rem;">Respuestas del Cuestionario de 1ª Consulta</h4>`;
+        html += qConfig.questions.map(q => {
+          const val = resp.answers[q.id];
+          const displayVal = Array.isArray(val) ? val.join(', ') : (val !== undefined && val !== '' ? val : 'Sin responder');
+          return `
+            <div style="padding:0.7rem 0; border-bottom:1px solid #EFE7DC; font-size:0.85rem;">
+              <div style="font-weight:700; color:var(--color-forest);">${q.label}</div>
+              <div style="color:var(--color-pine); margin-top:0.2rem;">${displayVal}</div>
+            </div>
+          `;
+        }).join('');
       }
-      localStorage.setItem('valeria_blocked_slots', JSON.stringify(blockedMap));
-      renderDashboard();
+
+      document.getElementById('modal-patient-body').innerHTML = html;
+      document.getElementById('patient-modal').classList.add('open');
+    };
+
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+      document.getElementById('patient-modal').classList.remove('open');
+    });
+
+    /* ----------------------------------------------------------------------
+       PESTAÑA 3: Estado General del Cuestionario + Editor Personalizable
+       ---------------------------------------------------------------------- */
+    function renderQuestionnaireStats() {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const firstTime = bookings.filter(b => b.type === 'primera');
+      const completionPct = firstTime.length ? Math.round((responses.length / firstTime.length) * 100) : 100;
+
+      // Promedio de energía (q4)
+      const energies = responses.map(r => Number(r.answers?.q4)).filter(n => !isNaN(n) && n > 0);
+      const avgEnergy = energies.length ? (energies.reduce((a, b) => a + b, 0) / energies.length).toFixed(1) : '—';
+
+      // Conteo de diagnósticos (q2)
+      const diagCounts = {};
+      responses.forEach(r => {
+        const arr = Array.isArray(r.answers?.q2) ? r.answers.q2 : (r.answers?.q2 ? [r.answers.q2] : []);
+        arr.forEach(d => { diagCounts[d] = (diagCounts[d] || 0) + 1; });
+      });
+
+      // Conteo de objetivos (q5)
+      const goalCounts = {};
+      responses.forEach(r => {
+        const g = r.answers?.q5;
+        if (g) goalCounts[g] = (goalCounts[g] || 0) + 1;
+      });
+
+      const container = document.getElementById('questionnaire-stats-box');
+      container.innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.25rem;">
+          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Tasa Completado</div>
+            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700;">${completionPct}%</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">${responses.length} de ${firstTime.length} pacientes 1ª vez</div>
+          </div>
+          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Energía Promedio</div>
+            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700; color:var(--color-bronze);">${avgEnergy} / 10</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">Escala reportada</div>
+          </div>
+          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Preguntas Activas</div>
+            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700;">${VDT.getQuestionnaire().questions.length}</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">100% personalizables</div>
+          </div>
+        </div>
+
+        <h4 style="font-size:0.95rem; margin:0 0 0.6rem;">Diagnósticos más frecuentes (1ª Consulta)</h4>
+        ${Object.entries(diagCounts).map(([label, count]) => {
+          const pct = Math.round((count / Math.max(1, responses.length)) * 100);
+          return `
+            <div class="bar-row">
+              <div class="bar-label"><span>${label}</span><span>${count} pac. (${pct}%)</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join('') || '<p style="font-size:0.82rem;">Sin respuestas registradas.</p>'}
+
+        <h4 style="font-size:0.95rem; margin:1.2rem 0 0.6rem;">Objetivos principales de las pacientes</h4>
+        ${Object.entries(goalCounts).map(([label, count]) => {
+          const pct = Math.round((count / Math.max(1, responses.length)) * 100);
+          return `
+            <div class="bar-row">
+              <div class="bar-label"><span>${label}</span><span>${count} pac. (${pct}%)</span></div>
+              <div class="bar-track"><div class="bar-fill gold" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join('') || '<p style="font-size:0.82rem;">Sin respuestas registradas.</p>'}
+      `;
     }
 
-    function exportBookingsToCSV() {
-      const bookings = getStoredBookings();
-      const headers = ['Folio', 'Paciente', 'Correo', 'Telefono', 'Consulta', 'Modalidad', 'Fecha', 'Hora', 'Monto_MXN', 'Estado_Pago'];
-      const rows = bookings.map(b => [
-        b.folio,
-        `"${(b.patientName || '').replace(/"/g, '""')}"`,
-        b.patientEmail,
-        b.patientPhone,
-        `"${(b.serviceName || '').replace(/"/g, '""')}"`,
-        `"${(b.modality || '').replace(/"/g, '""')}"`,
-        `"${b.dateLabel}"`,
-        b.time,
-        b.price,
-        'PAGADO'
-      ].join(','));
+    let draftQuestionnaire = VDT.getQuestionnaire();
 
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Agenda_Reservas_Pagadas_Valeria_de_la_Torre.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    function renderQuestionnaireEditor() {
+      const list = document.getElementById('questions-editor-list');
+      list.innerHTML = draftQuestionnaire.questions.map((q, idx) => {
+        const needsOptions = q.type === 'single' || q.type === 'multiple';
+        return `
+          <div class="q-editor-item" data-idx="${idx}">
+            <div class="q-editor-row">
+              <input type="text" class="input-sm q-label-input" value="${q.label.replace(/"/g, '&quot;')}" placeholder="Escribe la pregunta para la paciente..." />
+              <select class="input-sm q-type-select">
+                ${Object.entries(TYPE_LABELS).map(([val, text]) => `<option value="${val}" ${q.type === val ? 'selected' : ''}>${text}</option>`).join('')}
+              </select>
+              <div style="display:flex; align-items:center; gap:0.45rem;">
+                <label style="font-size:0.76rem; display:flex; align-items:center; gap:0.25rem; cursor:pointer;">
+                  <input type="checkbox" class="q-req-check" ${q.required ? 'checked' : ''} /> Obligatoria
+                </label>
+                <button type="button" class="btn-mini danger q-del-btn" title="Eliminar pregunta">✕</button>
+              </div>
+            </div>
+            <div class="q-options-wrap" style="display:${needsOptions ? 'block' : 'none'};">
+              <input type="text" class="input-sm q-options-input" value="${(q.options || []).join(', ')}" placeholder="Opciones separadas por coma (ej. Regular, Irregular, Ausente)" />
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      list.querySelectorAll('.q-editor-item').forEach(item => {
+        const idx = parseInt(item.dataset.idx, 10);
+        const typeSel = item.querySelector('.q-type-select');
+        const optWrap = item.querySelector('.q-options-wrap');
+
+        typeSel.addEventListener('change', () => {
+          syncDraftFromDOM();
+          draftQuestionnaire.questions[idx].type = typeSel.value;
+          optWrap.style.display = (typeSel.value === 'single' || typeSel.value === 'multiple') ? 'block' : 'none';
+        });
+
+        item.querySelector('.q-del-btn').addEventListener('click', () => {
+          syncDraftFromDOM();
+          draftQuestionnaire.questions.splice(idx, 1);
+          renderQuestionnaireEditor();
+        });
+      });
     }
 
-    document.addEventListener('DOMContentLoaded', renderDashboard);
+    function syncDraftFromDOM() {
+      const items = document.querySelectorAll('#questions-editor-list .q-editor-item');
+      items.forEach((item, idx) => {
+        const q = draftQuestionnaire.questions[idx];
+        if (!q) return;
+        q.label = item.querySelector('.q-label-input').value.trim() || `Pregunta ${idx + 1}`;
+        q.type = item.querySelector('.q-type-select').value;
+        q.required = item.querySelector('.q-req-check').checked;
+        const rawOpts = item.querySelector('.q-options-input').value;
+        q.options = (q.type === 'single' || q.type === 'multiple')
+          ? rawOpts.split(',').map(s => s.trim()).filter(Boolean)
+          : [];
+      });
+    }
+
+    document.getElementById('btn-add-question').addEventListener('click', () => {
+      syncDraftFromDOM();
+      draftQuestionnaire.questions.push({
+        id: VDT.newId('q'),
+        type: 'text',
+        required: false,
+        label: 'Nueva pregunta personalizada para primera consulta',
+        options: []
+      });
+      renderQuestionnaireEditor();
+    });
+
+    document.getElementById('btn-save-questionnaire').addEventListener('click', () => {
+      syncDraftFromDOM();
+      draftQuestionnaire.updatedAt = new Date().toISOString();
+      VDT.write(VDT.KEYS.questionnaire, draftQuestionnaire);
+      const fb = document.getElementById('q-save-feedback');
+      fb.textContent = '✓ ¡Cuestionario guardado! Ya está activo en el Portal del Paciente.';
+      fb.style.color = '#253B2E';
+      renderQuestionnaireStats();
+    });
+
+    document.getElementById('btn-reset-questions').addEventListener('click', () => {
+      draftQuestionnaire = VDT.defaultQuestionnaire();
+      VDT.write(VDT.KEYS.questionnaire, draftQuestionnaire);
+      renderQuestionnaireEditor();
+      renderQuestionnaireStats();
+    });
+
+    /* ----------------------------------------------------------------------
+       PESTAÑA 4: Mapa de Calor y Atractivo de Secciones
+       ---------------------------------------------------------------------- */
+    function renderHeatmapTab() {
+      const analytics = VDT.read(VDT.KEYS.analytics, { sessions: 1, sections: {}, clicks: [], elements: {} });
+      const clicks = analytics.clicks || [];
+      const sections = analytics.sections || {};
+
+      // 1. Bandas de secciones en el lienzo
+      const bySecClicks = {};
+      clicks.forEach(c => { bySecClicks[c.section] = (bySecClicks[c.section] || 0) + 1; });
+
+      const bandsEl = document.getElementById('heatmap-bands');
+      bandsEl.innerHTML = Object.entries(SECTION_META).map(([secKey, meta]) => {
+        const cCount = bySecClicks[secKey] || 0;
+        const vCount = sections[secKey]?.views || 0;
+        return `
+          <div class="hm-band">
+            <span>${meta.label}</span>
+            <span style="color:#EBBE7C;">${cCount} clics · ${vCount} vistas</span>
+          </div>
+        `;
+      }).join('');
+
+      // 2. Pintar puntos de calor en Canvas
+      const canvas = document.getElementById('heatmap-canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      clicks.forEach(pt => {
+        const x = (pt.xPct || 0.5) * canvas.width;
+        const secMeta = SECTION_META[pt.section];
+        const bandHeight = canvas.height / 8;
+        const y = secMeta
+          ? (secMeta.yOrder + 0.5) * bandHeight + ((pt.yPct - 0.5) * bandHeight * 0.45)
+          : (pt.yPct || 0.5) * canvas.height;
+
+        const r = 28;
+        const grad = ctx.createRadialGradient(x, y, 2, x, y, r);
+        grad.addColorStop(0, 'rgba(255, 82, 50, 0.38)');
+        grad.addColorStop(0.55, 'rgba(235, 190, 124, 0.22)');
+        grad.addColorStop(1, 'rgba(235, 190, 124, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 3. Tabla de atractivo y recomendaciones por sección
+      const maxClicks = Math.max(1, ...Object.values(bySecClicks));
+      const secRows = Object.entries(SECTION_META).map(([key, meta]) => {
+        const c = bySecClicks[key] || 0;
+        const v = sections[key]?.views || 1;
+        const avgSec = Math.round(((sections[key]?.ms || 4000) / v) / 1000);
+        const score = Math.round((c / maxClicks) * 100);
+        let rec = '🔥 Alta atracción: mantener diseño y llamados a la acción.';
+        let badgeClass = 'status-paid';
+        if (score < 30) {
+          rec = '⚠️ Baja interacción: agregar un botón directo a reserva o destacar beneficios visuales.';
+          badgeClass = 'status-pending';
+        } else if (score < 60) {
+          rec = '💡 Interacción media: reforzar subtítulos o testimonios cortos en esta zona.';
+        }
+        return { key, label: meta.label, c, v, avgSec, score, rec, badgeClass };
+      });
+
+      document.getElementById('sections-engagement-list').innerHTML = secRows.map(r => `
+        <div style="padding:0.75rem 0; border-bottom:1px solid #EFE7DC;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.3rem;">
+            <strong style="font-size:0.86rem;">${r.label}</strong>
+            <span class="status-pill ${r.badgeClass}">${r.c} clics · ${r.avgSec}s prom.</span>
+          </div>
+          <div class="bar-track" style="margin-bottom:0.35rem;">
+            <div class="bar-fill ${r.score < 35 ? 'gold' : ''}" style="width:${Math.max(6, r.score)}%"></div>
+          </div>
+          <div style="font-size:0.76rem; color:var(--color-pine);">${r.rec}</div>
+        </div>
+      `).join('');
+
+      // 4. Top elementos seleccionados
+      const elements = analytics.elements || {};
+      const topEls = Object.entries(elements).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const maxEl = Math.max(1, topEls[0]?.[1] || 1);
+
+      document.getElementById('top-elements-list').innerHTML = topEls.map(([elName, count]) => {
+        const pct = Math.round((count / maxEl) * 100);
+        return `
+          <div class="bar-row">
+            <div class="bar-label"><span>${elName}</span><span>${count} selecciones</span></div>
+            <div class="bar-track"><div class="bar-fill gold" style="width:${pct}%"></div></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('btn-simulate-traffic').addEventListener('click', () => {
+      const a = VDT.read(VDT.KEYS.analytics, { sessions: 412, sections: {}, clicks: [], elements: {} });
+      const keys = Object.keys(SECTION_META);
+      for (let i = 0; i < 25; i++) {
+        const s = keys[Math.floor(Math.random() * keys.length)];
+        a.clicks.push({
+          xPct: 0.15 + Math.random() * 0.7,
+          yPct: 0.1 + Math.random() * 0.8,
+          section: s,
+          el: `Interacción en ${SECTION_META[s].label}`
+        });
+        a.sections[s] = a.sections[s] || { views: 100, ms: 500000 };
+        a.sections[s].views += 1;
+        a.sections[s].ms += 6500;
+      }
+      VDT.write(VDT.KEYS.analytics, a);
+      renderKPIs();
+      renderHeatmapTab();
+    });
+
+    /* ----------------------------------------------------------------------
+       Botones de simulación y búsqueda
+       ---------------------------------------------------------------------- */
+    document.getElementById('client-search').addEventListener('input', renderClientsMetrics);
+
+    document.getElementById('btn-add-demo').addEventListener('click', () => {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const mod = Math.random() > 0.45 ? 'virtual' : 'presencial';
+      const type = Math.random() > 0.35 ? 'primera' : 'seguimiento';
+      const hour = VDT.HOURS[Math.floor(Math.random() * VDT.HOURS.length)];
+      const newBooking = {
+        folio: 'VT-' + Math.floor(1000 + Math.random() * 9000),
+        patientName: 'Lucía Fernanda Gómez',
+        patientEmail: 'lucia.gomez@gmail.com',
+        patientPhone: '+52 55 9182 3341',
+        type,
+        typeLabel: VDT.TYPES[type],
+        modality: mod,
+        modalityLabel: VDT.MODALITIES[mod],
+        focus: 'SOP y Resistencia a la Insulina',
+        day: currentAdminDay,
+        dateLabel: `${currentAdminDay} Nov 2026`,
+        time: hour,
+        price: VDT.getPrice(mod, type),
+        status: 'pagado',
+        createdAt: new Date().toISOString()
+      };
+      bookings.unshift(newBooking);
+      VDT.write(VDT.KEYS.bookings, bookings);
+
+      const blocked = VDT.read(VDT.KEYS.blocked, {});
+      blocked[currentAdminDay] = blocked[currentAdminDay] || [];
+      if (!blocked[currentAdminDay].includes(hour)) blocked[currentAdminDay].push(hour);
+      VDT.write(VDT.KEYS.blocked, blocked);
+
+      refreshAll();
+    });
+
+    document.getElementById('btn-reset-demo').addEventListener('click', () => {
+      Object.values(VDT.KEYS).forEach(k => localStorage.removeItem(k));
+      VDT.seedIfEmpty();
+      draftQuestionnaire = VDT.getQuestionnaire();
+      refreshAll();
+    });
+
+    function refreshAll() {
+      renderKPIs();
+      renderReservations();
+      renderDaySelector();
+      renderSlotsGrid();
+      renderClientsMetrics();
+      renderQuestionnaireStats();
+      renderQuestionnaireEditor();
+    }
+
+    refreshAll();
   </script>
 </body>
 </html>

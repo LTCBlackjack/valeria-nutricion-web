@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Portal | Lic. Valeria de la Torre · Nutrición Hormonal Femenina</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { background: radial-gradient(circle at 80% 10%, rgba(239,219,198,0.55) 0%, #FEFAFA 60%); min-height: 100vh; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    .anim { animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; border-bottom: 1px solid rgba(167,114,55,0.2); background: rgba(254,250,250,0.92); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 10; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    .card { background: #FFFFFF; border: 1px solid rgba(167,114,55,0.25); border-radius: 22px; padding: 2rem; box-shadow: var(--shadow-soft); }
+    .form-input { width: 100%; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid rgba(131,145,123,0.45); background: #FFFFFF; font-family: var(--font-body); font-size: 0.92rem; color: var(--color-forest); margin-top: 0.3rem; }
+    .form-input:focus { outline: none; border-color: var(--color-gold); box-shadow: 0 0 0 3px rgba(167,114,55,0.15); }
+    .q-block { padding: 1.3rem 0; border-bottom: 1px solid rgba(167,114,55,0.15); }
+    .q-label { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--color-forest); display: block; margin-bottom: 0.6rem; }
+    .q-req { color: var(--color-gold); }
+    .opt { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.85rem; border: 1px solid rgba(131,145,123,0.35); border-radius: 10px; margin-bottom: 0.45rem; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+    .opt:hover { border-color: var(--color-gold); background: #FAF6F0; }
+    .opt input { accent-color: #3D5540; }
+    .scale { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.35rem; }
+    .scale label { text-align: center; padding: 0.55rem 0; border: 1px solid rgba(131,145,123,0.35); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; }
+    .scale input { display: none; }
+    .scale input:checked + span { color: #fff; }
+    .scale label:has(input:checked) { background: #3D5540; border-color: #3D5540; color: #fff; }
+    .progress { height: 6px; background: #EFDBC6; border-radius: 999px; overflow: hidden; margin: 1rem 0 0.5rem; }
+    .progress > div { height: 100%; background: var(--gradient-gold); width: 0%; transition: width 0.3s; }
+    .appt { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; padding: 0.9rem 1rem; border: 1px solid rgba(167,114,55,0.2); border-radius: 12px; margin-bottom: 0.6rem; background: #FEFAFA; }
+    .pill { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .error { color: #A93B3B; font-size: 0.84rem; margin-top: 0.8rem; display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" style="display: flex; align-items: center; gap: 0.7rem; text-decoration: none;">
+      <img src="assets/logo/isotipo-loto.svg" alt="" style="width: 42px; height: 42px;" />
+      <div>
+        <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--color-gold);">Valeria de la Torre</div>
+        <div style="font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-sage-dark);">Portal del Paciente</div>
+      </div>
+    </a>
+    <button id="logout-btn" onclick="logout()" class="btn-outline" style="display: none; padding: 0.5rem 1rem; font-size: 0.74rem;">Cerrar sesión</button>
+  </header>
+
+  <main class="wrap">
+    <!-- ============ LOGIN ============ -->
+    <section id="login-view" class="card anim" style="max-width: 460px; margin: 2rem auto;">
+      <div style="text-align: center; margin-bottom: 1.4rem;">
+        <img src="assets/logo/isotipo-loto.svg" alt="" style="width: 70px; height: 70px;" />
+        <h1 style="font-size: 2rem; margin: 0.5rem 0 0.3rem;">Inicia sesión</h1>
+        <p style="font-size: 0.86rem; color: var(--color-sage-dark); margin: 0;">
+          Usa el correo con el que reservaste y el <strong>folio</strong> que recibiste en tu correo de confirmación.
+        </p>
+      </div>
+      <form onsubmit="login(event)">
+        <label style="font-size: 0.78rem; font-weight: 600;">Correo electrónico</label>
+        <input id="login-email" type="email" class="form-input" required placeholder="tucorreo@email.com" />
+        <label style="font-size: 0.78rem; font-weight: 600; display: block; margin-top: 1rem;">Folio de reserva</label>
+        <input id="login-folio" type="text" class="form-input" required placeholder="VT-0000" style="text-transform: uppercase;" />
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1.4rem;">Entrar a mi portal →</button>
+        <div id="login-error" class="error">No encontramos una reserva pagada con ese correo y folio.</div>
+      </form>
+      <p style="font-size: 0.76rem; color: var(--color-sage-dark); text-align: center; margin-top: 1.2rem;">
+        Demo: <code>anasofia.mtz@gmail.com</code> / <code>VT-8410</code> · o <code>dcastillo.mora@gmail.com</code> / <code>VT-8489</code> (cuestionario pendiente)
+      </p>
+    </section>
+
+    <!-- ============ DASHBOARD PACIENTE ============ -->
+    <section id="patient-view" style="display: none;">
+      <div class="anim" style="margin-bottom: 1.5rem;">
+        <span class="pill-tag" style="display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-gold-dark); background: var(--color-sand); padding: 0.35rem 0.9rem; border-radius: 999px;">Bienvenida</span>
+        <h1 id="hello-name" style="font-size: 2.3rem; margin: 0.4rem 0 0.2rem;">Hola</h1>
+        <p style="color: var(--color-sage-dark); margin: 0;">Aquí puedes ver tus citas y completar tu cuestionario de primera consulta.</p>
+      </div>
+
+      <div class="card anim" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.45rem; margin: 0 0 1rem;">📅 Mis citas</h2>
+        <div id="appointments-list"></div>
+      </div>
+
+      <!-- Cuestionario -->
+      <div id="questionnaire-card" class="card anim" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 id="q-title" style="font-size: 1.6rem; margin: 0;">Cuestionario</h2>
+          <span id="q-counter" class="pill" style="background: #F5E8D5; color: #8F622B;">0 / 0</span>
+        </div>
+        <p id="q-intro" style="font-size: 0.88rem; color: #4A5B4F; margin: 0.4rem 0 0;"></p>
+        <div class="progress"><div id="q-progress"></div></div>
+        <form id="q-form" onsubmit="submitQuestionnaire(event)" oninput="updateProgress()" onchange="updateProgress()">
+          <div id="q-container"></div>
+          <button type="submit" class="btn-gold" style="width: 100%; margin-top: 1.5rem;">Enviar cuestionario a la Lic. Valeria →</button>
+          <div id="q-error" class="error">Por favor responde las preguntas obligatorias (*).</div>
+        </form>
+      </div>
+
+      <div id="questionnaire-done" class="card anim" style="display: none; text-align: center; background: linear-gradient(135deg, #253B2E 0%, #3D5540 100%); color: #FEFAFA;">
+        <div style="font-size: 2.4rem;">🌿</div>
+        <h2 style="color: #EBBE7C; font-size: 1.8rem; margin: 0.3rem 0;">¡Cuestionario recibido!</h2>
+        <p style="color: #D2DBD0; font-size: 0.9rem; margin: 0;">La Lic. Valeria ya tiene tus respuestas para preparar tu valoración. Nos vemos en tu cita.</p>
+        <p id="done-date" style="color: #A6B49B; font-size: 0.78rem; margin-top: 0.8rem;"></p>
+      </div>
+
+      <div id="no-questionnaire" class="card anim" style="display: none; text-align: center;">
+        <p style="margin: 0; color: var(--color-sage-dark);">El cuestionario se habilita al pagar una <strong>Primera Consulta</strong>.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/store.js"></script>
+  <script>
+    let session = null;
+
+    function findPaidBookings(email) {
+      return VDT.read(VDT.KEYS.bookings, []).filter(b => b.patientEmail.toLowerCase() === email && b.status === 'pagado');
+    }
+
+    function login(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const folio = document.getElementById('login-folio').value.trim().toUpperCase();
+      const match = findPaidBookings(email).find(b => b.folio.toUpperCase() === folio);
+      if (!match) {
+        document.getElementById('login-error').style.display = 'block';
+        return;
+      }
+      session = { email, name: match.patientName, folio };
+      sessionStorage.setItem(VDT.KEYS.session, JSON.stringify(session));
+      renderPatient();
+    }
+
+    function logout() {
+      sessionStorage.removeItem(VDT.KEYS.session);
+      location.href = 'paciente.html';
+    }
+
+    function renderPatient() {
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('patient-view').style.display = 'block';
+      document.getElementById('logout-btn').style.display = 'inline-flex';
+      document.getElementById('hello-name').textContent = `Hola, ${session.name.split(' ')[0]}`;
+
+      const bookings = findPaidBookings(session.email);
+      document.getElementById('appointments-list').innerHTML = bookings.map(b => `
+        <div class="appt">
+          <div>
+            <div style="font-weight: 700;">${b.typeLabel}</div>
+            <div style="font-size: 0.8rem; color: var(--color-sage-dark);">${b.focus} · ${b.modalityLabel}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 700; color: var(--color-pine);">${b.dateLabel} · ${VDT.slotLabel(b.time)} hrs</div>
+            <span class="pill" style="background: #E3EFE6; color: #253B2E;">✓ Pagado · ${b.folio}</span>
+          </div>
+        </div>`).join('');
+
+      const hasFirst = bookings.some(b => b.type === 'primera');
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const done = responses.find(r => r.patientEmail.toLowerCase() === session.email);
+
+      document.getElementById('questionnaire-card').style.display = 'none';
+      document.getElementById('questionnaire-done').style.display = 'none';
+      document.getElementById('no-questionnaire').style.display = 'none';
+
+      if (!hasFirst) {
+        document.getElementById('no-questionnaire').style.display = 'block';
+      } else if (done) {
+        document.getElementById('questionnaire-done').style.display = 'block';
+        document.getElementById('done-date').textContent = `Enviado el ${new Date(done.submittedAt).toLocaleString('es-MX')}`;
+      } else {
+        renderQuestionnaire();
+      }
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function renderQuestionnaire() {
+      const q = VDT.getQuestionnaire();
+      document.getElementById('questionnaire-card').style.display = 'block';
+      document.getElementById('q-title').textContent = q.title;
+      document.getElementById('q-intro').textContent = q.intro;
+
+      document.getElementById('q-container').innerHTML = q.questions.map((qq, i) => {
+        const req = qq.required ? '<span class="q-req"> *</span>' : '';
+        let field = '';
+        switch (qq.type) {
+          case 'text':
+            field = `<input class="form-input" name="${qq.id}" ${qq.required ? 'required' : ''} />`; break;
+          case 'textarea':
+            field = `<textarea class="form-input" rows="3" name="${qq.id}" ${qq.required ? 'required' : ''}></textarea>`; break;
+          case 'single':
+            field = qq.options.map(o => `<label class="opt"><input type="radio" name="${qq.id}" value="${esc(o)}" /> ${esc(o)}</label>`).join(''); break;
+          case 'multiple':
+            field = qq.options.map(o => `<label class="opt"><input type="checkbox" name="${qq.id}" value="${esc(o)}" /> ${esc(o)}</label>`).join(''); break;
+          case 'scale':
+            field = `<div class="scale">${Array.from({ length: 10 }, (_, n) => `<label><input type="radio" name="${qq.id}" value="${n + 1}" /><span>${n + 1}</span></label>`).join('')}</div>`; break;
+          case 'yesno':
+            field = ['Sí', 'No'].map(o => `<label class="opt"><input type="radio" name="${qq.id}" value="${o}" /> ${o}</label>`).join(''); break;
+        }
+        return `<div class="q-block" data-qid="${qq.id}"><span class="q-label">${i + 1}. ${esc(qq.label)}${req}</span>${field}</div>`;
+      }).join('');
+      updateProgress();
+    }
+
+    function collectAnswers() {
+      const q = VDT.getQuestionnaire();
+      const form = document.getElementById('q-form');
+      const answers = {};
+      q.questions.forEach(qq => {
+        if (qq.type === 'multiple') {
+          answers[qq.id] = [...form.querySelectorAll(`input[name="${qq.id}"]:checked`)].map(i => i.value);
+        } else if (['single', 'scale', 'yesno'].includes(qq.type)) {
+          const c = form.querySelector(`input[name="${qq.id}"]:checked`);
+          answers[qq.id] = c ? (qq.type === 'scale' ? Number(c.value) : c.value) : '';
+        } else {
+          answers[qq.id] = (form.querySelector(`[name="${qq.id}"]`) || {}).value?.trim() || '';
+        }
+      });
+      return { q, answers };
+    }
+
+    function isAnswered(v) {
+      return Array.isArray(v) ? v.length > 0 : v !== '' && v !== null && v !== undefined;
+    }
+
+    function updateProgress() {
+      const { q, answers } = collectAnswers();
+      const total = q.questions.length;
+      const answered = q.questions.filter(qq => isAnswered(answers[qq.id])).length;
+      document.getElementById('q-counter').textContent = `${answered} / ${total}`;
+      document.getElementById('q-progress').style.width = `${(answered / total) * 100}%`;
+    }
+
+    function submitQuestionnaire(e) {
+      e.preventDefault();
+      const { q, answers } = collectAnswers();
+      const missing = q.questions.filter(qq => qq.required && !isAnswered(answers[qq.id]));
+      document.querySelectorAll('.q-block').forEach(b => b.style.background = '');
+      if (missing.length) {
+        missing.forEach(m => {
+          const el = document.querySelector(`.q-block[data-qid="${m.id}"]`);
+          if (el) el.style.background = 'rgba(169,59,59,0.06)';
+        });
+        document.getElementById('q-error').style.display = 'block';
+        document.querySelector(`.q-block[data-qid="${missing[0].id}"]`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      responses.push({
+        id: VDT.newId('r'),
+        folio: session.folio,
+        patientEmail: session.email,
+        patientName: session.name,
+        questionnaireVersion: q.updatedAt,
+        submittedAt: new Date().toISOString(),
+        answers
+      });
+      VDT.write(VDT.KEYS.responses, responses);
+      renderPatient();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Auto-login desde el enlace del paso 3 o sesión activa
+    (function boot() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('email')) document.getElementById('login-email').value = params.get('email');
+      if (params.get('folio')) document.getElementById('login-folio').value = params.get('folio');
+      const stored = sessionStorage.getItem(VDT.KEYS.session);
+      if (stored) {
+        session = JSON.parse(stored);
+        renderPatient();
+      }
+    })();
+  </script>
+</body>
+</html>

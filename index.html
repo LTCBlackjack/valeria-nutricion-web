@@ -566,12 +566,14 @@
         <li><a href="#inicio">Inicio</a></li>
         <li><a href="#sobre-mi">Sobre Mí</a></li>
         <li><a href="#especialidades">Especialidades</a></li>
+        <li><a href="#tarifas">Tarifas</a></li>
         <li><a href="#testimonios">Testimonios</a></li>
         <li><a href="#faq">Preguntas Frecuentes</a></li>
         <li><a href="#reservar">Calendario en Línea</a></li>
       </ul>
 
       <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <a href="paciente.html" class="btn-outline" style="padding: 0.58rem 1.1rem; font-size: 0.76rem;">🔑 Mi Portal</a>
         <a href="nutriologa-panel.html" class="btn-outline" style="padding: 0.58rem 1.1rem; font-size: 0.76rem;">
           👩‍⚕️ Vista Nutrióloga
         </a>
@@ -767,8 +769,8 @@
           </p>
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">$850 MXN</span>
-          <button onclick="selectServiceAndScroll('Consulta SOP y Resistencia a la Insulina', 850)" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
+          <span class="spec-price">Desde $650 MXN</span>
+          <button onclick="selectServiceAndScroll('SOP y Resistencia a la Insulina')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
             Elegir y Agendar →
           </button>
         </div>
@@ -783,8 +785,8 @@
           </p>
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">$850 MXN</span>
-          <button onclick="selectServiceAndScroll('Consulta Salud Tiroidea y Metabolismo', 850)" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
+          <span class="spec-price">Desde $650 MXN</span>
+          <button onclick="selectServiceAndScroll('Salud Tiroidea y Energía')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
             Elegir y Agendar →
           </button>
         </div>
@@ -799,8 +801,8 @@
           </p>
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">$850 MXN</span>
-          <button onclick="selectServiceAndScroll('Consulta Ciclo Menstrual y Fertilidad', 850)" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
+          <span class="spec-price">Desde $650 MXN</span>
+          <button onclick="selectServiceAndScroll('Ciclo Menstrual y Fertilidad')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
             Elegir y Agendar →
           </button>
         </div>
@@ -815,13 +817,67 @@
           </p>
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.18);">
-          <span class="spec-price">$650 MXN</span>
-          <button onclick="selectServiceAndScroll('Consulta Subsecuente de Seguimiento', 650)" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
+          <span class="spec-price">Desde $400 MXN</span>
+          <button onclick="selectServiceAndScroll('Seguimiento de Plan', 'seguimiento')" class="btn-outline" style="padding: 0.5rem 1.1rem; font-size: 0.76rem;">
             Elegir y Agendar →
           </button>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ================= 3.5 TARIFAS OFICIALES ================= -->
+  <section id="tarifas" class="section-wrap" style="padding-top: 1rem;">
+    <div class="section-header reveal-up">
+      <span class="pill-tag">Tarifas Transparentes</span>
+      <h2>Elige tu modalidad</h2>
+      <p style="color: var(--color-sage-dark); font-size: 0.95rem;">
+        Sesiones de 1 hora · Lunes a sábado de 13:00 a 21:00 hrs
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 0 auto;">
+      <div class="spec-card tilt-card price-card reveal-up" data-track="Tarifa Virtual">
+        <div>
+          <span class="pill-tag">💻 Virtual · Google Meet</span>
+          <h3 style="font-size: 1.7rem; margin: 0.2rem 0 1rem;">Consulta Virtual</h3>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0.8rem 0; border-bottom: 1px solid rgba(167,114,55,0.18);">
+            <span style="font-size: 0.92rem;">Primera consulta</span>
+            <span class="spec-price">$650 MXN</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0.8rem 0;">
+            <span style="font-size: 0.92rem;">Seguimiento</span>
+            <span class="spec-price">$400 MXN</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem;">
+          <button onclick="selectPlanAndScroll('virtual','primera')" class="btn-primary" style="padding: 0.6rem 1.1rem; font-size: 0.74rem;">Agendar primera</button>
+          <button onclick="selectPlanAndScroll('virtual','seguimiento')" class="btn-outline" style="padding: 0.6rem 1.1rem; font-size: 0.74rem;">Agendar seguimiento</button>
+        </div>
+      </div>
+
+      <div class="spec-card tilt-card price-card reveal-up delay-1" data-track="Tarifa Presencial">
+        <div>
+          <span class="pill-tag">🏥 Presencial · Consultorio</span>
+          <h3 style="font-size: 1.7rem; margin: 0.2rem 0 1rem;">Consulta Presencial</h3>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0.8rem 0; border-bottom: 1px solid rgba(167,114,55,0.18);">
+            <span style="font-size: 0.92rem;">Primera consulta</span>
+            <span class="spec-price">$750 MXN</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0.8rem 0;">
+            <span style="font-size: 0.92rem;">Seguimiento</span>
+            <span class="spec-price">$750 MXN</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem;">
+          <button onclick="selectPlanAndScroll('presencial','primera')" class="btn-primary" style="padding: 0.6rem 1.1rem; font-size: 0.74rem;">Agendar primera</button>
+          <button onclick="selectPlanAndScroll('presencial','seguimiento')" class="btn-outline" style="padding: 0.6rem 1.1rem; font-size: 0.74rem;">Agendar seguimiento</button>
+        </div>
+      </div>
+    </div>
+    <p class="reveal-up" style="text-align: center; font-size: 0.82rem; color: var(--color-sage-dark); margin-top: 1.4rem;">
+      📝 Al pagar tu primera consulta recibirás acceso a tu portal para responder un breve cuestionario previo.
+    </p>
   </section>
 
   <!-- ================= 4. CÓMO FUNCIONA LA RESERVA ================= -->
@@ -894,25 +950,35 @@
             <div id="step-1-panel" class="panel-animate">
               <h3 style="font-size: 1.6rem; margin: 0 0 1rem;">1. Configura tu Consulta y Elige Horario</h3>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.3rem;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 1.3rem;">
                 <div>
                   <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Tipo de Consulta</label>
                   <select id="service-select" class="form-input" onchange="updateServiceSelection()">
-                    <option value="Consulta de Valoración Nutricional Hormonal|850">Valoración Nutricional Hormonal ($850 MXN)</option>
-                    <option value="Consulta SOP y Resistencia a la Insulina|850">Consulta SOP y Resistencia a la Insulina ($850 MXN)</option>
-                    <option value="Consulta Salud Tiroidea y Metabolismo|850">Consulta Salud Tiroidea y Metabolismo ($850 MXN)</option>
-                    <option value="Consulta Ciclo Menstrual y Fertilidad|850">Consulta Ciclo Menstrual y Fertilidad ($850 MXN)</option>
-                    <option value="Consulta Subsecuente de Seguimiento|650">Consulta Subsecuente de Seguimiento ($650 MXN)</option>
+                    <option value="primera">Primera Consulta (Valoración)</option>
+                    <option value="seguimiento">Consulta de Seguimiento</option>
                   </select>
                 </div>
                 <div>
                   <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Modalidad</label>
-                  <select id="modality-select" class="form-input" onchange="updateSummary()">
-                    <option value="Online (Videollamada Google Meet)">💻 Online (Videollamada Google Meet)</option>
-                    <option value="Presencial en Consultorio">🏥 Presencial en Consultorio</option>
+                  <select id="modality-select" class="form-input" onchange="updateServiceSelection()">
+                    <option value="virtual">💻 Virtual (Google Meet)</option>
+                    <option value="presencial">🏥 Presencial en Consultorio</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Enfoque</label>
+                  <select id="focus-select" class="form-input" onchange="updateServiceSelection()">
+                    <option value="Valoración General">Valoración General</option>
+                    <option value="SOP y Resistencia a la Insulina">SOP y Resistencia a la Insulina</option>
+                    <option value="Salud Tiroidea y Energía">Salud Tiroidea y Energía</option>
+                    <option value="Ciclo Menstrual y Fertilidad">Ciclo Menstrual y Fertilidad</option>
+                    <option value="Seguimiento de Plan">Seguimiento de Plan</option>
                   </select>
                 </div>
               </div>
+              <p style="font-size: 0.78rem; color: var(--color-sage-dark); margin: -0.6rem 0 1.2rem;">
+                🕐 Horario de atención: <strong>13:00 a 21:00 hrs</strong> · Sesiones de <strong>1 hora</strong>.
+              </p>
 
               <!-- Calendario Mensual -->
               <div style="background: #FFFFFF; border: 1px solid rgba(167,114,55,0.22); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.3rem;">
@@ -1029,8 +1095,9 @@
 
             <div style="padding-top: 1rem; border-top: 1px solid rgba(167,114,55,0.25); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
               <span style="font-weight: 600; font-size: 0.92rem;">Total de la Reserva:</span>
-              <span id="sum-price" style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 700; color: var(--color-gold);">$850 MXN</span>
+              <span id="sum-price" style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 700; color: var(--color-gold);">$650 MXN</span>
             </div>
+            <div id="sum-questionnaire-note" style="background: #FEFAFA; border: 1px dashed var(--color-gold); border-radius: 10px; padding: 0.7rem 0.85rem; font-size: 0.76rem; margin-bottom: 0.9rem;">📝 Incluye acceso a tu portal y cuestionario previo para preparar tu valoración.</div>
 
             <div style="background: #FFFFFF; border: 1px solid rgba(167,114,55,0.25); border-radius: 12px; padding: 0.9rem; font-size: 0.78rem; color: var(--color-forest); line-height: 1.5;">
               <strong style="color: var(--color-pine); display: block; margin-bottom: 0.25rem;">⚡ Garantía de Orden en Agenda:</strong>
@@ -1096,6 +1163,14 @@
                 💳 <strong>Pago Confirmado:</strong> <span id="mail-nutri-amount" style="color: var(--color-gold); font-weight: 700;"></span>
               </div>
             </div>
+          </div>
+
+          <div id="questionnaire-cta-box" style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: linear-gradient(135deg, #FAF6F0 0%, #EFDBC6 100%); border: 1.5px solid var(--color-gold); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+              <div style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 700; color: var(--color-forest);">📝 Último paso: tu cuestionario de primera consulta</div>
+              <div style="font-size: 0.84rem; color: #4A5B4F;">Ingresa a tu portal con tu correo y folio para que la Lic. Valeria prepare tu valoración.</div>
+            </div>
+            <a id="questionnaire-cta-link" href="paciente.html" class="btn-gold">Ir a mi portal y cuestionario →</a>
           </div>
 
           <div style="text-align: center; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
@@ -1197,6 +1272,15 @@
           Puedes pagar de forma 100% segura con cualquier tarjeta de débito o crédito (Visa, Mastercard, American Express) o mediante tu cuenta de Mercado Pago.
         </p>
       </details>
+
+      <details style="background: #FFFFFF; border: 1px solid rgba(167,114,55,0.25); border-radius: 14px; padding: 1.15rem 1.4rem; cursor: pointer;">
+        <summary style="font-family: var(--font-heading); font-size: 1.28rem; font-weight: 600; color: var(--color-forest);">
+          ¿Cuál es el horario y cuánto cuesta la consulta?
+        </summary>
+        <p style="font-size: 0.88rem; color: #4A5B4F; margin: 0.7rem 0 0;">
+          Las sesiones son de 1 hora entre las 13:00 y las 21:00 hrs. Virtual: primera consulta $650 MXN y seguimiento $400 MXN. Presencial: $750 MXN.
+        </p>
+      </details>
     </div>
   </section>
 
@@ -1223,6 +1307,7 @@
     </p>
   </footer>
 
+  <script src="js/store.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

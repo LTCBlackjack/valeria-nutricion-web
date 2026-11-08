@@ -232,20 +232,28 @@
       <h2>Funcionalidades Incluidas</h2>
       <div class="req-grid">
         <div class="req-card">
-          <h3>1. Agenda de Horarios Disponibles</h3>
-          <p>Visualización en tiempo real de días y horas libres en la página web para que el paciente elija su horario sin traslapes.</p>
+          <h3>1. Agenda de Horarios (13:00 a 21:00 hrs)</h3>
+          <p>Selección de horario en bloques de <strong>1 hora por sesión</strong> entre las 13:00 y las 21:00 hrs (última sesión de 20:00 a 21:00 hrs).</p>
         </div>
         <div class="req-card highlight">
-          <h3>2. Condición Obligatoria de Pago</h3>
+          <h3>2. Esquema de Tarifas Oficiales</h3>
+          <p><strong>Consulta Virtual:</strong> 1ª Consulta en <strong>$650 MXN</strong> y Seguimiento en <strong>$400 MXN</strong>.<br><strong>Consulta Presencial:</strong> <strong>$750 MXN</strong> por sesión.</p>
+        </div>
+        <div class="req-card highlight">
+          <h3>3. Condición Obligatoria de Pago (Mercado Pago)</h3>
           <p><strong>Regla clave:</strong> Si el usuario no paga la reserva en línea, el horario no se bloquea y permanece disponible.</p>
         </div>
-        <div class="req-card highlight">
-          <h3>3. Registro en Calendario</h3>
-          <p>En cuanto el pago es válido, la reserva se agrega automáticamente al <strong>Calendario de la nutrióloga</strong> y del cliente.</p>
+        <div class="req-card">
+          <h3>4. Portal del Paciente y Cuestionario de 1ª Consulta</h3>
+          <p>Al iniciar sesión tras pagar la <strong>1ª consulta</strong>, el paciente responde un cuestionario clínico para que la nutrióloga anticipe su caso.</p>
         </div>
         <div class="req-card">
-          <h3>4. Correo al Cliente y a la Nutrióloga</h3>
-          <p>Envío automático de correo de confirmación + recibo de pago tanto al <strong>paciente</strong> como a la <strong>Lic. Valeria</strong>.</p>
+          <h3>5. Métricas por Cliente y Editor de Cuestionario</h3>
+          <p>Panel de la nutrióloga con expediente por cliente, estado general del cuestionario y <strong>editor 100% personalizable</strong> (abierta, opción múltiple, casillas, escala).</p>
+        </div>
+        <div class="req-card highlight">
+          <h3>6. Mapa de Calor y Atractivo de Secciones</h3>
+          <p>Métricas visuales de lo que más seleccionan y ven los usuarios para identificar a qué secciones de la página darles mayor importancia y atractivo.</p>
         </div>
       </div>
     </section>
@@ -272,15 +280,15 @@
           </tr>
           <tr>
             <td><strong>Semanas 3 y 4</strong><br><small>(Mes 1)</small></td>
-            <td><strong>Fase 2: Desarrollo de Página Web</strong></td>
-            <td>Programación de la página web completa (Inicio, Sobre la Lic. Valeria, Especialidades en Nutrición Hormonal, Beneficios y Contacto).</td>
-            <td><span class="status-pill status-next">En Proceso</span></td>
+            <td><strong>Fase 2: Página Web, Portal de Paciente y Panel Clínico</strong></td>
+            <td>Página web con tarifas ($650/$400/$750), horarios 13:00–21:00 (1h), Portal de Paciente con cuestionario de 1ª consulta y Panel de la Nutrióloga con métricas por cliente, editor de cuestionario y mapa de calor.</td>
+            <td><span class="status-pill status-done">✓ Completado</span></td>
           </tr>
           <tr>
             <td><strong>Semanas 5 y 6</strong><br><small>(Mes 2)</small></td>
-            <td><strong>Fase 3: Motor de Reservas y Pago</strong></td>
-            <td>Integración de calendario interactivo conectado a pasarela de cobro con tarjeta (condición de pago previo para confirmar cita).</td>
-            <td><span class="status-pill status-next">Programado</span></td>
+            <td><strong>Fase 3: Motor de Reservas, MySQL y Mercado Pago</strong></td>
+            <td>Base de datos MySQL en Neubox cPanel y pasarela de cobro con Mercado Pago Checkout Pro (condición de pago previo para confirmar cita).</td>
+            <td><span class="status-pill status-next">En Integración</span></td>
           </tr>
           <tr>
             <td><strong>Semanas 7 y 8</strong><br><small>(Mes 2)</small></td>

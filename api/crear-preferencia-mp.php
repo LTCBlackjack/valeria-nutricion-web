@@ -32,11 +32,20 @@ $folio           = 'VT-' . random_int(1000, 9999);
 $pacienteNombre  = trim($input['patientName'] ?? '');
 $pacienteEmail   = trim($input['patientEmail'] ?? '');
 $pacienteTel     = trim($input['patientPhone'] ?? '');
-$servicio        = trim($input['serviceName'] ?? 'Consulta de Valoración Nutricional Hormonal');
-$modalidad       = trim($input['modality'] ?? 'Online (Videollamada Google Meet)');
+$tipoConsulta    = ($input['type'] ?? 'primera') === 'seguimiento' ? 'seguimiento' : 'primera';
+$modalidadKey    = ($input['modality'] ?? 'virtual') === 'presencial' ? 'presencial' : 'virtual';
+$enfoqueClinico  = trim($input['focus'] ?? 'Valoración General');
+
+// Tarifas oficiales: Virtual ($650 primera / $400 seguimiento), Presencial ($750 ambas)
+$tarifas = [
+    'virtual'    => ['primera' => 650.00, 'seguimiento' => 400.00],
+    'presencial' => ['primera' => 750.00, 'seguimiento' => 750.00],
+];
+$monto           = $tarifas[$modalidadKey][$tipoConsulta];
+$servicio        = ($tipoConsulta === 'primera' ? 'Primera Consulta' : 'Consulta de Seguimiento') . ' (' . ucfirst($modalidadKey) . ')';
+$modalidad       = $modalidadKey;
 $fechaCita       = trim($input['dateISO'] ?? date('Y-m-d'));
-$horaCita        = trim($input['timeSlot'] ?? '11:00 AM');
-$monto           = (float)($input['price'] ?? 850.00);
+$horaCita        = trim($input['timeSlot'] ?? '13:00');
 $notas           = trim($input['notes'] ?? '');
 
 try {
