@@ -136,14 +136,14 @@
     }
     .tab-btn {
       flex: 1;
-      min-width: 200px;
-      padding: 0.85rem 1.1rem;
+      min-width: 190px;
+      padding: 0.85rem 1.05rem;
       border-radius: 12px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--color-forest);
       font-family: var(--font-body);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -151,6 +151,13 @@
       justify-content: center;
       gap: 0.55rem;
       transition: all 0.2s ease;
+    }
+    .tab-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      stroke: var(--color-bronze);
+      transition: stroke 0.2s ease;
     }
     .tab-btn:hover {
       background: #FAF6F0;
@@ -160,6 +167,9 @@
       background: var(--gradient-forest);
       color: #FEFAFA;
       box-shadow: 0 8px 18px -6px rgba(37, 59, 46, 0.35);
+    }
+    .tab-btn.active svg {
+      stroke: #EBBE7C;
     }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; animation: fadeSlideUp 0.35s ease; }
@@ -501,7 +511,10 @@
       <div style="text-align:center; margin-bottom:1.4rem;">
         <img src="assets/logo/isotipo-loto.svg" alt="Lic. Valeria de la Torre" style="width:62px; height:62px; margin-bottom:0.5rem;" />
         <div>
-          <span class="badge" style="margin-bottom:0.35rem;">🔒 Acceso Exclusivo · Nutrióloga</span>
+          <span class="badge" style="margin-bottom:0.35rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-bronze)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Acceso Exclusivo · Nutrióloga
+          </span>
         </div>
         <h1 style="font-family:var(--font-heading); font-size:1.75rem; margin:0.2rem 0; color:var(--color-forest);">
           Iniciar Sesión en el Panel
@@ -537,7 +550,7 @@
 
       <div style="margin-top:1.15rem; padding-top:1rem; border-top:1px dashed rgba(167,114,55,0.35); background:#FAF6F0; padding:0.85rem; border-radius:12px; font-size:0.77rem;">
         <div style="font-weight:700; color:var(--color-bronze); margin-bottom:0.25rem;">
-          💡 Acceso rápido para tu demostración con la nutrióloga:
+          Acceso rápido para tu demostración con la nutrióloga:
         </div>
         <div style="color:var(--color-pine); margin-bottom:0.5rem;">
           Correo: <code id="demo-cred-email">valeria.delatorre.nutricion@gmail.com</code><br>
@@ -545,7 +558,7 @@
         </div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
           <button type="button" id="btn-autofill-admin" class="btn-mini" style="width:100%;">
-            ⚡ Autocompletar y Entrar (Demo)
+            Autocompletar y Entrar (Demo)
           </button>
         </div>
       </div>
@@ -577,14 +590,16 @@
       </div>
 
       <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
-        <a href="paciente.html" class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:#FEFAFA; border-color:rgba(239,219,198,0.45); padding:0.55rem 1rem; font-size:0.8rem;">
-          🔑 Ver Portal del Paciente
-        </a>
         <a href="index.html" class="btn btn-gold" style="padding:0.55rem 1.1rem; font-size:0.8rem;">
           ← Ver Sitio Público
         </a>
-        <button type="button" id="btn-admin-logout" class="btn btn-outline" style="background:rgba(140,59,43,0.28); color:#FEFAFA; border-color:rgba(235,190,124,0.45); padding:0.55rem 0.95rem; font-size:0.78rem; cursor:pointer;">
-          🔒 Cerrar Sesión
+        <button type="button" id="btn-admin-logout" class="btn btn-outline" style="background:rgba(167, 114, 55, 0.16); color:#FEFAFA; border-color:rgba(235,190,124,0.55); padding:0.55rem 1rem; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EBBE7C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Cerrar Sesión
         </button>
       </div>
     </div>
@@ -617,22 +632,50 @@
       </div>
     </section>
 
-    <!-- Barra de Pestañas -->
+    <!-- Barra de Pestañas con Iconografía Vectorial de Marca (Sin números ni emojis) -->
     <nav class="tabs-bar anim-up" role="tablist">
       <button type="button" class="tab-btn active" data-tab="tab-agenda">
-        📅 1. Agenda y Horarios (13:00–21:00)
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+          <circle cx="12" cy="15" r="2"></circle>
+        </svg>
+        <span>Agenda y Horarios</span>
       </button>
       <button type="button" class="tab-btn" data-tab="tab-clientes">
-        👥 2. Métricas por Cliente
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Métricas por Cliente</span>
       </button>
       <button type="button" class="tab-btn" data-tab="tab-cuestionario">
-        📝 3. Cuestionario 1ª Vez (Métricas y Editor)
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+          <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+          <line x1="9" y1="12" x2="15" y2="12"></line>
+          <line x1="9" y1="16" x2="13" y2="16"></line>
+        </svg>
+        <span>Cuestionario 1ª Vez</span>
       </button>
       <button type="button" class="tab-btn" data-tab="tab-especialidades">
-        🌿 4. Especialidades en la Web
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2.5C9.5 6.5 7 9.5 7 13a5 5 0 0 0 10 0c0-3.5-2.5-6.5-5-10.5z"></path>
+          <path d="M12 22v-6"></path>
+          <path d="M5 12c2.5 0 4.5 1.5 5.5 3.5"></path>
+          <path d="M19 12c-2.5 0-4.5 1.5-5.5 3.5"></path>
+        </svg>
+        <span>Especialidades en la Web</span>
       </button>
       <button type="button" class="tab-btn" data-tab="tab-heatmap">
-        🔥 5. Mapa de Calor y Atractivo Web
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Mapa de Calor Web</span>
       </button>
     </nav>
 
@@ -717,7 +760,13 @@
               Seguimiento individual de cada paciente: número de consultas (1ª vez y seguimientos), inversión acumulada, modalidad preferida y respuestas a su cuestionario clínico.
             </p>
           </div>
-          <input type="search" id="client-search" class="input-sm" style="max-width:280px;" placeholder="🔍 Buscar paciente por nombre o correo..." />
+          <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+            <input type="search" id="client-search" class="input-sm" style="max-width:250px;" placeholder="Buscar paciente por nombre o correo..." />
+            <button type="button" id="btn-export-clients-excel" class="btn btn-gold" style="padding:0.52rem 1rem; font-size:0.78rem; display:inline-flex; align-items:center; gap:0.45rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#253B2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar Clientes a Excel (.CSV)
+            </button>
+          </div>
         </div>
 
         <div class="clients-grid" id="clients-metrics-grid"></div>
@@ -725,19 +774,23 @@
     </section>
 
     <!-- =====================================================================
-         PESTAÑA 3: CUESTIONARIO DE 1ª VEZ (ESTADO GENERAL + EDITOR DINÁMICO)
+         PESTAÑA 3: CUESTIONARIO DE 1ª VEZ (GRAFOS + DETALLE + EXCEL + EDITOR)
          ===================================================================== -->
     <section id="tab-cuestionario" class="tab-pane">
       <div class="two-col-grid">
-        <!-- Columna Izquierda: Estado General del Cuestionario -->
+        <!-- Columna Izquierda: Grafos y Estado General del Cuestionario -->
         <div class="panel-card">
           <div class="panel-header">
             <div>
-              <h2 class="panel-title">Estado General del Cuestionario (1ª Vez)</h2>
+              <h2 class="panel-title">Estado General y Grafos del Cuestionario</h2>
               <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
-                Resumen estadístico de lo que responden las pacientes nuevas al iniciar sesión tras su pago.
+                Análisis gráfico detallado del perfil clínico de las pacientes de primera vez y exportación directa a Excel.
               </p>
             </div>
+            <button type="button" id="btn-export-questionnaire-excel" class="btn btn-gold" style="padding:0.5rem 0.95rem; font-size:0.76rem; display:inline-flex; align-items:center; gap:0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#253B2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              Descargar Respuestas en Excel (.CSV)
+            </button>
           </div>
 
           <div id="questionnaire-stats-box"></div>
@@ -766,13 +819,26 @@
 
           <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--color-cream-soft);">
             <span id="q-save-feedback" style="font-size:0.82rem; font-weight:700; color:var(--color-pine);">
-              Los cambios se reflejan al instante en el Portal del Paciente.
+              Los cambios se reflejan al instante en el cuestionario de 1ª consulta.
             </span>
             <button type="button" id="btn-save-questionnaire" class="btn btn-primary" style="padding:0.65rem 1.35rem; font-size:0.84rem;">
-              💾 Guardar Cuestionario
+              Guardar Cuestionario
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- Tabla detallada de respuestas por cada usuario (lista para revisar o bajar a Excel) -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Matriz Detallada de Respuestas por Paciente (1ª Consulta)</h2>
+            <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+              Vista consolidada de lo que respondió cada paciente nueva en todas las preguntas del cuestionario.
+            </p>
+          </div>
+        </div>
+        <div class="table-wrap" id="questionnaire-matrix-wrap"></div>
       </div>
     </section>
 
@@ -988,15 +1054,15 @@
       tbody.innerHTML = bookings.map(b => {
         const resp = responses.find(r => r.folio === b.folio || r.patientEmail.toLowerCase() === b.patientEmail.toLowerCase());
         let qBadge = '<span style="font-size:0.75rem; color:var(--color-sage-dark);">No aplica (Seguimiento)</span>';
+        const modClass = b.modality === 'presencial' ? 'status-mod-presencial' : 'status-mod-virtual';
+        const modText = b.modality === 'presencial' ? 'Presencial' : 'Virtual';
+        const typeText = b.type === 'seguimiento' ? 'Seguimiento' : '1ª Consulta';
+
         if (b.type === 'primera') {
           qBadge = resp
             ? `<button type="button" class="btn-mini" onclick="openPatientModal('${b.patientEmail}')">✓ Ver Cuestionario</button>`
-            : `<a href="paciente.html?email=${encodeURIComponent(b.patientEmail)}&folio=${encodeURIComponent(b.folio)}" class="status-pill status-pending" style="text-decoration:none;">⏳ Pendiente (Abrir link)</a>`;
+            : `<span class="status-pill status-pending">Pendiente</span>`;
         }
-
-        const modClass = b.modality === 'presencial' ? 'status-mod-presencial' : 'status-mod-virtual';
-        const modText = b.modality === 'presencial' ? '🏥 Presencial' : '💻 Virtual';
-        const typeText = b.type === 'seguimiento' ? 'Seguimiento' : '1ª Consulta';
 
         return `
           <tr>
@@ -1012,7 +1078,7 @@
             </td>
             <td>
               <div style="font-weight:700;">${b.dateLabel}</div>
-              <div style="font-size:0.77rem; color:var(--color-pine); font-weight:700;">⏰ ${VDT.slotLabel(b.time)}</div>
+              <div style="font-size:0.77rem; color:var(--color-pine); font-weight:700;">${VDT.slotLabel(b.time)} hrs</div>
             </td>
             <td>
               <div style="font-weight:700; color:var(--color-forest);">$${Number(b.price).toLocaleString('es-MX')} MXN</div>
@@ -1152,7 +1218,7 @@
                 </div>
                 <div>
                   <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Modalidad</div>
-                  <div style="font-weight:700; font-size:0.95rem;">${c.presencialCount > c.virtualCount ? '🏥 Presencial' : '💻 Virtual'}</div>
+                  <div style="font-weight:700; font-size:0.95rem;">${c.presencialCount > c.virtualCount ? 'Presencial' : 'Virtual'}</div>
                   <div style="font-size:0.68rem; color:var(--color-pine);">${c.virtualCount} Virt · ${c.presencialCount} Pres</div>
                 </div>
               </div>
@@ -1165,12 +1231,14 @@
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; padding-top:0.65rem; border-top:1px solid rgba(167,114,55,0.2);">
-              <button type="button" class="btn-mini" onclick="openPatientModal('${c.email}')">
-                📋 Ver Expediente y Respuestas
+              <button type="button" class="btn-mini" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;" onclick="openPatientModal('${c.email}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Ver Expediente y Respuestas
               </button>
-              <a href="paciente.html?email=${encodeURIComponent(c.email)}&folio=${encodeURIComponent(c.bookings[0].folio)}" class="btn-mini" style="text-decoration:none;">
-                🔑 Abrir su Portal
-              </a>
+              <button type="button" class="btn-mini" style="display:inline-flex; align-items:center; gap:0.35rem;" onclick="exportSinglePatientCSV('${c.email}')" title="Descargar expediente individual en Excel (.CSV)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-bronze)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Excel
+              </button>
             </div>
           </div>
         `;
@@ -1198,16 +1266,16 @@
       if (!resp) {
         html += `
           <div style="padding:1.2rem; border-radius:12px; background:#FFF4E0; color:#8C5820; font-size:0.86rem;">
-            Esta paciente aún no ha enviado su cuestionario de primera consulta.
-            <div style="margin-top:0.6rem;">
-              <a href="paciente.html?email=${encodeURIComponent(email)}&folio=${encodeURIComponent(bookings[0]?.folio || '')}" class="btn btn-gold" style="padding:0.45rem 0.95rem; font-size:0.78rem;">
-                Completar o previsualizar cuestionario como paciente →
-              </a>
-            </div>
+            Esta paciente aún tiene pendiente enviar su cuestionario previo de primera consulta.
           </div>
         `;
       } else {
-        html += `<h4 style="margin:0 0 0.65rem; font-size:1.05rem;">Respuestas del Cuestionario de 1ª Consulta</h4>`;
+        html += `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin:0 0 0.65rem;">
+            <h4 style="margin:0; font-size:1.05rem;">Respuestas del Cuestionario de 1ª Consulta</h4>
+            <button type="button" class="btn-mini" onclick="exportSinglePatientCSV('${email}')">Descargar en Excel (.CSV)</button>
+          </div>
+        `;
         html += qConfig.questions.map(q => {
           const val = resp.answers[q.id];
           const displayVal = Array.isArray(val) ? val.join(', ') : (val !== undefined && val !== '' ? val : 'Sin responder');
@@ -1229,11 +1297,54 @@
     });
 
     /* ----------------------------------------------------------------------
-       PESTAÑA 3: Estado General del Cuestionario + Editor Personalizable
+       PESTAÑA 3: Estado General del Cuestionario (Grafos + Matriz + Excel)
        ---------------------------------------------------------------------- */
+    const CHART_COLORS = ['#253B2E', '#A77237', '#3D5540', '#DEB074', '#83917B', '#6A4A23'];
+
+    function buildDonutSVG(entries, total, centerBig, centerSmall) {
+      const r = 46;
+      const c = 2 * Math.PI * r;
+      let offset = 0;
+      const segments = entries.map(([label, val], idx) => {
+        const frac = total > 0 ? val / total : 0;
+        const len = frac * c;
+        const color = CHART_COLORS[idx % CHART_COLORS.length];
+        const seg = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="14" stroke-dasharray="${len} ${c - len}" stroke-dashoffset="${-offset}" transform="rotate(-90 60 60)"/>`;
+        offset += len;
+        return seg;
+      }).join('');
+
+      const legend = entries.map(([label, val], idx) => {
+        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+        const color = CHART_COLORS[idx % CHART_COLORS.length];
+        return `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; font-size:0.78rem; padding:0.2rem 0;">
+            <span style="display:inline-flex; align-items:center; gap:0.4rem;">
+              <span style="width:10px; height:10px; border-radius:50%; background:${color}; display:inline-block;"></span>
+              <span>${label}</span>
+            </span>
+            <strong>${val} (${pct}%)</strong>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div style="display:grid; grid-template-columns:120px 1fr; gap:1rem; align-items:center; background:#FAF6F0; padding:0.9rem 1rem; border-radius:14px; border:1px solid rgba(167,114,55,0.22);">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="${r}" fill="none" stroke="#EFE7DC" stroke-width="14"/>
+            ${segments}
+            <text x="60" y="57" text-anchor="middle" font-family="var(--font-heading)" font-size="18" font-weight="700" fill="#253B2E">${centerBig}</text>
+            <text x="60" y="72" text-anchor="middle" font-size="9" font-weight="700" fill="#83917B">${centerSmall}</text>
+          </svg>
+          <div>${legend || '<span style="font-size:0.78rem;">Sin datos aún</span>'}</div>
+        </div>
+      `;
+    }
+
     function renderQuestionnaireStats() {
       const bookings = VDT.read(VDT.KEYS.bookings, []);
       const responses = VDT.read(VDT.KEYS.responses, []);
+      const qConfig = VDT.getQuestionnaire();
       const firstTime = bookings.filter(b => b.type === 'primera');
       const completionPct = firstTime.length ? Math.round((responses.length / firstTime.length) * 100) : 100;
 
@@ -1248,6 +1359,13 @@
         arr.forEach(d => { diagCounts[d] = (diagCounts[d] || 0) + 1; });
       });
 
+      // Conteo de ciclo menstrual (q3)
+      const cycleCounts = {};
+      responses.forEach(r => {
+        const c = r.answers?.q3;
+        if (c) cycleCounts[c] = (cycleCounts[c] || 0) + 1;
+      });
+
       // Conteo de objetivos (q5)
       const goalCounts = {};
       responses.forEach(r => {
@@ -1255,27 +1373,46 @@
         if (g) goalCounts[g] = (goalCounts[g] || 0) + 1;
       });
 
+      // Conteo de estudios de laboratorio (q6)
+      const labCounts = { 'Con laboratorios recientes': 0, 'Sin laboratorios': 0 };
+      responses.forEach(r => {
+        if (r.answers?.q6 === 'Sí') labCounts['Con laboratorios recientes'] += 1;
+        else if (r.answers?.q6 === 'No') labCounts['Sin laboratorios'] += 1;
+      });
+
       const container = document.getElementById('questionnaire-stats-box');
       container.innerHTML = `
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.25rem;">
-          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
-            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Tasa Completado</div>
-            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700;">${completionPct}%</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.2rem;">
+          <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Tasa Completado</div>
+            <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700;">${completionPct}%</div>
             <div style="font-size:0.72rem; color:var(--color-pine);">${responses.length} de ${firstTime.length} pacientes 1ª vez</div>
           </div>
-          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
-            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Energía Promedio</div>
-            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700; color:var(--color-bronze);">${avgEnergy} / 10</div>
-            <div style="font-size:0.72rem; color:var(--color-pine);">Escala reportada</div>
+          <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Vitalidad Promedio</div>
+            <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700; color:var(--color-bronze);">${avgEnergy} / 10</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">Escala inicial (1–10)</div>
           </div>
-          <div style="background:#FAF6F0; padding:0.9rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
-            <div style="font-size:0.7rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Preguntas Activas</div>
-            <div style="font-family:var(--font-heading); font-size:1.75rem; font-weight:700;">${VDT.getQuestionnaire().questions.length}</div>
+          <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
+            <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Preguntas Activas</div>
+            <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700;">${qConfig.questions.length}</div>
             <div style="font-size:0.72rem; color:var(--color-pine);">100% personalizables</div>
           </div>
         </div>
 
-        <h4 style="font-size:0.95rem; margin:0 0 0.6rem;">Diagnósticos más frecuentes (1ª Consulta)</h4>
+        <h4 style="font-size:0.9rem; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
+          Grafo 1 · Distribución de Ciclo Menstrual
+        </h4>
+        ${buildDonutSVG(Object.entries(cycleCounts), responses.length, responses.length, 'PACIENTES')}
+
+        <h4 style="font-size:0.9rem; margin:1.1rem 0 0.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
+          Grafo 2 · Estudios de Laboratorio Recientes (Últimos 6 meses)
+        </h4>
+        ${buildDonutSVG(Object.entries(labCounts), responses.length, `${Math.round(((labCounts['Con laboratorios recientes'] || 0) / Math.max(1, responses.length)) * 100)}%`, 'CON LABS')}
+
+        <h4 style="font-size:0.9rem; margin:1.1rem 0 0.55rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
+          Grafo 3 · Diagnósticos Hormonales y Metabólicos Reportados
+        </h4>
         ${Object.entries(diagCounts).map(([label, count]) => {
           const pct = Math.round((count / Math.max(1, responses.length)) * 100);
           return `
@@ -1286,7 +1423,9 @@
           `;
         }).join('') || '<p style="font-size:0.82rem;">Sin respuestas registradas.</p>'}
 
-        <h4 style="font-size:0.95rem; margin:1.2rem 0 0.6rem;">Objetivos principales de las pacientes</h4>
+        <h4 style="font-size:0.9rem; margin:1.1rem 0 0.55rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
+          Grafo 4 · Objetivos Clínicos Principales
+        </h4>
         ${Object.entries(goalCounts).map(([label, count]) => {
           const pct = Math.round((count / Math.max(1, responses.length)) * 100);
           return `
@@ -1297,7 +1436,157 @@
           `;
         }).join('') || '<p style="font-size:0.82rem;">Sin respuestas registradas.</p>'}
       `;
+
+      // Renderizar matriz detallada inferior por paciente
+      const matrixWrap = document.getElementById('questionnaire-matrix-wrap');
+      if (matrixWrap) {
+        if (responses.length === 0) {
+          matrixWrap.innerHTML = `<p style="font-size:0.84rem; color:var(--color-sage-dark);">Aún no hay cuestionarios respondidos.</p>`;
+        } else {
+          matrixWrap.innerHTML = `
+            <table class="res-table">
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Paciente</th>
+                  ${qConfig.questions.map((q, i) => `<th>P${i + 1}: ${q.label.slice(0, 34)}${q.label.length > 34 ? '…' : ''}</th>`).join('')}
+                  <th>Exportar</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${responses.map(r => `
+                  <tr>
+                    <td><strong style="color:var(--color-bronze); font-family:monospace;">${r.folio}</strong></td>
+                    <td>
+                      <div style="font-weight:700;">${r.patientName}</div>
+                      <div style="font-size:0.72rem; color:var(--color-sage-dark);">${r.patientEmail}</div>
+                    </td>
+                    ${qConfig.questions.map(q => {
+                      const val = r.answers?.[q.id];
+                      const txt = Array.isArray(val) ? val.join(', ') : (val !== undefined && val !== '' ? val : '—');
+                      return `<td style="font-size:0.79rem; max-width:200px;">${txt}</td>`;
+                    }).join('')}
+                    <td>
+                      <button type="button" class="btn-mini" onclick="exportSinglePatientCSV('${r.patientEmail}')">Excel (.CSV)</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+      }
     }
+
+    /* ----------------------------------------------------------------------
+       Exportación a Excel (.CSV con UTF-8 BOM para acentos y caracteres en español)
+       ---------------------------------------------------------------------- */
+    function downloadCSVFile(filename, rows) {
+      const escapeCell = (val) => {
+        const str = String(val ?? '').replace(/\r?\n/g, ' ');
+        return `"${str.replace(/"/g, '""')}"`;
+      };
+      const csvContent = '\uFEFF' + rows.map(r => r.map(escapeCell).join(',')).join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // 1. Exportar todos los cuestionarios respondidos a Excel
+    document.getElementById('btn-export-questionnaire-excel').addEventListener('click', () => {
+      const qConfig = VDT.getQuestionnaire();
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const headers = ['Folio', 'Nombre Paciente', 'Correo Electrónico', 'Fecha Respuesta', ...qConfig.questions.map(q => q.label)];
+      const rows = [headers];
+      responses.forEach(r => {
+        const ansCells = qConfig.questions.map(q => {
+          const v = r.answers?.[q.id];
+          return Array.isArray(v) ? v.join(' | ') : (v ?? '');
+        });
+        rows.push([r.folio, r.patientName, r.patientEmail, (r.submittedAt || '').slice(0, 10), ...ansCells]);
+      });
+      downloadCSVFile('Cuestionarios_Primera_Consulta_Valeria.csv', rows);
+    });
+
+    // 2. Exportar resumen general de todos los clientes + sus respuestas a Excel
+    document.getElementById('btn-export-clients-excel').addEventListener('click', () => {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const responses = VDT.read(VDT.KEYS.responses, []);
+      const qConfig = VDT.getQuestionnaire();
+      const byClient = {};
+
+      bookings.forEach(b => {
+        const k = b.patientEmail.toLowerCase();
+        if (!byClient[k]) {
+          byClient[k] = { name: b.patientName, email: b.patientEmail, phone: b.patientPhone, total: 0, count: 0, primera: 0, seg: 0, virt: 0, pres: 0, focus: new Set() };
+        }
+        const c = byClient[k];
+        c.total += Number(b.price || 0);
+        c.count += 1;
+        if (b.type === 'primera') c.primera += 1; else c.seg += 1;
+        if (b.modality === 'presencial') c.pres += 1; else c.virt += 1;
+        if (b.focus) c.focus.add(b.focus);
+      });
+
+      const headers = [
+        'Paciente', 'Correo', 'Teléfono', 'Total Consultas', 'Consultas 1a Vez', 'Consultas Seguimiento',
+        'Modalidad Virtual', 'Modalidad Presencial', 'Inversión Total (MXN)', 'Enfoque Clínico', 'Cuestionario Respondido',
+        ...qConfig.questions.map(q => q.label)
+      ];
+      const rows = [headers];
+
+      Object.values(byClient).forEach(c => {
+        const resp = responses.find(r => r.patientEmail.toLowerCase() === c.email.toLowerCase());
+        const ansCells = qConfig.questions.map(q => {
+          const v = resp?.answers?.[q.id];
+          return Array.isArray(v) ? v.join(' | ') : (v ?? '');
+        });
+        rows.push([
+          c.name, c.email, c.phone, c.count, c.primera, c.seg, c.virt, c.pres,
+          c.total, Array.from(c.focus).join(' / '), resp ? 'Sí' : 'Pendiente', ...ansCells
+        ]);
+      });
+
+      downloadCSVFile('Expedientes_Clientes_Valeria_Nutricion.csv', rows);
+    });
+
+    // 3. Exportar expediente individual de una paciente a Excel
+    window.exportSinglePatientCSV = function(email) {
+      const bookings = VDT.read(VDT.KEYS.bookings, []).filter(b => b.patientEmail.toLowerCase() === email.toLowerCase());
+      const resp = VDT.read(VDT.KEYS.responses, []).find(r => r.patientEmail.toLowerCase() === email.toLowerCase());
+      const qConfig = VDT.getQuestionnaire();
+      const name = bookings[0]?.patientName || resp?.patientName || email;
+
+      const rows = [
+        ['EXPEDIENTE CLÍNICO INDIVIDUAL — LIC. VALERIA DE LA TORRE'],
+        ['Paciente', name],
+        ['Correo Electrónico', email],
+        ['Teléfono', bookings[0]?.patientPhone || '—'],
+        ['Total Invertido (MXN)', '$' + bookings.reduce((s, b) => s + Number(b.price || 0), 0)],
+        [],
+        ['HISTORIAL DE CONSULTAS PAGADAS'],
+        ['Folio', 'Tipo de Consulta', 'Modalidad', 'Enfoque', 'Fecha', 'Horario', 'Monto Pagado (MXN)']
+      ];
+      bookings.forEach(b => {
+        rows.push([b.folio, b.type === 'primera' ? '1ª Consulta' : 'Seguimiento', b.modality, b.focus || '', b.dateLabel, VDT.slotLabel(b.time), b.price]);
+      });
+
+      rows.push([], ['RESPUESTAS AL CUESTIONARIO DE 1ª CONSULTA'], ['Pregunta', 'Respuesta de la Paciente']);
+      qConfig.questions.forEach(q => {
+        const v = resp?.answers?.[q.id];
+        const txt = Array.isArray(v) ? v.join(' | ') : (v !== undefined && v !== '' ? v : 'Sin responder');
+        rows.push([q.label, txt]);
+      });
+
+      const safeName = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+      downloadCSVFile(`Expediente_${safeName}.csv`, rows);
+    };
 
     let draftQuestionnaire = VDT.getQuestionnaire();
 
