@@ -44,14 +44,15 @@ function initApp() {
 }
 
 function renderSpecialtiesSection() {
-  const list = VDT.getSpecialties();
+  const all = VDT.getSpecialties();
+  const list = (all || []).filter(sp => sp.visible !== false);
   const sec = document.getElementById('especialidades');
   const grid = document.getElementById('specialties-grid');
   const navItem = document.getElementById('nav-item-especialidades');
   const heroBtn = document.getElementById('hero-btn-especialidades');
   const focusSel = document.getElementById('focus-select');
 
-  // Si la nutrióloga no tiene especialidades añadidas, se oculta toda la sección y sus enlaces
+  // Si la nutrióloga no tiene especialidades visibles, se oculta toda la sección y sus enlaces
   if (!list || list.length === 0) {
     if (sec) sec.style.display = 'none';
     if (navItem) navItem.style.display = 'none';

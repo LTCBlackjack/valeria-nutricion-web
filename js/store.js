@@ -60,7 +60,8 @@ const VDT = {
         title: 'Síndrome de Ovario Poliquístico (SOP)',
         desc: 'Estrategia nutricional para mejorar la sensibilidad a la insulina, reducir inflamación crónica, acné hormonal y regular la ovulación.',
         priceText: 'Desde $650 MXN',
-        type: 'primera'
+        type: 'primera',
+        visible: true
       },
       {
         id: 'sp2',
@@ -69,7 +70,8 @@ const VDT = {
         title: 'Salud Tiroidea y Energía',
         desc: 'Abordaje nutricional con micronutrientes clave para hipotiroidismo, tiroiditis de Hashimoto, fatiga persistente y control de peso saludable.',
         priceText: 'Desde $650 MXN',
-        type: 'primera'
+        type: 'primera',
+        visible: true
       },
       {
         id: 'sp3',
@@ -78,7 +80,8 @@ const VDT = {
         title: 'Ciclo Menstrual, Endometriosis y Fertilidad',
         desc: 'Alimentación antiinflamatoria sincronizada con las fases de tu ciclo para disminuir cólicos, síndrome premenstrual y preparar la fertilidad.',
         priceText: 'Desde $650 MXN',
-        type: 'primera'
+        type: 'primera',
+        visible: true
       },
       {
         id: 'sp4',
@@ -87,7 +90,8 @@ const VDT = {
         title: 'Consulta Subsecuente de Control',
         desc: 'Evaluación de avances, ajuste de plan de alimentación, revisión de síntomas hormonales y actualización de objetivos (60 min).',
         priceText: 'Desde $400 MXN',
-        type: 'seguimiento'
+        type: 'seguimiento',
+        visible: true
       }
     ];
   },
@@ -98,11 +102,11 @@ const VDT = {
       s = this.defaultSpecialties();
       this.write(this.KEYS.specialties, s);
     }
-    // Limpiar emojis antiguos si estaban guardados en localStorage
     return s.map((item, idx) => ({
       ...item,
       icon: item.icon || (['hoja', 'destello', 'ciclo', 'seguimiento'][idx % 4]),
-      tag: (item.tag || '').replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+\s*/, '')
+      tag: (item.tag || '').replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+\s*/, ''),
+      visible: item.visible !== false
     }));
   },
 

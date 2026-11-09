@@ -872,12 +872,33 @@
 
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:1.1rem; padding-top:1rem; border-top:1px solid var(--color-cream-soft);">
           <span id="spec-save-feedback" style="font-size:0.82rem; font-weight:700; color:var(--color-pine);">
-            Cualquier cambio actualiza la sección de Especialidades y el selector del calendario en la página principal.
+            Los cambios al editar, ocultar o eliminar se guardan automáticamente y puedes verlos abajo en la vista previa o en la página principal.
           </span>
-          <button type="button" id="btn-save-specialties" class="btn btn-primary" style="padding:0.65rem 1.35rem; font-size:0.84rem;">
-            💾 Guardar Especialidades
-          </button>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <a href="index.html#especialidades" class="btn btn-outline" style="padding:0.62rem 1.15rem; font-size:0.8rem;">
+              Visualizar en Página Principal →
+            </a>
+            <button type="button" id="btn-save-specialties" class="btn btn-primary" style="padding:0.65rem 1.35rem; font-size:0.84rem;">
+              Guardar Especialidades
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Vista Previa en Vivo de cómo se ven las tarjetas en la Página Principal -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Vista Previa en Vivo (Así se ve en la Página Principal)</h2>
+            <p style="margin:0.2rem 0 0; font-size:0.83rem; color:var(--color-sage-dark);">
+              Previsualización exacta de las tarjetas de especialidades que tienen activada la casilla <strong>"Mostrar en Web"</strong>.
+            </p>
+          </div>
+          <a href="index.html#especialidades" class="btn-mini" style="text-decoration:none;">
+            Ir a la sección en la Página Principal →
+          </a>
+        </div>
+        <div id="specialties-live-preview" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.1rem;"></div>
       </div>
     </section>
 
@@ -1847,25 +1868,30 @@
     function renderSpecialtiesEditor() {
       const listEl = document.getElementById('specialties-editor-list');
       const statusPill = document.getElementById('spec-status-pill');
+      const visibleItems = draftSpecialties.filter(s => s.visible !== false);
+
+      if (draftSpecialties.length === 0 || visibleItems.length === 0) {
+        statusPill.className = 'status-pill status-pending';
+        statusPill.textContent = 'Sección Oculta en la Web (0 visibles)';
+      } else {
+        statusPill.className = 'status-pill status-paid';
+        statusPill.textContent = `✓ Sección Visible en la Web (${visibleItems.length} de ${draftSpecialties.length})`;
+      }
 
       if (draftSpecialties.length === 0) {
-        statusPill.className = 'status-pill status-pending';
-        statusPill.textContent = '⚠️ Sección Oculta en la Web (0 especialidades)';
         listEl.innerHTML = `
           <div style="background:#FFF4E0; border:1px dashed #DEB074; border-radius:14px; padding:1.4rem; text-align:center; color:#8C5820; font-size:0.88rem;">
             <strong>Actualmente no hay especialidades añadidas.</strong><br>
-            Mientras no añadas ninguna opción y guardes, la sección completa de <em>"Especialidades en Salud Hormonal"</em> permanecerá oculta en la página pública.
+            Mientras no añadas ninguna opción, la sección completa de <em>"Especialidades en Salud Hormonal"</em> permanecerá oculta en la página pública.
           </div>
         `;
+        renderSpecialtiesLivePreview();
         return;
       }
 
-      statusPill.className = 'status-pill status-paid';
-      statusPill.textContent = `✓ Sección Visible en la Web (${draftSpecialties.length} activas)`;
-
       listEl.innerHTML = draftSpecialties.map((sp, idx) => `
-        <div class="q-editor-item spec-editor-item" data-idx="${idx}">
-          <div style="display:grid; grid-template-columns: 1fr 0.9fr 1.4fr 0.75fr 0.75fr auto; gap:0.65rem; align-items:center;">
+        <div class="q-editor-item spec-editor-item" data-idx="${idx}" style="opacity:${sp.visible === false ? '0.68' : '1'};">
+          <div style="display:grid; grid-template-columns: 1fr 0.9fr 1.35fr 0.75fr 0.75fr auto; gap:0.65rem; align-items:center;">
             <div>
               <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Símbolo de Marca</label>
               <div style="display:flex; align-items:center; gap:0.4rem;">
@@ -1896,8 +1922,12 @@
                 <option value="seguimiento" ${sp.type === 'seguimiento' ? 'selected' : ''}>Seguimiento</option>
               </select>
             </div>
-            <div style="padding-top:1.1rem;">
-              <button type="button" class="btn-mini danger sp-del-btn" title="Eliminar especialidad">✕ Eliminar</button>
+            <div style="padding-top:1.1rem; display:flex; align-items:center; gap:0.45rem;">
+              <label style="font-size:0.74rem; font-weight:700; display:inline-flex; align-items:center; gap:0.3rem; cursor:pointer; background:#FFFFFF; padding:0.38rem 0.6rem; border-radius:8px; border:1px solid rgba(167,114,55,0.35);">
+                <input type="checkbox" class="sp-visible-check" ${sp.visible !== false ? 'checked' : ''} />
+                <span>Mostrar en Web</span>
+              </label>
+              <button type="button" class="btn-mini danger sp-del-btn" title="Eliminar especialidad">Eliminar</button>
             </div>
           </div>
           <div>
@@ -1911,15 +1941,60 @@
         const idx = parseInt(item.dataset.idx, 10);
         const iconSel = item.querySelector('.sp-icon-select');
         const iconPrev = item.querySelector('.sp-icon-preview');
-        iconSel.addEventListener('change', () => {
-          iconPrev.innerHTML = VDT.getIconSVG(iconSel.value);
+        const visCheck = item.querySelector('.sp-visible-check');
+
+        // Auto-guardado y actualización en vivo al editar cualquier campo
+        item.querySelectorAll('input, select').forEach(inp => {
+          inp.addEventListener('input', () => {
+            if (inp === iconSel) iconPrev.innerHTML = VDT.getIconSVG(iconSel.value);
+            syncSpecialtiesFromDOM();
+            VDT.write(VDT.KEYS.specialties, draftSpecialties);
+            if (inp === visCheck) renderSpecialtiesEditor();
+            else renderSpecialtiesLivePreview();
+          });
         });
+
         item.querySelector('.sp-del-btn').addEventListener('click', () => {
           syncSpecialtiesFromDOM();
           draftSpecialties.splice(idx, 1);
+          VDT.write(VDT.KEYS.specialties, draftSpecialties);
           renderSpecialtiesEditor();
         });
       });
+
+      renderSpecialtiesLivePreview();
+    }
+
+    function renderSpecialtiesLivePreview() {
+      const previewEl = document.getElementById('specialties-live-preview');
+      if (!previewEl) return;
+      const visible = draftSpecialties.filter(s => s.visible !== false);
+
+      if (visible.length === 0) {
+        previewEl.innerHTML = `
+          <div style="grid-column:1/-1; background:#FAF6F0; border:1px dashed rgba(167,114,55,0.4); border-radius:14px; padding:1.3rem; text-align:center; color:var(--color-sage-dark); font-size:0.86rem;">
+            Ninguna especialidad está marcada como <strong>"Mostrar en Web"</strong>. La sección completa está oculta en la página principal.
+          </div>
+        `;
+        return;
+      }
+
+      previewEl.innerHTML = visible.map(sp => `
+        <div style="background:#FAF6F0; border:1.5px solid rgba(167,114,55,0.3); border-radius:18px; padding:1.3rem; display:flex; flex-direction:column; justify-content:space-between; gap:0.8rem;">
+          <div>
+            <span style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--color-bronze); background:#EFDBC6; padding:0.32rem 0.8rem; border-radius:999px; margin-bottom:0.65rem;">
+              ${VDT.getIconSVG(sp.icon || 'loto')}
+              <span>${sp.tag || 'Especialidad'}</span>
+            </span>
+            <h3 style="font-size:1.35rem; margin:0 0 0.4rem; color:var(--color-forest);">${sp.title}</h3>
+            <p style="font-size:0.82rem; color:var(--color-sage-dark); margin:0; line-height:1.45;">${sp.desc || ''}</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid rgba(167,114,55,0.2);">
+            <strong style="font-family:var(--font-heading); font-size:1.2rem; color:var(--color-bronze);">${sp.priceText || 'Desde $650 MXN'}</strong>
+            <span style="font-size:0.72rem; color:var(--color-pine); font-weight:700;">Preselecciona: ${sp.type === 'seguimiento' ? 'Seguimiento' : '1ª Consulta'}</span>
+          </div>
+        </div>
+      `).join('');
     }
 
     function syncSpecialtiesFromDOM() {
@@ -1932,6 +2007,7 @@
         sp.title = item.querySelector('.sp-title-input').value.trim() || `Especialidad ${idx + 1}`;
         sp.priceText = item.querySelector('.sp-price-input').value.trim() || 'Desde $650 MXN';
         sp.type = item.querySelector('.sp-type-select').value;
+        sp.visible = item.querySelector('.sp-visible-check').checked;
         sp.desc = item.querySelector('.sp-desc-input').value.trim();
       });
     }
@@ -1945,8 +2021,10 @@
         title: 'Nueva Área de Atención Hormonal',
         desc: 'Describe aquí los beneficios y síntomas que atiendes en esta especialidad.',
         priceText: 'Desde $650 MXN',
-        type: 'primera'
+        type: 'primera',
+        visible: true
       });
+      VDT.write(VDT.KEYS.specialties, draftSpecialties);
       renderSpecialtiesEditor();
     });
 
