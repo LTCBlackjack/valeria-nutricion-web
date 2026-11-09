@@ -78,7 +78,11 @@
       </div>
 
       <div class="card anim" style="margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.45rem; margin: 0 0 1rem;">📅 Mis citas</h2>
+        <h2 style="font-size: 1.45rem; margin: 0 0 1rem; display:flex; align-items:center; gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A77237" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="2"/></svg>
+          <span>Mis citas</span>
+        </h2>
+        <div id="reschedule-success-banner" style="display:none; background:#E3EFE6; border:1px solid #83917B; color:#253B2E; padding:0.9rem 1.1rem; border-radius:12px; font-size:0.86rem; font-weight:600; margin-bottom:1rem;"></div>
         <div id="appointments-list"></div>
       </div>
 
@@ -98,7 +102,9 @@
       </div>
 
       <div id="questionnaire-done" class="card anim" style="display: none; text-align: center; background: linear-gradient(135deg, #253B2E 0%, #3D5540 100%); color: #FEFAFA;">
-        <div style="font-size: 2.4rem;">🌿</div>
+        <div style="display:inline-flex; align-items:center; justify-content:center; width:54px; height:54px; border-radius:50%; background:rgba(235,190,124,0.16); border:1px solid rgba(235,190,124,0.45); color:#EBBE7C; margin-bottom:0.4rem;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5C9.5 6.5 7 9.5 7 13a5 5 0 0 0 10 0c0-3.5-2.5-6.5-5-10.5z"/><path d="M5 12c2.5 0 4.5 1.5 5.5 3.5"/><path d="M19 12c-2.5 0-4.5 1.5-5.5 3.5"/></svg>
+        </div>
         <h2 style="color: #EBBE7C; font-size: 1.8rem; margin: 0.3rem 0;">¡Cuestionario recibido!</h2>
         <p style="color: #D2DBD0; font-size: 0.9rem; margin: 0;">La Lic. Valeria ya tiene tus respuestas para preparar tu valoración. Nos vemos en tu cita.</p>
         <p id="done-date" style="color: #A6B49B; font-size: 0.78rem; margin-top: 0.8rem;"></p>
@@ -110,7 +116,7 @@
     </section>
   </main>
 
-  <script src="js/store.js"></script>
+  <script src="js/store.js?v=20261108-5"></script>
   <script>
     let session = null;
 
@@ -119,7 +125,7 @@
     }
 
     function login(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const folio = document.getElementById('login-folio').value.trim().toUpperCase();
       const match = findPaidBookings(email).find(b => b.folio.toUpperCase() === folio);
@@ -144,17 +150,64 @@
       document.getElementById('hello-name').textContent = `Hola, ${session.name.split(' ')[0]}`;
 
       const bookings = findPaidBookings(session.email);
-      document.getElementById('appointments-list').innerHTML = bookings.map(b => `
-        <div class="appt">
-          <div>
-            <div style="font-weight: 700;">${b.typeLabel}</div>
-            <div style="font-size: 0.8rem; color: var(--color-sage-dark);">${b.focus} · ${b.modalityLabel}</div>
+      const availDays = VDT.getAvailableDays();
+      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
+
+      document.getElementById('appointments-list').innerHTML = bookings.map(b => {
+        const defaultNewDay = availDays.find(d => d !== Number(b.day)) || availDays[0] || 12;
+        const freeHoursForDefault = VDT.HOURS.filter(h => !(blockedMap[defaultNewDay] || []).includes(h));
+
+        const rescheduleBox = b.rescheduleAllowed ? `
+          <div style="width:100%; margin-top:0.85rem; padding:1.1rem; background:#FFF8EB; border:1.5px solid #DEB074; border-radius:14px;">
+            <div style="display:flex; align-items:center; gap:0.45rem; font-weight:700; color:#8C5820; font-size:0.86rem; margin-bottom:0.35rem;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Cambio de Fecha Habilitado sin costo (Solicitud de la Lic. Valeria)</span>
+            </div>
+            <p style="font-size:0.8rem; color:#5C4A32; margin:0 0 0.85rem;">
+              <strong>Motivo:</strong> ${esc(b.emergencyReason || 'Por una circunstancia imprevista en consultorio, puedes elegir aquí tu nuevo día y horario disponible.')}
+            </p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.65rem; align-items:end;">
+              <div>
+                <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#253B2E;">1. Nuevo Día (Noviembre 2026)</label>
+                <select id="resched-day-${b.folio}" class="form-input" style="margin-top:0.25rem; padding:0.55rem 0.75rem; font-size:0.84rem;" onchange="updatePatientFreeHours('${b.folio}')">
+                  ${availDays.map(d => `<option value="${d}" ${d === defaultNewDay ? 'selected' : ''}>${d} de Noviembre, 2026</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#253B2E;">2. Nuevo Horario (1 hora)</label>
+                <select id="resched-time-${b.folio}" class="form-input" style="margin-top:0.25rem; padding:0.55rem 0.75rem; font-size:0.84rem;">
+                  ${(freeHoursForDefault.length ? freeHoursForDefault : VDT.HOURS).map(h => `<option value="${h}">${VDT.slotLabel(h)} hrs</option>`).join('')}
+                </select>
+              </div>
+              <button type="button" onclick="confirmPatientReschedule('${b.folio}')" class="btn-primary" style="padding:0.65rem 1rem; font-size:0.78rem; width:100%;">
+                Confirmar mi Nueva Fecha →
+              </button>
+            </div>
           </div>
-          <div style="text-align: right;">
-            <div style="font-weight: 700; color: var(--color-pine);">${b.dateLabel} · ${VDT.slotLabel(b.time)} hrs</div>
-            <span class="pill" style="background: #E3EFE6; color: #253B2E;">✓ Pagado · ${b.folio}</span>
+        ` : '';
+
+        const prevBadge = b.previousDateLabel ? `
+          <div style="font-size:0.73rem; color:#7C4F1E; margin-top:0.2rem;">
+            Reprogramada (antes: ${esc(b.previousDateLabel)})
           </div>
-        </div>`).join('');
+        ` : '';
+
+        return `
+          <div class="appt">
+            <div>
+              <div style="font-weight: 700;">${b.typeLabel}</div>
+              <div style="font-size: 0.8rem; color: var(--color-sage-dark);">${b.focus} · ${b.modalityLabel}</div>
+              ${prevBadge}
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 700; color: var(--color-pine);">${b.dateLabel} · ${VDT.slotLabel(b.time)} hrs</div>
+              <span class="pill" style="background: ${b.rescheduleAllowed ? '#FFF4E0' : '#E3EFE6'}; color: ${b.rescheduleAllowed ? '#8C5820' : '#253B2E'};">
+                ${b.rescheduleAllowed ? 'Cambio de Fecha Habilitado' : '✓ Confirmada · ' + b.folio}
+              </span>
+            </div>
+            ${rescheduleBox}
+          </div>`;
+      }).join('');
 
       const hasFirst = bookings.some(b => b.type === 'primera');
       const responses = VDT.read(VDT.KEYS.responses, []);
@@ -173,6 +226,33 @@
         renderQuestionnaire();
       }
     }
+
+    window.updatePatientFreeHours = function(folio) {
+      const daySel = document.getElementById(`resched-day-${folio}`);
+      const timeSel = document.getElementById(`resched-time-${folio}`);
+      if (!daySel || !timeSel) return;
+      const d = Number(daySel.value);
+      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
+      const taken = blockedMap[d] || [];
+      const free = VDT.HOURS.filter(h => !taken.includes(h));
+      timeSel.innerHTML = (free.length ? free : VDT.HOURS)
+        .map(h => `<option value="${h}">${VDT.slotLabel(h)} hrs</option>`).join('');
+    };
+
+    window.confirmPatientReschedule = function(folio) {
+      const daySel = document.getElementById(`resched-day-${folio}`);
+      const timeSel = document.getElementById(`resched-time-${folio}`);
+      if (!daySel || !timeSel) return;
+      const updated = VDT.rescheduleBooking(folio, Number(daySel.value), timeSel.value, 'paciente', 'Reprogramado por la paciente desde su portal');
+      if (updated) {
+        const banner = document.getElementById('reschedule-success-banner');
+        if (banner) {
+          banner.style.display = 'block';
+          banner.textContent = `✓ ¡Listo! Tu cita (${folio}) quedó reprogramada para el ${updated.dateLabel} de ${VDT.slotLabel(updated.time)} hrs. La Lic. Valeria ya recibió la actualización.`;
+        }
+        renderPatient();
+      }
+    };
 
     function esc(s) {
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -264,11 +344,17 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Auto-login desde el enlace del paso 3 o sesión activa
+    // Auto-login desde el enlace del correo / paso 3 o sesión activa
     (function boot() {
       const params = new URLSearchParams(location.search);
-      if (params.get('email')) document.getElementById('login-email').value = params.get('email');
-      if (params.get('folio')) document.getElementById('login-folio').value = params.get('folio');
+      const urlEmail = params.get('email');
+      const urlFolio = params.get('folio');
+      if (urlEmail) document.getElementById('login-email').value = urlEmail;
+      if (urlFolio) document.getElementById('login-folio').value = urlFolio;
+      if (urlEmail && urlFolio) {
+        login();
+        return;
+      }
       const stored = sessionStorage.getItem(VDT.KEYS.session);
       if (stored) {
         session = JSON.parse(stored);

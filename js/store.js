@@ -150,6 +150,69 @@ const VDT = {
     return clean;
   },
 
+  // Habilita que el paciente pueda elegir un nuevo día/hora en su portal por emergencia de la nutrióloga
+  enablePatientReschedule(folio, reason) {
+    const bookings = this.read(this.KEYS.bookings, []);
+    const blocked = this.read(this.KEYS.blocked, {});
+    const target = bookings.find(b => b.folio === folio);
+    if (!target) return null;
+
+    // Liberar el horario anterior para que no quede bloqueado
+    if (blocked[target.day]) {
+      blocked[target.day] = blocked[target.day].filter(t => t !== target.time);
+      this.write(this.KEYS.blocked, blocked);
+    }
+
+    target.rescheduleAllowed = true;
+    target.emergencyReason = reason || 'Ajuste imprevisto en la agenda clínica de la Lic. Valeria de la Torre.';
+    target.emergencyNotifiedAt = new Date().toISOString();
+    this.write(this.KEYS.bookings, bookings);
+    return target;
+  },
+
+  // Reprograma una cita (adelantada o pospuesta) por la nutrióloga o por el propio paciente
+  rescheduleBooking(folio, newDay, newTime, byWho = 'nutriologa', note = '') {
+    const bookings = this.read(this.KEYS.bookings, []);
+    const blocked = this.read(this.KEYS.blocked, {});
+    const target = bookings.find(b => b.folio === folio);
+    if (!target) return null;
+
+    const oldDay = Number(target.day);
+    const oldTime = target.time;
+    const nDay = Number(newDay);
+
+    // 1. Liberar horario anterior
+    if (blocked[oldDay]) {
+      blocked[oldDay] = blocked[oldDay].filter(t => t !== oldTime);
+    }
+    // 2. Ocupar nuevo horario
+    blocked[nDay] = blocked[nDay] || [];
+    if (!blocked[nDay].includes(newTime)) {
+      blocked[nDay].push(newTime);
+    }
+    this.write(this.KEYS.blocked, blocked);
+
+    // 3. Asegurar que el nuevo día esté habilitado en el calendario web
+    const avail = this.getAvailableDays();
+    if (!avail.includes(nDay)) {
+      avail.push(nDay);
+      this.setAvailableDays(avail);
+    }
+
+    // 4. Actualizar datos de la reserva
+    target.previousDateLabel = `${target.dateLabel} (${this.slotLabel(oldTime)})`;
+    target.day = nDay;
+    target.dateLabel = `${nDay} Nov 2026`;
+    target.time = newTime;
+    target.rescheduleAllowed = false;
+    target.rescheduledAt = new Date().toISOString();
+    target.rescheduledBy = byWho;
+    if (note) target.rescheduleNote = note;
+
+    this.write(this.KEYS.bookings, bookings);
+    return target;
+  },
+
   // Tarifas oficiales
   PRICES: {
     virtual:    { primera: 650, seguimiento: 400 },

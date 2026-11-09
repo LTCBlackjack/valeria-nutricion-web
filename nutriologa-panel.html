@@ -1007,6 +1007,20 @@
     </div>
   </div>
 
+  <!-- ================= MODAL DE CAMBIO DE FECHA Y AVISO DE EMERGENCIA ================= -->
+  <div class="modal-backdrop" id="reschedule-modal">
+    <div class="modal-box" style="max-width:720px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-cream-soft); padding-bottom:0.85rem; margin-bottom:1rem;">
+        <div>
+          <span class="badge" style="margin-bottom:0.25rem;">Gestión de Fecha y Horario</span>
+          <h3 id="resched-modal-title" style="margin:0; font-size:1.4rem;">Reprogramar Cita o Notificar Emergencia</h3>
+        </div>
+        <button type="button" id="resched-modal-close" class="btn-mini">✕ Cerrar</button>
+      </div>
+      <div id="resched-modal-body"></div>
+    </div>
+  </div>
+
   <!-- ================= FOOTER CON CRÉDITOS LEONARDLANCE ================= -->
   <footer style="background:#1B2C22; color:#EFDBC6; padding:1.5rem 2rem; border-top:2px solid var(--color-bronze); margin-top:auto;">
     <div style="max-width:1320px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; font-size:0.8rem;">
@@ -1022,7 +1036,7 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js?v=20261108-4"></script>
+  <script src="js/store.js?v=20261108-5"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
     let currentAdminDay = 5;
@@ -1120,6 +1134,12 @@
             : `<span class="status-pill status-pending">Pendiente</span>`;
         }
 
+        const reschedBadge = b.rescheduleAllowed
+          ? `<div style="margin-top:0.25rem;"><span class="status-pill status-pending">Cambio Habilitado al Cliente</span></div>`
+          : (b.previousDateLabel
+              ? `<div style="font-size:0.7rem; color:#7C4F1E; margin-top:0.18rem;">Reprogramada (antes: ${b.previousDateLabel})</div>`
+              : '');
+
         return `
           <tr>
             <td><strong style="color:var(--color-bronze); font-family:monospace;">${b.folio}</strong></td>
@@ -1135,6 +1155,15 @@
             <td>
               <div style="font-weight:700;">${b.dateLabel}</div>
               <div style="font-size:0.77rem; color:var(--color-pine); font-weight:700;">${VDT.slotLabel(b.time)} hrs</div>
+              ${reschedBadge}
+              <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.4rem;">
+                <button type="button" class="btn-mini" style="padding:0.24rem 0.55rem; font-size:0.7rem;" onclick="openRescheduleModal('${b.folio}', 'direct')">
+                  Cambiar Fecha
+                </button>
+                <button type="button" class="btn-mini danger" style="padding:0.24rem 0.55rem; font-size:0.7rem;" onclick="openRescheduleModal('${b.folio}', 'emergency')">
+                  Emergencia / Correo
+                </button>
+              </div>
             </td>
             <td>
               <div style="font-weight:700; color:var(--color-forest);">$${Number(b.price).toLocaleString('es-MX')} MXN</div>
@@ -1149,6 +1178,7 @@
     function renderDaySelector() {
       const container = document.getElementById('admin-day-selector');
       const availDays = VDT.getAvailableDays();
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
       const hdrs = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
         .map(h => `<div class="day-hdr-mini">${h}</div>`).join('');
 
@@ -1156,9 +1186,10 @@
       for (let d = 1; d <= 30; d++) {
         const isEnabled = availDays.includes(d);
         const isCurrent = d === currentAdminDay;
+        const hasAppts  = bookings.some(b => Number(b.day) === d);
         daysHtml += `
-          <button type="button" class="day-btn ${!isEnabled ? 'day-closed' : ''} ${isCurrent ? 'active' : ''}" data-day="${d}" title="${isEnabled ? 'Habilitado en la Web' : 'Deshabilitado en la Web'}">
-            ${d}
+          <button type="button" class="day-btn ${!isEnabled ? 'day-closed' : ''} ${isCurrent ? 'active' : ''}" data-day="${d}" title="${isEnabled ? 'Habilitado en la Web (clic para ver horarios)' : 'Clic para habilitar este día en la Web'}">
+            ${d}${hasAppts ? '<span style="display:block; width:5px; height:5px; border-radius:50%; background:#DEB074; margin:2px auto 0;"></span>' : ''}
           </button>
         `;
       }
@@ -1166,16 +1197,18 @@
 
       // Actualizar barra de estado del día seleccionado
       const isCurEnabled = availDays.includes(currentAdminDay);
+      const dayBookings  = bookings.filter(b => Number(b.day) === currentAdminDay);
       const dayTitleEl = document.getElementById('admin-day-status-title');
       const daySubEl   = document.getElementById('admin-day-status-sub');
       const dayCheckEl = document.getElementById('admin-day-enabled-check');
       const dayBarEl   = document.getElementById('admin-day-enable-bar');
 
-      if (dayTitleEl) dayTitleEl.textContent = `Día ${currentAdminDay} de Noviembre, 2026`;
+      if (dayTitleEl) dayTitleEl.textContent = `Día ${currentAdminDay} de Noviembre, 2026 (${dayBookings.length} cita${dayBookings.length === 1 ? '' : 's'})`;
       if (daySubEl) {
-        daySubEl.textContent = isCurEnabled
-          ? '✓ Habilitado para recibir citas en la página principal'
-          : '✕ Cerrado (aparece en gris como no disponible en la página principal)';
+        daySubEl.innerHTML = isCurEnabled
+          ? '✓ Habilitado para recibir citas en el calendario de la página principal'
+          : '✕ Cerrado en la web (haz clic en la casilla para habilitarlo)' +
+            (dayBookings.length > 0 ? `<br><button type="button" class="btn-mini danger" style="margin-top:0.35rem; font-size:0.7rem;" onclick="triggerDayEmergency(${currentAdminDay})">Enviar correo de emergencia a ${dayBookings.length} paciente(s) de este día →</button>` : '');
         daySubEl.style.color = isCurEnabled ? '#253B2E' : '#8C3B2B';
       }
       if (dayCheckEl) dayCheckEl.checked = isCurEnabled;
@@ -1186,7 +1219,14 @@
 
       container.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          currentAdminDay = parseInt(btn.dataset.day, 10);
+          const clickedDay = parseInt(btn.dataset.day, 10);
+          currentAdminDay = clickedDay;
+          // Si la nutrióloga hace clic en un día que estaba en gris (cerrado), lo habilita inmediatamente en la web
+          const curAvail = VDT.getAvailableDays();
+          if (!curAvail.includes(clickedDay)) {
+            curAvail.push(clickedDay);
+            VDT.setAvailableDays(curAvail);
+          }
           renderDaySelector();
           renderSlotsGrid();
         });
@@ -1214,8 +1254,22 @@
       }
       const next = preset === 'default' ? VDT.defaultAvailableDays() : days;
       VDT.setAvailableDays(next);
+      if (next.length && !next.includes(currentAdminDay)) {
+        currentAdminDay = next[0];
+      }
       renderDaySelector();
       renderSlotsGrid();
+      const daySubEl = document.getElementById('admin-day-status-sub');
+      if (daySubEl) {
+        daySubEl.textContent = `✓ ¡Listo! Se habilitaron ${next.length} días del mes en el calendario de la página principal.`;
+        daySubEl.style.color = '#253B2E';
+      }
+    };
+
+    window.triggerDayEmergency = function(dayNum) {
+      const bookings = VDT.read(VDT.KEYS.bookings, []).filter(b => Number(b.day) === Number(dayNum));
+      if (bookings.length === 0) return;
+      openRescheduleModal(bookings[0].folio, 'emergency');
     };
 
     function renderSlotsGrid() {
@@ -1340,10 +1394,14 @@
               </div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; padding-top:0.65rem; border-top:1px solid rgba(167,114,55,0.2);">
-              <button type="button" class="btn-mini" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;" onclick="openPatientModal('${c.email}')">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem; padding-top:0.65rem; border-top:1px solid rgba(167,114,55,0.2); flex-wrap:wrap;">
+              <button type="button" class="btn-mini" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.35rem;" onclick="openPatientModal('${c.email}')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Ver Expediente y Respuestas
+                Expediente
+              </button>
+              <button type="button" class="btn-mini" style="display:inline-flex; align-items:center; gap:0.35rem;" onclick="openRescheduleModal('${c.bookings[0]?.folio || ''}', 'direct')" title="Adelantar, posponer o reprogramar cita de esta paciente">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-bronze)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Cambiar Fecha
               </button>
               <button type="button" class="btn-mini" style="display:inline-flex; align-items:center; gap:0.35rem;" onclick="exportSinglePatientCSV('${c.email}')" title="Descargar expediente individual en Excel (.CSV)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-bronze)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1366,9 +1424,17 @@
       let html = `
         <div style="margin-bottom:1.1rem; font-size:0.84rem; background:#FAF6F0; padding:0.85rem 1rem; border-radius:12px;">
           <div><strong>Correo:</strong> ${email} · <strong>Teléfono:</strong> ${bookings[0]?.patientPhone || '—'}</div>
-          <div><strong>Historial de Citas Pagadas (${bookings.length}):</strong></div>
-          <ul style="margin:0.35rem 0 0 1.1rem; padding:0;">
-            ${bookings.map(b => `<li><strong>${b.folio}</strong> — ${b.type === 'primera' ? '1ª Consulta' : 'Seguimiento'} (${b.modality === 'presencial' ? 'Presencial' : 'Virtual'}) · ${b.dateLabel}, ${VDT.slotLabel(b.time)} · <strong>$${b.price} MXN</strong></li>`).join('')}
+          <div style="margin-top:0.35rem;"><strong>Historial de Citas Pagadas (${bookings.length}):</strong></div>
+          <ul style="margin:0.4rem 0 0 1.1rem; padding:0; display:grid; gap:0.45rem;">
+            ${bookings.map(b => `
+              <li style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+                <span><strong>${b.folio}</strong> — ${b.type === 'primera' ? '1ª Consulta' : 'Seguimiento'} (${b.modality === 'presencial' ? 'Presencial' : 'Virtual'}) · <strong>${b.dateLabel}, ${VDT.slotLabel(b.time)}</strong> · $${b.price} MXN</span>
+                <span style="display:inline-flex; gap:0.35rem;">
+                  <button type="button" class="btn-mini" style="padding:0.2rem 0.55rem; font-size:0.7rem;" onclick="document.getElementById('patient-modal').classList.remove('open'); openRescheduleModal('${b.folio}', 'direct')">Cambiar Fecha</button>
+                  <button type="button" class="btn-mini danger" style="padding:0.2rem 0.55rem; font-size:0.7rem;" onclick="document.getElementById('patient-modal').classList.remove('open'); openRescheduleModal('${b.folio}', 'emergency')">Emergencia</button>
+                </span>
+              </li>
+            `).join('')}
           </ul>
         </div>
       `;
@@ -1405,6 +1471,192 @@
     document.getElementById('modal-close-btn').addEventListener('click', () => {
       document.getElementById('patient-modal').classList.remove('open');
     });
+
+    /* ----------------------------------------------------------------------
+       MODAL DE CAMBIO DE FECHA (ADELANTAR / POSPONER) Y CORREO DE EMERGENCIA
+       ---------------------------------------------------------------------- */
+    document.getElementById('resched-modal-close').addEventListener('click', () => {
+      document.getElementById('reschedule-modal').classList.remove('open');
+    });
+
+    window.openRescheduleModal = function(folio, initialMode = 'direct') {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const b = bookings.find(x => x.folio === folio) || bookings[0];
+      if (!b) return;
+
+      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
+      const allDays = Array.from({ length: 30 }, (_, i) => i + 1);
+      const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const portalUrl = `${location.origin}${location.pathname.replace('nutriologa-panel.html', 'paciente.html')}?email=${encodeURIComponent(b.patientEmail)}&folio=${encodeURIComponent(b.folio)}&reprogramar=1`;
+
+      document.getElementById('resched-modal-title').textContent = `Cita ${b.folio} · ${b.patientName}`;
+
+      const body = document.getElementById('resched-modal-body');
+      body.innerHTML = `
+        <div style="background:#FAF6F0; border:1px solid rgba(167,114,55,0.28); border-radius:14px; padding:0.95rem 1.1rem; margin-bottom:1.15rem; font-size:0.84rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+          <div>
+            <div><strong>Paciente:</strong> ${b.patientName} (${b.patientEmail} · ${b.patientPhone})</div>
+            <div style="margin-top:0.2rem;"><strong>Cita actual:</strong> <span style="color:var(--color-bronze); font-weight:700;">${b.dateLabel} · ${VDT.slotLabel(b.time)} hrs</span> (${b.modality === 'presencial' ? 'Presencial' : 'Virtual'})</div>
+          </div>
+          <span class="status-pill ${b.rescheduleAllowed ? 'status-pending' : 'status-paid'}">
+            ${b.rescheduleAllowed ? 'Cambio ya habilitado al cliente' : 'Horario activo'}
+          </span>
+        </div>
+
+        <!-- OPCIÓN 1: Cambiar a fecha adelantada o posterior directamente por la nutrióloga -->
+        <div style="background:#FFFFFF; border:1.5px solid ${initialMode === 'direct' ? 'var(--color-forest)' : 'rgba(167,114,55,0.25)'}; border-radius:16px; padding:1.2rem; margin-bottom:1.1rem;">
+          <h4 style="margin:0 0 0.35rem; font-size:1.12rem; color:var(--color-forest);">
+            Opción 1: Adelantar o Posponer Fecha directamente (Nutrióloga)
+          </h4>
+          <p style="margin:0 0 0.9rem; font-size:0.8rem; color:var(--color-sage-dark);">
+            Elige cualquier fecha anterior (adelantada) o posterior de Noviembre 2026 y la nueva hora. El horario anterior se liberará automáticamente.
+          </p>
+          <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:0.65rem; align-items:end;">
+            <div>
+              <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-pine);">Nueva Fecha (Adelantada o Posterior)</label>
+              <select id="admin-resched-day" class="input-sm" style="margin-top:0.25rem;" onchange="updateAdminModalHours('${b.folio}')">
+                ${allDays.map(d => {
+                  const dow = dayNames[new Date(2026, 10, d).getDay()];
+                  const tag = d < Number(b.day) ? ' (Adelantar)' : (d > Number(b.day) ? ' (Posponer)' : ' (Mismo día)');
+                  return `<option value="${d}" ${d === Number(b.day) ? 'selected' : ''}>${dow} ${d} de Noviembre 2026${tag}</option>`;
+                }).join('')}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-pine);">Nuevo Horario (13:00 – 21:00)</label>
+              <select id="admin-resched-time" class="input-sm" style="margin-top:0.25rem;"></select>
+            </div>
+            <button type="button" class="btn btn-primary" style="padding:0.58rem 1.1rem; font-size:0.78rem;" onclick="saveDirectReschedule('${b.folio}')">
+              Guardar Nueva Fecha
+            </button>
+          </div>
+          <div id="direct-resched-feedback" style="margin-top:0.65rem; font-size:0.8rem; font-weight:700; display:none;"></div>
+        </div>
+
+        <!-- OPCIÓN 2: Emergencia — Enviar correo al cliente para que él mismo elija su nuevo día -->
+        <div style="background:#FFFBF4; border:1.5px solid ${initialMode === 'emergency' ? '#A77237' : 'rgba(167,114,55,0.35)'}; border-radius:16px; padding:1.2rem;">
+          <h4 style="margin:0 0 0.35rem; font-size:1.12rem; color:#8C5820;">
+            Opción 2: Emergencia / Circunstancia Oportuna (Enviar Correo al Cliente)
+          </h4>
+          <p style="margin:0 0 0.85rem; font-size:0.8rem; color:#5C4A32;">
+            Si surgió un imprevisto, envía este aviso al correo de <strong>${b.patientName}</strong>. Al hacerlo, se le habilitará automáticamente en su <strong>Portal del Paciente</strong> un calendario para que elija sin costo el nuevo día y horario que mejor le acomode.
+          </p>
+
+          <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#8C5820;">Mensaje / Motivo que verá la paciente en su correo y portal:</label>
+          <input type="text" id="emergency-reason-input" class="input-sm" style="margin:0.3rem 0 0.85rem;" value="${(b.emergencyReason || 'Por una circunstancia imprevista en la agenda de la Lic. Valeria de la Torre, hemos habilitado el cambio sin costo de tu cita para el día y horario que prefieras.').replace(/"/g, '&quot;')}" />
+
+          <div style="display:flex; gap:0.55rem; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-gold" style="padding:0.6rem 1.15rem; font-size:0.79rem;" onclick="sendEmergencyRescheduleEmail('${b.folio}')">
+              Habilitar Cambio y Enviar Correo al Cliente
+            </button>
+            <a href="${portalUrl}" target="_blank" class="btn btn-outline" style="padding:0.56rem 1rem; font-size:0.76rem;">
+              Ver cómo lo recibe la paciente en su Portal →
+            </a>
+          </div>
+          <div id="emergency-resched-feedback" style="margin-top:0.75rem; font-size:0.8rem; display:none;"></div>
+        </div>
+      `;
+
+      updateAdminModalHours(b.folio);
+      document.getElementById('reschedule-modal').classList.add('open');
+    };
+
+    window.updateAdminModalHours = function(folio) {
+      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const b = bookings.find(x => x.folio === folio);
+      const daySel = document.getElementById('admin-resched-day');
+      const timeSel = document.getElementById('admin-resched-time');
+      if (!daySel || !timeSel || !b) return;
+
+      const selectedDay = Number(daySel.value);
+      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
+      const taken = blockedMap[selectedDay] || [];
+
+      timeSel.innerHTML = VDT.HOURS.map(h => {
+        const isCurrentSameSlot = (selectedDay === Number(b.day) && h === b.time);
+        const isOccupiedByOther = taken.includes(h) && !isCurrentSameSlot;
+        return `<option value="${h}" ${h === b.time ? 'selected' : ''}>${VDT.slotLabel(h)} hrs${isCurrentSameSlot ? ' (Actual)' : (isOccupiedByOther ? ' (Ocupado)' : ' (Libre)')}</option>`;
+      }).join('');
+    };
+
+    window.saveDirectReschedule = function(folio) {
+      const newDay = Number(document.getElementById('admin-resched-day').value);
+      const newTime = document.getElementById('admin-resched-time').value;
+      const updated = VDT.rescheduleBooking(folio, newDay, newTime, 'nutriologa', 'Fecha ajustada por la Lic. Valeria');
+      if (!updated) return;
+
+      currentAdminDay = newDay;
+      refreshAll();
+
+      // Enviar notificación al servidor PHP (en Neubox envía correo real; en local responde sin bloquear)
+      fetch('api/reprogramar-cita.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'direct',
+          folio: updated.folio,
+          patientName: updated.patientName,
+          patientEmail: updated.patientEmail,
+          newDateLabel: updated.dateLabel,
+          newTimeLabel: VDT.slotLabel(updated.time),
+          previousDateLabel: updated.previousDateLabel
+        })
+      }).catch(() => {});
+
+      const fb = document.getElementById('direct-resched-feedback');
+      if (fb) {
+        fb.style.display = 'block';
+        fb.style.color = '#253B2E';
+        fb.innerHTML = `✓ ¡Cita reprogramada con éxito para el <strong>${updated.dateLabel} (${VDT.slotLabel(updated.time)} hrs)</strong>! El calendario y el portal de la paciente ya se actualizaron.`;
+      }
+    };
+
+    window.sendEmergencyRescheduleEmail = function(folio) {
+      const reason = document.getElementById('emergency-reason-input').value.trim();
+      const updated = VDT.enablePatientReschedule(folio, reason);
+      if (!updated) return;
+
+      refreshAll();
+
+      const portalUrl = `${location.origin}${location.pathname.replace('nutriologa-panel.html', 'paciente.html')}?email=${encodeURIComponent(updated.patientEmail)}&folio=${encodeURIComponent(updated.folio)}&reprogramar=1`;
+      const mailSubject = encodeURIComponent(`Aviso importante sobre tu consulta (${updated.folio}) - Lic. Valeria de la Torre`);
+      const mailBody = encodeURIComponent(
+        `Hola ${updated.patientName},\n\n` +
+        `${updated.emergencyReason}\n\n` +
+        `Hemos habilitado en tu Portal de Paciente la opción para que elijas sin costo el nuevo día y horario que mejor te acomode:\n` +
+        `${portalUrl}\n\n` +
+        `Con cariño,\nLic. Valeria de la Torre\nNutrición Hormonal Femenina`
+      );
+
+      // En producción (Neubox) dispara el correo HTML automático desde el servidor
+      fetch('api/reprogramar-cita.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'emergency',
+          folio: updated.folio,
+          patientName: updated.patientName,
+          patientEmail: updated.patientEmail,
+          reason: updated.emergencyReason,
+          portalUrl
+        })
+      }).catch(() => {});
+
+      const fb = document.getElementById('emergency-resched-feedback');
+      if (fb) {
+        fb.style.display = 'block';
+        fb.innerHTML = `
+          <div style="background:#E3EFE6; border:1px solid #83917B; color:#253B2E; padding:0.8rem 1rem; border-radius:12px;">
+            <strong>✓ ¡Reprogramación habilitada y notificación lista para ${updated.patientEmail}!</strong><br>
+            <span>La paciente ya tiene activo el selector de nuevo día en su portal. En Neubox el correo sale automáticamente; aquí puedes abrir el correo o probar su portal:</span>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.55rem;">
+              <a href="mailto:${updated.patientEmail}?subject=${mailSubject}&body=${mailBody}" class="btn-mini" style="text-decoration:none;">Enviar desde mi Correo</a>
+              <a href="${portalUrl}" target="_blank" class="btn-mini" style="text-decoration:none; background:var(--color-forest); color:#FEFAFA;">Abrir Portal de ${updated.patientName.split(' ')[0]} para probar el cambio →</a>
+            </div>
+          </div>
+        `;
+      }
+    };
 
     /* ----------------------------------------------------------------------
        PESTAÑA 3: Estado General del Cuestionario (Grafos + Matriz + Excel)
