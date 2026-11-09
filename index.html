@@ -1264,13 +1264,16 @@
                     hora</strong>.</span>
               </p>
 
-              <!-- Calendario Mensual -->
+              <!-- Calendario Mensual con Navegación a Meses Posteriores -->
               <div
                 style="background: #FFFFFF; border: 1px solid rgba(167,114,55,0.22); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.3rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                  <strong
-                    style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--color-forest);">Noviembre
-                    2026</strong>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <button type="button" onclick="changePublicMonth(-1)" title="Mes anterior" style="width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(167,114,55,0.35); background: #FAF6F0; color: var(--color-forest); cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">◀</button>
+                    <strong id="public-cal-month-title"
+                      style="font-family: var(--font-heading); font-size: 1.35rem; color: var(--color-forest); min-width: 145px; text-align: center;">Noviembre 2026</strong>
+                    <button type="button" onclick="changePublicMonth(1)" title="Mes siguiente" style="width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(167,114,55,0.35); background: #FAF6F0; color: var(--color-forest); cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">▶</button>
+                  </div>
                   <span style="font-size: 0.76rem; color: var(--color-gold); font-weight: 600;">Zona Horaria: Ciudad de
                     México (GMT-6)</span>
                 </div>
@@ -1700,8 +1703,8 @@
     </p>
   </footer>
 
-  <script src="js/store.js?v=20261108-5"></script>
-  <script src="js/app.js?v=20261108-5"></script>
+  <script src="js/store.js?v=20261108-6"></script>
+  <script src="js/app.js?v=20261108-6"></script>
 </body>
 
 </html>

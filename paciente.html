@@ -116,9 +116,10 @@
     </section>
   </main>
 
-  <script src="js/store.js?v=20261108-5"></script>
+  <script src="js/store.js?v=20261108-6"></script>
   <script>
     let session = null;
+    const patientCalState = {}; // { [folio]: { year, month, day, time } }
 
     function findPaidBookings(email) {
       return VDT.read(VDT.KEYS.bookings, []).filter(b => b.patientEmail.toLowerCase() === email && b.status === 'pagado');
@@ -150,39 +151,26 @@
       document.getElementById('hello-name').textContent = `Hola, ${session.name.split(' ')[0]}`;
 
       const bookings = findPaidBookings(session.email);
-      const availDays = VDT.getAvailableDays();
-      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
 
       document.getElementById('appointments-list').innerHTML = bookings.map(b => {
-        const defaultNewDay = availDays.find(d => d !== Number(b.day)) || availDays[0] || 12;
-        const freeHoursForDefault = VDT.HOURS.filter(h => !(blockedMap[defaultNewDay] || []).includes(h));
+        if (!patientCalState[b.folio]) {
+          const y = Number(b.year || 2026);
+          const m = b.month !== undefined ? Number(b.month) : 10;
+          const avail = VDT.getAvailableDaysForMonth(y, m);
+          const defDay = avail.find(d => d !== Number(b.day)) || avail[0] || 12;
+          patientCalState[b.folio] = { year: y, month: m, day: defDay, time: b.time || '13:00' };
+        }
 
         const rescheduleBox = b.rescheduleAllowed ? `
-          <div style="width:100%; margin-top:0.85rem; padding:1.1rem; background:#FFF8EB; border:1.5px solid #DEB074; border-radius:14px;">
-            <div style="display:flex; align-items:center; gap:0.45rem; font-weight:700; color:#8C5820; font-size:0.86rem; margin-bottom:0.35rem;">
+          <div style="width:100%; margin-top:0.85rem; padding:1.15rem; background:#FFF8EB; border:1.5px solid #DEB074; border-radius:16px;">
+            <div style="display:flex; align-items:center; gap:0.45rem; font-weight:700; color:#8C5820; font-size:0.88rem; margin-bottom:0.35rem;">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               <span>Cambio de Fecha Habilitado sin costo (Solicitud de la Lic. Valeria)</span>
             </div>
-            <p style="font-size:0.8rem; color:#5C4A32; margin:0 0 0.85rem;">
-              <strong>Motivo:</strong> ${esc(b.emergencyReason || 'Por una circunstancia imprevista en consultorio, puedes elegir aquí tu nuevo día y horario disponible.')}
+            <p style="font-size:0.8rem; color:#5C4A32; margin:0 0 0.9rem;">
+              <strong>Motivo:</strong> ${esc(b.emergencyReason || 'Por una circunstancia imprevista en consultorio, puedes elegir en el calendario tu nuevo día y horario disponible.')}
             </p>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.65rem; align-items:end;">
-              <div>
-                <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#253B2E;">1. Nuevo Día (Noviembre 2026)</label>
-                <select id="resched-day-${b.folio}" class="form-input" style="margin-top:0.25rem; padding:0.55rem 0.75rem; font-size:0.84rem;" onchange="updatePatientFreeHours('${b.folio}')">
-                  ${availDays.map(d => `<option value="${d}" ${d === defaultNewDay ? 'selected' : ''}>${d} de Noviembre, 2026</option>`).join('')}
-                </select>
-              </div>
-              <div>
-                <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#253B2E;">2. Nuevo Horario (1 hora)</label>
-                <select id="resched-time-${b.folio}" class="form-input" style="margin-top:0.25rem; padding:0.55rem 0.75rem; font-size:0.84rem;">
-                  ${(freeHoursForDefault.length ? freeHoursForDefault : VDT.HOURS).map(h => `<option value="${h}">${VDT.slotLabel(h)} hrs</option>`).join('')}
-                </select>
-              </div>
-              <button type="button" onclick="confirmPatientReschedule('${b.folio}')" class="btn-primary" style="padding:0.65rem 1rem; font-size:0.78rem; width:100%;">
-                Confirmar mi Nueva Fecha →
-              </button>
-            </div>
+            <div id="patient-cal-mount-${b.folio}"></div>
           </div>
         ` : '';
 
@@ -209,6 +197,8 @@
           </div>`;
       }).join('');
 
+      bookings.filter(b => b.rescheduleAllowed).forEach(b => renderPatientRescheduleCalendar(b.folio));
+
       const hasFirst = bookings.some(b => b.type === 'primera');
       const responses = VDT.read(VDT.KEYS.responses, []);
       const done = responses.find(r => r.patientEmail.toLowerCase() === session.email);
@@ -227,23 +217,113 @@
       }
     }
 
-    window.updatePatientFreeHours = function(folio) {
-      const daySel = document.getElementById(`resched-day-${folio}`);
-      const timeSel = document.getElementById(`resched-time-${folio}`);
-      if (!daySel || !timeSel) return;
-      const d = Number(daySel.value);
-      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
-      const taken = blockedMap[d] || [];
-      const free = VDT.HOURS.filter(h => !taken.includes(h));
-      timeSel.innerHTML = (free.length ? free : VDT.HOURS)
-        .map(h => `<option value="${h}">${VDT.slotLabel(h)} hrs</option>`).join('');
+    window.changePatientCalMonth = function(folio, delta) {
+      const st = patientCalState[folio];
+      if (!st) return;
+      let y = st.year;
+      let m = st.month + delta;
+      if (m > 11) { m = 0; y += 1; }
+      if (m < 0)  { m = 11; y -= 1; }
+      if (y < 2026 || (y === 2026 && m < 10)) return;
+      st.year = y;
+      st.month = m;
+      const avail = VDT.getAvailableDaysForMonth(y, m);
+      st.day = avail[0] || 1;
+      renderPatientRescheduleCalendar(folio);
     };
 
+    window.selectPatientCalDay = function(folio, dayNum) {
+      const st = patientCalState[folio];
+      if (!st) return;
+      st.day = Number(dayNum);
+      renderPatientRescheduleCalendar(folio);
+    };
+
+    window.selectPatientCalTime = function(folio, hr) {
+      const st = patientCalState[folio];
+      if (!st) return;
+      st.time = hr;
+      renderPatientRescheduleCalendar(folio);
+    };
+
+    function renderPatientRescheduleCalendar(folio) {
+      const mount = document.getElementById(`patient-cal-mount-${folio}`);
+      const st = patientCalState[folio];
+      if (!mount || !st) return;
+
+      const { year: y, month: m, day: selDay, time: selTime } = st;
+      const availDays = VDT.getAvailableDaysForMonth(y, m);
+      const totalDays = VDT.daysInMonth(y, m);
+      const startDow  = VDT.firstWeekday(y, m);
+      const taken     = VDT.getBlockedForDate(y, m, selDay);
+
+      if (taken.includes(selTime)) {
+        const freeHr = VDT.HOURS.find(h => !taken.includes(h));
+        if (freeHr) st.time = freeHr;
+      }
+
+      let calCells = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
+        .map(h => `<div style="text-align:center; font-size:0.65rem; font-weight:700; color:#83917B; padding-bottom:0.2rem;">${h}</div>`).join('');
+
+      for (let e = 0; e < startDow; e++) calCells += `<div></div>`;
+      for (let d = 1; d <= totalDays; d++) {
+        const dayTaken = VDT.getBlockedForDate(y, m, d);
+        const isAvail = availDays.includes(d) && dayTaken.length < VDT.HOURS.length;
+        const isSel = d === selDay && isAvail;
+        calCells += `
+          <button type="button" ${isAvail ? `onclick="selectPatientCalDay('${folio}', ${d})"` : 'disabled'}
+            style="padding:0.48rem 0.15rem; border-radius:9px; font-size:0.8rem; font-weight:${isSel ? '700' : '600'}; cursor:${isAvail ? 'pointer' : 'not-allowed'}; border:1px solid ${isSel ? '#253B2E' : (isAvail ? 'rgba(37,59,46,0.28)' : 'rgba(131,145,123,0.25)')}; background:${isSel ? '#253B2E' : (isAvail ? '#FFFFFF' : '#F2EFE9')}; color:${isSel ? '#FEFAFA' : (isAvail ? '#253B2E' : '#B0B8AC')};">
+            ${d}
+          </button>
+        `;
+      }
+
+      const hourBtns = VDT.HOURS.map(hr => {
+        const isBusy = taken.includes(hr);
+        const isSel  = st.time === hr && !isBusy;
+        return `
+          <button type="button" ${!isBusy ? `onclick="selectPatientCalTime('${folio}', '${hr}')"` : 'disabled'}
+            style="padding:0.5rem 0.4rem; border-radius:9px; font-size:0.75rem; font-weight:600; cursor:${!isBusy ? 'pointer' : 'not-allowed'}; border:1px solid ${isSel ? '#253B2E' : 'rgba(167,114,55,0.3)'}; background:${isSel ? '#253B2E' : (isBusy ? '#F2EFE9' : '#FFFFFF')}; color:${isSel ? '#FEFAFA' : (isBusy ? '#A8B0A4' : '#253B2E')};">
+            ${VDT.slotLabel(hr)}${isBusy ? ' (Ocup.)' : ''}
+          </button>
+        `;
+      }).join('');
+
+      mount.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; align-items:start;">
+          <div style="background:#FFFFFF; border:1px solid rgba(167,114,55,0.28); border-radius:14px; padding:0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.55rem;">
+              <button type="button" onclick="changePatientCalMonth('${folio}', -1)" style="border:1px solid rgba(167,114,55,0.35); background:#FAF6F0; border-radius:8px; width:28px; height:28px; cursor:pointer; font-weight:700;">◀</button>
+              <strong style="font-family:var(--font-heading); font-size:1.15rem; color:#253B2E;">${VDT.MONTH_NAMES[m]} ${y}</strong>
+              <button type="button" onclick="changePatientCalMonth('${folio}', 1)" style="border:1px solid rgba(167,114,55,0.35); background:#FAF6F0; border-radius:8px; width:28px; height:28px; cursor:pointer; font-weight:700;">▶</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:0.32rem;">
+              ${calCells}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.74rem; font-weight:700; text-transform:uppercase; color:#253B2E; margin-bottom:0.45rem;">
+              Horarios disponibles para el <span style="color:#A77237;">${VDT.formatShortDate(y, m, selDay)}</span>:
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:0.85rem;">
+              ${hourBtns}
+            </div>
+            <div style="font-size:0.8rem; color:#253B2E; margin-bottom:0.6rem;">
+              <strong>Nueva fecha elegida:</strong> ${VDT.formatFullDate(y, m, selDay)} · ${VDT.slotLabel(st.time)} hrs
+            </div>
+            <button type="button" onclick="confirmPatientReschedule('${folio}')" class="btn-primary" style="padding:0.68rem 1rem; font-size:0.8rem; width:100%;">
+              Confirmar mi Nueva Fecha y Horario →
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
     window.confirmPatientReschedule = function(folio) {
-      const daySel = document.getElementById(`resched-day-${folio}`);
-      const timeSel = document.getElementById(`resched-time-${folio}`);
-      if (!daySel || !timeSel) return;
-      const updated = VDT.rescheduleBooking(folio, Number(daySel.value), timeSel.value, 'paciente', 'Reprogramado por la paciente desde su portal');
+      const st = patientCalState[folio];
+      if (!st) return;
+      const updated = VDT.rescheduleBooking(folio, st.day, st.time, 'paciente', 'Reprogramado por la paciente desde su portal', st.year, st.month);
       if (updated) {
         const banner = document.getElementById('reschedule-success-banner');
         if (banner) {

@@ -9,6 +9,8 @@ const bookingState = {
   modality: 'virtual',      // virtual | presencial
   focus: 'Valoración General',
   price: VDT.getPrice('virtual', 'primera'),
+  selectedYear: 2026,
+  selectedMonth: 10,        // 10 = Noviembre (0-indexed)
   selectedDay: 12,
   selectedDateLabel: 'Jueves 12 de Noviembre, 2026',
   selectedTime: '13:00',
@@ -20,8 +22,8 @@ const availableDaysInNov = [3, 5, 6, 10, 12, 13, 17, 19, 20, 24, 26, 27];
 const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const IS_HEATMAP_PREVIEW = new URLSearchParams(location.search).get('heatmap') === '1';
 
-function dayName(d) {
-  return DAY_NAMES[new Date(2026, 10, d).getDay()];
+function dayName(d, y = bookingState.selectedYear, m = bookingState.selectedMonth) {
+  return DAY_NAMES[new Date(y, m, d).getDay()];
 }
 
 function getBlocked() {
@@ -318,19 +320,42 @@ function launchGoldenCelebration() {
 }
 
 /* --------------------------------------------------------------------------
-   6. CALENDARIO Y HORARIOS (13:00 – 21:00, sesiones de 1 hora)
+   6. CALENDARIO Y HORARIOS (13:00 – 21:00, sesiones de 1 hora, Multi-Mes)
    -------------------------------------------------------------------------- */
+function changePublicMonth(delta) {
+  let y = bookingState.selectedYear;
+  let m = bookingState.selectedMonth + delta;
+  if (m > 11) { m = 0; y += 1; }
+  if (m < 0)  { m = 11; y -= 1; }
+  // No permitir retroceder antes de Noviembre 2026
+  if (y < 2026 || (y === 2026 && m < 10)) return;
+  bookingState.selectedYear = y;
+  bookingState.selectedMonth = m;
+  const avail = VDT.getAvailableDaysForMonth(y, m);
+  bookingState.selectedDay = avail[0] || 1;
+  bookingState.selectedDateLabel = VDT.formatFullDate(y, m, bookingState.selectedDay);
+  renderCalendarDays();
+  renderTimeSlots();
+  updateSummary();
+}
+
 function renderCalendarDays() {
   const grid = document.getElementById('calendar-days-grid');
   if (!grid) return;
-  const availDays = VDT.getAvailableDays();
-  const blockedMap = getBlocked();
+  const y = bookingState.selectedYear;
+  const m = bookingState.selectedMonth;
+  const availDays = VDT.getAvailableDaysForMonth(y, m);
+  const totalDays = VDT.daysInMonth(y, m);
+  const startDow = VDT.firstWeekday(y, m);
+
+  const monthTitleEl = document.getElementById('public-cal-month-title');
+  if (monthTitleEl) monthTitleEl.textContent = `${VDT.MONTH_NAMES[m]} ${y}`;
 
   // Si el día seleccionado ya fue deshabilitado por la nutrióloga, saltar al primer día disponible
   if (availDays.length > 0 && !availDays.includes(bookingState.selectedDay)) {
     bookingState.selectedDay = availDays[0];
-    bookingState.selectedDateLabel = `${dayName(bookingState.selectedDay)} ${bookingState.selectedDay} de Noviembre, 2026`;
   }
+  bookingState.selectedDateLabel = VDT.formatFullDate(y, m, bookingState.selectedDay);
 
   grid.innerHTML = '';
   ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].forEach(h => {
@@ -339,10 +364,17 @@ function renderCalendarDays() {
     div.textContent = h;
     grid.appendChild(div);
   });
-  for (let d = 1; d <= 30; d++) {
+
+  // Celdas vacías para alinear el día 1 con su día de la semana real
+  for (let e = 0; e < startDow; e++) {
+    const empty = document.createElement('div');
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= totalDays; d++) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    const dayBlockedHours = blockedMap[d] || [];
+    const dayBlockedHours = VDT.getBlockedForDate(y, m, d);
     const allHoursFull = dayBlockedHours.length >= VDT.HOURS.length;
     const isAvail = availDays.includes(d) && !allHoursFull;
     btn.className = 'cal-day' + (!isAvail ? ' disabled' : '') + (bookingState.selectedDay === d && isAvail ? ' selected' : '');
@@ -350,7 +382,7 @@ function renderCalendarDays() {
     if (isAvail) {
       btn.onclick = () => {
         bookingState.selectedDay = d;
-        bookingState.selectedDateLabel = `${dayName(d)} ${d} de Noviembre, 2026`;
+        bookingState.selectedDateLabel = VDT.formatFullDate(y, m, d);
         renderCalendarDays();
         renderTimeSlots();
         updateSummary();
@@ -364,9 +396,9 @@ function renderTimeSlots() {
   const container = document.getElementById('time-slots-container');
   const labelEl = document.getElementById('selected-date-label');
   if (!container) return;
-  if (labelEl) labelEl.textContent = bookingState.selectedDateLabel.replace(', 2026', '');
+  if (labelEl) labelEl.textContent = bookingState.selectedDateLabel.replace(`, ${bookingState.selectedYear}`, '');
 
-  const taken = getBlocked()[bookingState.selectedDay] || [];
+  const taken = VDT.getBlockedForDate(bookingState.selectedYear, bookingState.selectedMonth, bookingState.selectedDay);
   if (taken.includes(bookingState.selectedTime)) {
     const free = VDT.HOURS.find(h => !taken.includes(h));
     if (free) bookingState.selectedTime = free;
@@ -488,9 +520,11 @@ function processPaymentAndBook(event) {
   const patientPhone = document.getElementById('patient-phone').value.trim();
 
   setTimeout(() => {
+    const y = bookingState.selectedYear;
+    const m = bookingState.selectedMonth;
+    const d = bookingState.selectedDay;
     // Revalidar que el horario siga libre (evita doble reserva)
-    const blocked = getBlocked();
-    const dayList = blocked[bookingState.selectedDay] || [];
+    const dayList = VDT.getBlockedForDate(y, m, d);
     if (dayList.includes(bookingState.selectedTime)) {
       alert('Este horario acaba de ser reservado. Por favor elige otro.');
       submitBtn.disabled = false;
@@ -503,8 +537,7 @@ function processPaymentAndBook(event) {
     bookingState.folio = 'VT-' + Math.floor(1000 + Math.random() * 9000);
     bookingState.lastEmail = patientEmail;
 
-    blocked[bookingState.selectedDay] = [...dayList, bookingState.selectedTime];
-    VDT.write(VDT.KEYS.blocked, blocked);
+    VDT.toggleBlockedSlotForDate(y, m, d, bookingState.selectedTime);
 
     const bookings = VDT.read(VDT.KEYS.bookings, []);
     bookings.push({
@@ -513,8 +546,10 @@ function processPaymentAndBook(event) {
       type: bookingState.type, typeLabel: VDT.TYPES[bookingState.type],
       modality: bookingState.modality, modalityLabel: VDT.MODALITIES[bookingState.modality],
       focus: bookingState.focus,
-      day: bookingState.selectedDay,
-      dateLabel: `${bookingState.selectedDay} Nov 2026`,
+      year: y,
+      month: m,
+      day: d,
+      dateLabel: VDT.formatShortDate(y, m, d),
       time: bookingState.selectedTime,
       price: bookingState.price,
       notes: (document.getElementById('patient-notes') || {}).value || '',
@@ -554,10 +589,12 @@ function processPaymentAndBook(event) {
 
 function calendarDates() {
   const [hh] = bookingState.selectedTime.split(':').map(Number);
+  const yy = String(bookingState.selectedYear);
+  const mm = String(bookingState.selectedMonth + 1).padStart(2, '0');
   const dd = String(bookingState.selectedDay).padStart(2, '0');
   return {
-    start: `202611${dd}T${String(hh).padStart(2, '0')}0000`,
-    end: `202611${dd}T${String(hh + 1).padStart(2, '0')}0000`
+    start: `${yy}${mm}${dd}T${String(hh).padStart(2, '0')}0000`,
+    end: `${yy}${mm}${dd}T${String(hh + 1).padStart(2, '0')}0000`
   };
 }
 

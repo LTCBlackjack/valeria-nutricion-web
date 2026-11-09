@@ -17,7 +17,8 @@ const VDT = {
     adminAuth: 'vdt_admin_auth_v1',
     adminCreds: 'vdt_admin_creds_v1',
     specialties: 'vdt_specialties_v1',
-    availableDays: 'vdt_available_days_v1'
+    availableDays: 'vdt_available_days_v1',
+    availByMonth: 'vdt_avail_by_month_v1'
   },
 
   // Catálogo de iconos vectoriales de marca (Paleta Bronce/Dorado y Verde Bosque)
@@ -131,23 +132,111 @@ const VDT = {
   // Horario de atención: 13:00 a 21:00 hrs, sesiones de 1 hora (última inicia 20:00)
   HOURS: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
 
+  MONTH_NAMES: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+  MONTH_SHORT: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+  DAY_NAMES_FULL: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+
+  monthKey(year, month) {
+    return `${year}-${String(month + 1).padStart(2, '0')}`;
+  },
+
+  dateKey(year, month, day) {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  },
+
+  daysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  },
+
+  firstWeekday(year, month) {
+    return new Date(year, month, 1).getDay();
+  },
+
+  formatShortDate(year, month, day) {
+    return `${day} ${this.MONTH_SHORT[month]} ${year}`;
+  },
+
+  formatFullDate(year, month, day) {
+    const dow = this.DAY_NAMES_FULL[new Date(year, month, day).getDay()];
+    return `${dow} ${day} de ${this.MONTH_NAMES[month]}, ${year}`;
+  },
+
+  defaultAvailableDaysForMonth(year = 2026, month = 10) {
+    if (year === 2026 && month === 10) {
+      return [3, 5, 6, 10, 12, 13, 17, 19, 20, 24, 26, 27];
+    }
+    const total = this.daysInMonth(year, month);
+    const days = [];
+    for (let d = 1; d <= total; d++) {
+      const dow = new Date(year, month, d).getDay();
+      if (dow === 2 || dow === 4 || dow === 5) days.push(d); // Mar, Jue, Vie por defecto
+    }
+    return days;
+  },
+
   defaultAvailableDays() {
-    return [3, 5, 6, 10, 12, 13, 17, 19, 20, 24, 26, 27];
+    return this.defaultAvailableDaysForMonth(2026, 10);
+  },
+
+  getAvailableDaysForMonth(year = 2026, month = 10) {
+    const mKey = this.monthKey(year, month);
+    const map = this.read(this.KEYS.availByMonth, {});
+    if (Array.isArray(map[mKey])) {
+      return map[mKey].map(Number).sort((a, b) => a - b);
+    }
+    if (year === 2026 && month === 10) {
+      const legacy = this.read(this.KEYS.availableDays, null);
+      if (Array.isArray(legacy)) {
+        map[mKey] = legacy.map(Number).sort((a, b) => a - b);
+        this.write(this.KEYS.availByMonth, map);
+        return map[mKey];
+      }
+    }
+    const def = this.defaultAvailableDaysForMonth(year, month);
+    map[mKey] = def;
+    this.write(this.KEYS.availByMonth, map);
+    if (year === 2026 && month === 10) this.write(this.KEYS.availableDays, def);
+    return def;
+  },
+
+  setAvailableDaysForMonth(year, month, days) {
+    const maxD = this.daysInMonth(year, month);
+    const clean = Array.from(new Set(days.map(Number))).filter(n => n >= 1 && n <= maxD).sort((a, b) => a - b);
+    const mKey = this.monthKey(year, month);
+    const map = this.read(this.KEYS.availByMonth, {});
+    map[mKey] = clean;
+    this.write(this.KEYS.availByMonth, map);
+    if (year === 2026 && month === 10) {
+      this.write(this.KEYS.availableDays, clean);
+    }
+    return clean;
   },
 
   getAvailableDays() {
-    let d = this.read(this.KEYS.availableDays, null);
-    if (!Array.isArray(d)) {
-      d = this.defaultAvailableDays();
-      this.write(this.KEYS.availableDays, d);
-    }
-    return d.map(Number).sort((a, b) => a - b);
+    return this.getAvailableDaysForMonth(2026, 10);
   },
 
   setAvailableDays(days) {
-    const clean = Array.from(new Set(days.map(Number))).filter(n => n >= 1 && n <= 30).sort((a, b) => a - b);
-    this.write(this.KEYS.availableDays, clean);
-    return clean;
+    return this.setAvailableDaysForMonth(2026, 10, days);
+  },
+
+  getBlockedForDate(year = 2026, month = 10, day = 12) {
+    const blocked = this.read(this.KEYS.blocked, {});
+    const dKey = this.dateKey(year, month, day);
+    const byKey = blocked[dKey] || [];
+    const byLegacy = (year === 2026 && month === 10) ? (blocked[day] || []) : [];
+    return Array.from(new Set([...byKey, ...byLegacy]));
+  },
+
+  toggleBlockedSlotForDate(year, month, day, time) {
+    const blocked = this.read(this.KEYS.blocked, {});
+    const dKey = this.dateKey(year, month, day);
+    const current = this.getBlockedForDate(year, month, day);
+    const next = current.includes(time) ? current.filter(t => t !== time) : [...current, time];
+    blocked[dKey] = next;
+    if (year === 2026 && month === 10) blocked[day] = next;
+    this.write(this.KEYS.blocked, blocked);
+    return next;
   },
 
   // Habilita que el paciente pueda elegir un nuevo día/hora en su portal por emergencia de la nutrióloga
@@ -157,11 +246,16 @@ const VDT = {
     const target = bookings.find(b => b.folio === folio);
     if (!target) return null;
 
-    // Liberar el horario anterior para que no quede bloqueado
-    if (blocked[target.day]) {
-      blocked[target.day] = blocked[target.day].filter(t => t !== target.time);
-      this.write(this.KEYS.blocked, blocked);
+    const oldYear = Number(target.year || 2026);
+    const oldMonth = target.month !== undefined ? Number(target.month) : 10;
+    const oldDay = Number(target.day);
+    const oldDKey = this.dateKey(oldYear, oldMonth, oldDay);
+
+    if (blocked[oldDKey]) blocked[oldDKey] = blocked[oldDKey].filter(t => t !== target.time);
+    if (oldYear === 2026 && oldMonth === 10 && blocked[oldDay]) {
+      blocked[oldDay] = blocked[oldDay].filter(t => t !== target.time);
     }
+    this.write(this.KEYS.blocked, blocked);
 
     target.rescheduleAllowed = true;
     target.emergencyReason = reason || 'Ajuste imprevisto en la agenda clínica de la Lic. Valeria de la Torre.';
@@ -170,39 +264,50 @@ const VDT = {
     return target;
   },
 
-  // Reprograma una cita (adelantada o pospuesta) por la nutrióloga o por el propio paciente
-  rescheduleBooking(folio, newDay, newTime, byWho = 'nutriologa', note = '') {
+  // Reprograma una cita (adelantada o pospuesta, mismo mes o meses posteriores)
+  rescheduleBooking(folio, newDay, newTime, byWho = 'nutriologa', note = '', newYear = 2026, newMonth = 10) {
     const bookings = this.read(this.KEYS.bookings, []);
     const blocked = this.read(this.KEYS.blocked, {});
     const target = bookings.find(b => b.folio === folio);
     if (!target) return null;
 
+    const oldYear = Number(target.year || 2026);
+    const oldMonth = target.month !== undefined ? Number(target.month) : 10;
     const oldDay = Number(target.day);
     const oldTime = target.time;
+    const oldDKey = this.dateKey(oldYear, oldMonth, oldDay);
+
+    const nYear = Number(newYear);
+    const nMonth = Number(newMonth);
     const nDay = Number(newDay);
+    const newDKey = this.dateKey(nYear, nMonth, nDay);
 
     // 1. Liberar horario anterior
-    if (blocked[oldDay]) {
+    if (blocked[oldDKey]) blocked[oldDKey] = blocked[oldDKey].filter(t => t !== oldTime);
+    if (oldYear === 2026 && oldMonth === 10 && blocked[oldDay]) {
       blocked[oldDay] = blocked[oldDay].filter(t => t !== oldTime);
     }
+
     // 2. Ocupar nuevo horario
-    blocked[nDay] = blocked[nDay] || [];
-    if (!blocked[nDay].includes(newTime)) {
-      blocked[nDay].push(newTime);
-    }
+    const curNew = this.getBlockedForDate(nYear, nMonth, nDay);
+    if (!curNew.includes(newTime)) curNew.push(newTime);
+    blocked[newDKey] = curNew;
+    if (nYear === 2026 && nMonth === 10) blocked[nDay] = curNew;
     this.write(this.KEYS.blocked, blocked);
 
-    // 3. Asegurar que el nuevo día esté habilitado en el calendario web
-    const avail = this.getAvailableDays();
+    // 3. Asegurar que el nuevo día esté habilitado en ese mes
+    const avail = this.getAvailableDaysForMonth(nYear, nMonth);
     if (!avail.includes(nDay)) {
       avail.push(nDay);
-      this.setAvailableDays(avail);
+      this.setAvailableDaysForMonth(nYear, nMonth, avail);
     }
 
     // 4. Actualizar datos de la reserva
     target.previousDateLabel = `${target.dateLabel} (${this.slotLabel(oldTime)})`;
+    target.year = nYear;
+    target.month = nMonth;
     target.day = nDay;
-    target.dateLabel = `${nDay} Nov 2026`;
+    target.dateLabel = this.formatShortDate(nYear, nMonth, nDay);
     target.time = newTime;
     target.rescheduleAllowed = false;
     target.rescheduledAt = new Date().toISOString();

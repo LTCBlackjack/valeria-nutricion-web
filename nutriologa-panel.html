@@ -746,14 +746,16 @@
             </div>
           </div>
 
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.55rem;">
-            <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-pine);">
-              1. Días de Noviembre 2026:
-            </label>
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.65rem;">
+            <div style="display:inline-flex; align-items:center; gap:0.4rem;">
+              <button type="button" class="btn-mini" style="padding:0.25rem 0.55rem;" onclick="changeAdminMonth(-1)" title="Mes anterior">◀</button>
+              <strong id="admin-cal-month-title" style="font-family:var(--font-heading); font-size:1.15rem; color:var(--color-forest); min-width:130px; text-align:center;">Noviembre 2026</strong>
+              <button type="button" class="btn-mini" style="padding:0.25rem 0.55rem;" onclick="changeAdminMonth(1)" title="Ver meses posteriores">▶</button>
+            </div>
             <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
-              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-fri')" title="Habilitar todos los Lunes a Viernes">Lun–Vie</button>
-              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-sat')" title="Habilitar todos los Lunes a Sábado">Lun–Sáb</button>
-              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('default')" title="Restaurar Martes, Jueves y Viernes">Mar/Jue/Vie</button>
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-fri')" title="Habilitar todos los Lunes a Viernes de este mes">Lun–Vie</button>
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-sat')" title="Habilitar todos los Lunes a Sábado de este mes">Lun–Sáb</button>
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('default')" title="Restaurar Martes, Jueves y Viernes de este mes">Mar/Jue/Vie</button>
             </div>
           </div>
 
@@ -1036,9 +1038,11 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js?v=20261108-5"></script>
+  <script src="js/store.js?v=20261108-6"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
+    let currentAdminYear = 2026;
+    let currentAdminMonth = 10; // 10 = Noviembre
     let currentAdminDay = 5;
 
     const SECTION_META = {
@@ -1175,18 +1179,43 @@
       }).join('');
     }
 
+    window.changeAdminMonth = function(delta) {
+      let y = currentAdminYear;
+      let m = currentAdminMonth + delta;
+      if (m > 11) { m = 0; y += 1; }
+      if (m < 0)  { m = 11; y -= 1; }
+      if (y < 2026 || (y === 2026 && m < 10)) return;
+      currentAdminYear = y;
+      currentAdminMonth = m;
+      const avail = VDT.getAvailableDaysForMonth(y, m);
+      currentAdminDay = avail[0] || 1;
+      renderDaySelector();
+      renderSlotsGrid();
+    };
+
     function renderDaySelector() {
       const container = document.getElementById('admin-day-selector');
-      const availDays = VDT.getAvailableDays();
-      const bookings = VDT.read(VDT.KEYS.bookings, []);
+      const y = currentAdminYear;
+      const m = currentAdminMonth;
+      const availDays = VDT.getAvailableDaysForMonth(y, m);
+      const totalDays = VDT.daysInMonth(y, m);
+      const startDow  = VDT.firstWeekday(y, m);
+      const bookings  = VDT.read(VDT.KEYS.bookings, []);
+
+      const mTitle = document.getElementById('admin-cal-month-title');
+      if (mTitle) mTitle.textContent = `${VDT.MONTH_NAMES[m]} ${y}`;
+
       const hdrs = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
         .map(h => `<div class="day-hdr-mini">${h}</div>`).join('');
 
       let daysHtml = '';
-      for (let d = 1; d <= 30; d++) {
+      for (let e = 0; e < startDow; e++) {
+        daysHtml += `<div></div>`;
+      }
+      for (let d = 1; d <= totalDays; d++) {
         const isEnabled = availDays.includes(d);
         const isCurrent = d === currentAdminDay;
-        const hasAppts  = bookings.some(b => Number(b.day) === d);
+        const hasAppts  = bookings.some(b => Number(b.year || 2026) === y && Number(b.month ?? 10) === m && Number(b.day) === d);
         daysHtml += `
           <button type="button" class="day-btn ${!isEnabled ? 'day-closed' : ''} ${isCurrent ? 'active' : ''}" data-day="${d}" title="${isEnabled ? 'Habilitado en la Web (clic para ver horarios)' : 'Clic para habilitar este día en la Web'}">
             ${d}${hasAppts ? '<span style="display:block; width:5px; height:5px; border-radius:50%; background:#DEB074; margin:2px auto 0;"></span>' : ''}
@@ -1197,13 +1226,13 @@
 
       // Actualizar barra de estado del día seleccionado
       const isCurEnabled = availDays.includes(currentAdminDay);
-      const dayBookings  = bookings.filter(b => Number(b.day) === currentAdminDay);
+      const dayBookings  = bookings.filter(b => Number(b.year || 2026) === y && Number(b.month ?? 10) === m && Number(b.day) === currentAdminDay);
       const dayTitleEl = document.getElementById('admin-day-status-title');
       const daySubEl   = document.getElementById('admin-day-status-sub');
       const dayCheckEl = document.getElementById('admin-day-enabled-check');
       const dayBarEl   = document.getElementById('admin-day-enable-bar');
 
-      if (dayTitleEl) dayTitleEl.textContent = `Día ${currentAdminDay} de Noviembre, 2026 (${dayBookings.length} cita${dayBookings.length === 1 ? '' : 's'})`;
+      if (dayTitleEl) dayTitleEl.textContent = `Día ${currentAdminDay} de ${VDT.MONTH_NAMES[m]}, ${y} (${dayBookings.length} cita${dayBookings.length === 1 ? '' : 's'})`;
       if (daySubEl) {
         daySubEl.innerHTML = isCurEnabled
           ? '✓ Habilitado para recibir citas en el calendario de la página principal'
@@ -1215,17 +1244,17 @@
       if (dayBarEl) {
         dayBarEl.style.background = isCurEnabled ? '#FAF6F0' : '#F4EFEA';
       }
-      document.getElementById('selected-day-label').textContent = `${currentAdminDay} Nov`;
+      document.getElementById('selected-day-label').textContent = `${currentAdminDay} ${VDT.MONTH_SHORT[m]} ${y}`;
 
       container.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const clickedDay = parseInt(btn.dataset.day, 10);
           currentAdminDay = clickedDay;
           // Si la nutrióloga hace clic en un día que estaba en gris (cerrado), lo habilita inmediatamente en la web
-          const curAvail = VDT.getAvailableDays();
+          const curAvail = VDT.getAvailableDaysForMonth(y, m);
           if (!curAvail.includes(clickedDay)) {
             curAvail.push(clickedDay);
-            VDT.setAvailableDays(curAvail);
+            VDT.setAvailableDaysForMonth(y, m, curAvail);
           }
           renderDaySelector();
           renderSlotsGrid();
@@ -1234,26 +1263,29 @@
     }
 
     document.getElementById('admin-day-enabled-check').addEventListener('change', (e) => {
-      let avail = VDT.getAvailableDays();
+      let avail = VDT.getAvailableDaysForMonth(currentAdminYear, currentAdminMonth);
       if (e.target.checked) {
         if (!avail.includes(currentAdminDay)) avail.push(currentAdminDay);
       } else {
         avail = avail.filter(d => d !== currentAdminDay);
       }
-      VDT.setAvailableDays(avail);
+      VDT.setAvailableDaysForMonth(currentAdminYear, currentAdminMonth, avail);
       renderDaySelector();
       renderSlotsGrid();
     });
 
     window.applyQuickDaysPreset = function(preset) {
+      const y = currentAdminYear;
+      const m = currentAdminMonth;
+      const total = VDT.daysInMonth(y, m);
       const days = [];
-      for (let d = 1; d <= 30; d++) {
-        const dow = new Date(2026, 10, d).getDay(); // 0=Dom .. 6=Sáb
+      for (let d = 1; d <= total; d++) {
+        const dow = new Date(y, m, d).getDay(); // 0=Dom .. 6=Sáb
         if (preset === 'mon-fri' && dow >= 1 && dow <= 5) days.push(d);
         else if (preset === 'mon-sat' && dow >= 1 && dow <= 6) days.push(d);
       }
-      const next = preset === 'default' ? VDT.defaultAvailableDays() : days;
-      VDT.setAvailableDays(next);
+      const next = preset === 'default' ? VDT.defaultAvailableDaysForMonth(y, m) : days;
+      VDT.setAvailableDaysForMonth(y, m, next);
       if (next.length && !next.includes(currentAdminDay)) {
         currentAdminDay = next[0];
       }
@@ -1261,20 +1293,23 @@
       renderSlotsGrid();
       const daySubEl = document.getElementById('admin-day-status-sub');
       if (daySubEl) {
-        daySubEl.textContent = `✓ ¡Listo! Se habilitaron ${next.length} días del mes en el calendario de la página principal.`;
+        daySubEl.textContent = `✓ ¡Listo! Se habilitaron ${next.length} días de ${VDT.MONTH_NAMES[m]} ${y} en el calendario de la página principal.`;
         daySubEl.style.color = '#253B2E';
       }
     };
 
     window.triggerDayEmergency = function(dayNum) {
-      const bookings = VDT.read(VDT.KEYS.bookings, []).filter(b => Number(b.day) === Number(dayNum));
+      const bookings = VDT.read(VDT.KEYS.bookings, []).filter(b =>
+        Number(b.year || 2026) === currentAdminYear &&
+        Number(b.month ?? 10) === currentAdminMonth &&
+        Number(b.day) === Number(dayNum)
+      );
       if (bookings.length === 0) return;
       openRescheduleModal(bookings[0].folio, 'emergency');
     };
 
     function renderSlotsGrid() {
-      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
-      const blockedForDay = blockedMap[currentAdminDay] || [];
+      const blockedForDay = VDT.getBlockedForDate(currentAdminYear, currentAdminMonth, currentAdminDay);
       const grid = document.getElementById('admin-slots-grid');
 
       grid.innerHTML = VDT.HOURS.map(time => {
@@ -1292,12 +1327,7 @@
       grid.querySelectorAll('.slot-toggle').forEach(item => {
         item.addEventListener('click', () => {
           const time = item.dataset.time;
-          const map = VDT.read(VDT.KEYS.blocked, {});
-          map[currentAdminDay] = map[currentAdminDay] || [];
-          const idx = map[currentAdminDay].indexOf(time);
-          if (idx > -1) map[currentAdminDay].splice(idx, 1);
-          else map[currentAdminDay].push(time);
-          VDT.write(VDT.KEYS.blocked, map);
+          VDT.toggleBlockedSlotForDate(currentAdminYear, currentAdminMonth, currentAdminDay, time);
           renderSlotsGrid();
         });
       });
@@ -1479,14 +1509,21 @@
       document.getElementById('reschedule-modal').classList.remove('open');
     });
 
+    let modalCalState = { folio: '', year: 2026, month: 10, day: 12, time: '13:00' };
+
     window.openRescheduleModal = function(folio, initialMode = 'direct') {
       const bookings = VDT.read(VDT.KEYS.bookings, []);
       const b = bookings.find(x => x.folio === folio) || bookings[0];
       if (!b) return;
 
-      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
-      const allDays = Array.from({ length: 30 }, (_, i) => i + 1);
-      const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      modalCalState = {
+        folio: b.folio,
+        year: Number(b.year || 2026),
+        month: b.month !== undefined ? Number(b.month) : 10,
+        day: Number(b.day || 12),
+        time: b.time || '13:00'
+      };
+
       const portalUrl = `${location.origin}${location.pathname.replace('nutriologa-panel.html', 'paciente.html')}?email=${encodeURIComponent(b.patientEmail)}&folio=${encodeURIComponent(b.folio)}&reprogramar=1`;
 
       document.getElementById('resched-modal-title').textContent = `Cita ${b.folio} · ${b.patientName}`;
@@ -1503,31 +1540,41 @@
           </span>
         </div>
 
-        <!-- OPCIÓN 1: Cambiar a fecha adelantada o posterior directamente por la nutrióloga -->
+        <!-- OPCIÓN 1: Calendario Visual Multi-Mes para Adelantar o Posponer Fecha (Nutrióloga) -->
         <div style="background:#FFFFFF; border:1.5px solid ${initialMode === 'direct' ? 'var(--color-forest)' : 'rgba(167,114,55,0.25)'}; border-radius:16px; padding:1.2rem; margin-bottom:1.1rem;">
-          <h4 style="margin:0 0 0.35rem; font-size:1.12rem; color:var(--color-forest);">
-            Opción 1: Adelantar o Posponer Fecha directamente (Nutrióloga)
+          <h4 style="margin:0 0 0.3rem; font-size:1.12rem; color:var(--color-forest);">
+            Opción 1: Adelantar o Posponer Fecha en el Calendario (Nutrióloga)
           </h4>
           <p style="margin:0 0 0.9rem; font-size:0.8rem; color:var(--color-sage-dark);">
-            Elige cualquier fecha anterior (adelantada) o posterior de Noviembre 2026 y la nueva hora. El horario anterior se liberará automáticamente.
+            Navega entre los meses con <strong>◀ ▶</strong>, haz clic en el nuevo día (adelantado o posterior) y selecciona la hora disponible.
           </p>
-          <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:0.65rem; align-items:end;">
-            <div>
-              <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-pine);">Nueva Fecha (Adelantada o Posterior)</label>
-              <select id="admin-resched-day" class="input-sm" style="margin-top:0.25rem;" onchange="updateAdminModalHours('${b.folio}')">
-                ${allDays.map(d => {
-                  const dow = dayNames[new Date(2026, 10, d).getDay()];
-                  const tag = d < Number(b.day) ? ' (Adelantar)' : (d > Number(b.day) ? ' (Posponer)' : ' (Mismo día)');
-                  return `<option value="${d}" ${d === Number(b.day) ? 'selected' : ''}>${dow} ${d} de Noviembre 2026${tag}</option>`;
-                }).join('')}
-              </select>
+
+          <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:1rem; align-items:start;">
+            <!-- Calendario Mensual Interactivo -->
+            <div style="background:#FAF6F0; border:1px solid rgba(167,114,55,0.25); border-radius:14px; padding:0.85rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
+                <button type="button" class="btn-mini" style="padding:0.25rem 0.6rem;" onclick="changeModalCalMonth(-1)">◀</button>
+                <strong id="modal-cal-month-label" style="font-family:var(--font-heading); font-size:1.15rem; color:var(--color-forest);">Noviembre 2026</strong>
+                <button type="button" class="btn-mini" style="padding:0.25rem 0.6rem;" onclick="changeModalCalMonth(1)">▶</button>
+              </div>
+              <div class="day-selector" id="modal-cal-days-grid" style="margin-bottom:0;"></div>
             </div>
+
+            <!-- Horarios de 13:00 a 21:00 hrs -->
             <div>
-              <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--color-pine);">Nuevo Horario (13:00 – 21:00)</label>
-              <select id="admin-resched-time" class="input-sm" style="margin-top:0.25rem;"></select>
+              <div style="font-size:0.74rem; font-weight:700; text-transform:uppercase; color:var(--color-pine); margin-bottom:0.45rem;">
+                Horarios del <span id="modal-selected-date-text" style="color:var(--color-bronze);">12 Nov 2026</span>:
+              </div>
+              <div id="modal-cal-hours-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;"></div>
             </div>
-            <button type="button" class="btn btn-primary" style="padding:0.58rem 1.1rem; font-size:0.78rem;" onclick="saveDirectReschedule('${b.folio}')">
-              Guardar Nueva Fecha
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem; margin-top:0.95rem; padding-top:0.85rem; border-top:1px solid #EFE7DC;">
+            <div style="font-size:0.82rem; color:var(--color-forest);">
+              <strong>Nueva cita seleccionada:</strong> <span id="modal-summary-selection" style="color:var(--color-bronze); font-weight:700;">—</span>
+            </div>
+            <button type="button" class="btn btn-primary" style="padding:0.58rem 1.2rem; font-size:0.79rem;" onclick="saveDirectReschedule('${b.folio}')">
+              Guardar Nueva Fecha →
             </button>
           </div>
           <div id="direct-resched-feedback" style="margin-top:0.65rem; font-size:0.8rem; font-weight:700; display:none;"></div>
@@ -1539,7 +1586,7 @@
             Opción 2: Emergencia / Circunstancia Oportuna (Enviar Correo al Cliente)
           </h4>
           <p style="margin:0 0 0.85rem; font-size:0.8rem; color:#5C4A32;">
-            Si surgió un imprevisto, envía este aviso al correo de <strong>${b.patientName}</strong>. Al hacerlo, se le habilitará automáticamente en su <strong>Portal del Paciente</strong> un calendario para que elija sin costo el nuevo día y horario que mejor le acomode.
+            Si surgió un imprevisto, envía este aviso al correo de <strong>${b.patientName}</strong>. Al hacerlo, se le habilitará automáticamente en su <strong>Portal del Paciente</strong> un calendario interactivo con meses posteriores para que elija sin costo el nuevo día y horario que mejor le acomode.
           </p>
 
           <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#8C5820;">Mensaje / Motivo que verá la paciente en su correo y portal:</label>
@@ -1557,36 +1604,95 @@
         </div>
       `;
 
-      updateAdminModalHours(b.folio);
+      renderModalCalendar();
       document.getElementById('reschedule-modal').classList.add('open');
     };
 
-    window.updateAdminModalHours = function(folio) {
+    window.changeModalCalMonth = function(delta) {
+      let y = modalCalState.year;
+      let m = modalCalState.month + delta;
+      if (m > 11) { m = 0; y += 1; }
+      if (m < 0)  { m = 11; y -= 1; }
+      if (y < 2026 || (y === 2026 && m < 10)) return;
+      modalCalState.year = y;
+      modalCalState.month = m;
+      const avail = VDT.getAvailableDaysForMonth(y, m);
+      modalCalState.day = avail[0] || 1;
+      renderModalCalendar();
+    };
+
+    window.renderModalCalendar = function() {
+      const { folio, year: y, month: m, day: selDay, time: selTime } = modalCalState;
+      const mLabel = document.getElementById('modal-cal-month-label');
+      const daysGrid = document.getElementById('modal-cal-days-grid');
+      const hoursGrid = document.getElementById('modal-cal-hours-grid');
+      const dateText = document.getElementById('modal-selected-date-text');
+      const sumText = document.getElementById('modal-summary-selection');
+      if (!daysGrid || !hoursGrid) return;
+
+      if (mLabel) mLabel.textContent = `${VDT.MONTH_NAMES[m]} ${y}`;
+      if (dateText) dateText.textContent = VDT.formatShortDate(y, m, selDay);
+      if (sumText) sumText.textContent = `${VDT.formatFullDate(y, m, selDay)} · ${VDT.slotLabel(selTime)} hrs`;
+
+      const totalDays = VDT.daysInMonth(y, m);
+      const startDow  = VDT.firstWeekday(y, m);
+      const availDays = VDT.getAvailableDaysForMonth(y, m);
+
+      let html = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
+        .map(h => `<div class="day-hdr-mini">${h}</div>`).join('');
+
+      for (let e = 0; e < startDow; e++) html += `<div></div>`;
+      for (let d = 1; d <= totalDays; d++) {
+        const isEnabled = availDays.includes(d);
+        const isSelected = d === selDay;
+        html += `
+          <button type="button" class="day-btn ${!isEnabled ? 'day-closed' : ''} ${isSelected ? 'active' : ''}" data-mday="${d}" title="${isEnabled ? 'Día habilitado' : 'Clic para seleccionar y habilitar este día'}">
+            ${d}
+          </button>
+        `;
+      }
+      daysGrid.innerHTML = html;
+
+      daysGrid.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modalCalState.day = parseInt(btn.dataset.mday, 10);
+          renderModalCalendar();
+        });
+      });
+
       const bookings = VDT.read(VDT.KEYS.bookings, []);
       const b = bookings.find(x => x.folio === folio);
-      const daySel = document.getElementById('admin-resched-day');
-      const timeSel = document.getElementById('admin-resched-time');
-      if (!daySel || !timeSel || !b) return;
+      const taken = VDT.getBlockedForDate(y, m, selDay);
 
-      const selectedDay = Number(daySel.value);
-      const blockedMap = VDT.read(VDT.KEYS.blocked, {});
-      const taken = blockedMap[selectedDay] || [];
-
-      timeSel.innerHTML = VDT.HOURS.map(h => {
-        const isCurrentSameSlot = (selectedDay === Number(b.day) && h === b.time);
+      hoursGrid.innerHTML = VDT.HOURS.map(h => {
+        const isCurrentSameSlot = b && Number(b.year || 2026) === y && Number(b.month ?? 10) === m && Number(b.day) === selDay && b.time === h;
         const isOccupiedByOther = taken.includes(h) && !isCurrentSameSlot;
-        return `<option value="${h}" ${h === b.time ? 'selected' : ''}>${VDT.slotLabel(h)} hrs${isCurrentSameSlot ? ' (Actual)' : (isOccupiedByOther ? ' (Ocupado)' : ' (Libre)')}</option>`;
+        const isSelected = h === selTime;
+        return `
+          <button type="button" class="day-btn ${isOccupiedByOther ? 'day-closed' : ''} ${isSelected ? 'active' : ''}" data-mtime="${h}" style="padding:0.48rem 0.35rem; font-size:0.74rem;">
+            ${VDT.slotLabel(h)}${isOccupiedByOther ? ' (Ocup.)' : ''}
+          </button>
+        `;
       }).join('');
+
+      hoursGrid.querySelectorAll('button[data-mtime]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modalCalState.time = btn.dataset.mtime;
+          renderModalCalendar();
+        });
+      });
     };
 
     window.saveDirectReschedule = function(folio) {
-      const newDay = Number(document.getElementById('admin-resched-day').value);
-      const newTime = document.getElementById('admin-resched-time').value;
-      const updated = VDT.rescheduleBooking(folio, newDay, newTime, 'nutriologa', 'Fecha ajustada por la Lic. Valeria');
+      const { year, month, day, time } = modalCalState;
+      const updated = VDT.rescheduleBooking(folio, day, time, 'nutriologa', 'Fecha ajustada por la Lic. Valeria', year, month);
       if (!updated) return;
 
-      currentAdminDay = newDay;
+      currentAdminYear = year;
+      currentAdminMonth = month;
+      currentAdminDay = day;
       refreshAll();
+      renderModalCalendar();
 
       // Enviar notificación al servidor PHP (en Neubox envía correo real; en local responde sin bloquear)
       fetch('api/reprogramar-cita.php', {
