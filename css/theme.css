@@ -494,10 +494,142 @@ h1, h2, h3, h4, .font-serif-brand {
   .panel-card {
     padding: 1.1rem 0.9rem !important;
     border-radius: 16px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.65rem !important;
+  }
+
+  .panel-header > div:last-child {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
   }
 
   .panel-title {
     font-size: 1.3rem !important;
+  }
+
+  /* Transformar Tabla de Citas Agendadas en Tarjetas Móviles Limpias */
+  #tab-agenda .table-wrap {
+    overflow-x: visible !important;
+  }
+
+  #tab-agenda table.res-table,
+  #tab-agenda table.res-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #tab-agenda table.res-table thead {
+    display: none !important;
+  }
+
+  #tab-agenda table.res-table tr.res-row-card {
+    display: block !important;
+    background: #FAF6F0 !important;
+    border: 1.5px solid rgba(167, 114, 55, 0.28) !important;
+    border-radius: 14px !important;
+    padding: 0.85rem 0.95rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: 0 6px 16px -8px rgba(37, 59, 46, 0.08);
+  }
+
+  #tab-agenda table.res-table tr.res-row-card td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 0.65rem !important;
+    padding: 0.45rem 0 !important;
+    border-bottom: 1px dashed rgba(167, 114, 55, 0.2) !important;
+    text-align: right !important;
+  }
+
+  #tab-agenda table.res-table tr.res-row-card td:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0.1rem !important;
+  }
+
+  #tab-agenda table.res-table tr.res-row-card td::before {
+    content: attr(data-label);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-sage-dark);
+    text-align: left;
+    flex-shrink: 0;
+    padding-top: 0.12rem;
+  }
+
+  #tab-agenda table.res-table tr.res-row-card td > div,
+  #tab-agenda table.res-table tr.res-row-card td > span {
+    text-align: right;
+  }
+
+  /* Control de Días y Horarios en Celular */
+  .admin-cal-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .admin-cal-month-nav {
+    width: 100% !important;
+    justify-content: space-between !important;
+    padding: 0.35rem 0.6rem !important;
+  }
+
+  .admin-cal-presets {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
+  .admin-cal-presets .btn-mini {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 0.42rem 0.25rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .day-selector {
+    padding: 0.55rem !important;
+    gap: 0.28rem !important;
+  }
+
+  .day-btn {
+    height: 38px !important;
+    font-size: 0.78rem !important;
+    border-radius: 8px !important;
+  }
+
+  #admin-day-enable-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+  }
+
+  #admin-day-enable-bar label {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .slot-toggle-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.45rem !important;
+  }
+
+  .slot-toggle {
+    padding: 0.55rem 0.6rem !important;
+    font-size: 0.75rem !important;
   }
 
   .clients-grid,
@@ -547,14 +679,5 @@ h1, h2, h3, h4, .font-serif-brand {
   .appt > div {
     text-align: left !important;
     width: 100%;
-  }
-}
-
-@media (max-width: 420px) {
-  .kpi-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .slot-toggle-grid {
-    grid-template-columns: 1fr !important;
   }
 }

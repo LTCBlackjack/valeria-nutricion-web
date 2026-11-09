@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Agenda, Expedientes, Cuestionario y Mapa de Calor</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
-  <link rel="stylesheet" href="css/theme.css?v=20261108-8" />
+  <link rel="stylesheet" href="css/theme.css?v=20261108-9" />
   <style>
     * { box-sizing: border-box; }
     body {
@@ -206,11 +206,21 @@
       gap: 1.5rem;
       align-items: start;
     }
+    .dashboard-grid > *,
+    .two-col-grid > * {
+      min-width: 0;
+      max-width: 100%;
+    }
     .two-col-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
       align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .dashboard-grid, .two-col-grid {
+        grid-template-columns: 1fr !important;
+      }
     }
 
     /* Tables */
@@ -254,11 +264,38 @@
     .status-mod-presencial { background: #F7EFE4; color: #7C4F1E; border: 1px solid #DEB074; }
 
     /* Schedule Blocker */
+    .admin-cal-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 0.75rem;
+    }
+    .admin-cal-month-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      background: #FAF6F0;
+      padding: 0.3rem 0.5rem;
+      border-radius: 10px;
+      border: 1px solid rgba(167, 114, 55, 0.25);
+    }
+    .admin-cal-presets {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
     .day-selector {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.38rem;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.35rem;
       margin-bottom: 0.9rem;
+      background: #FAF6F0;
+      padding: 0.7rem;
+      border-radius: 14px;
+      border: 1px solid rgba(167, 114, 55, 0.22);
     }
     .day-hdr-mini {
       text-align: center;
@@ -268,17 +305,23 @@
       padding-bottom: 0.2rem;
     }
     .day-btn {
-      padding: 0.5rem 0.2rem;
+      height: 40px;
+      padding: 0;
       border-radius: 10px;
       border: 1.5px solid rgba(37, 59, 46, 0.28);
       background: #FFFFFF;
       color: var(--color-forest);
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
       position: relative;
+      min-width: 0;
     }
     .day-btn.day-closed {
       background: #EFECE6;
@@ -743,13 +786,13 @@
             </div>
           </div>
 
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.65rem;">
-            <div style="display:inline-flex; align-items:center; gap:0.4rem;">
-              <button type="button" class="btn-mini" style="padding:0.25rem 0.55rem;" onclick="changeAdminMonth(-1)" title="Mes anterior">◀</button>
-              <strong id="admin-cal-month-title" style="font-family:var(--font-heading); font-size:1.15rem; color:var(--color-forest); min-width:130px; text-align:center;">Noviembre 2026</strong>
-              <button type="button" class="btn-mini" style="padding:0.25rem 0.55rem;" onclick="changeAdminMonth(1)" title="Ver meses posteriores">▶</button>
+          <div class="admin-cal-toolbar">
+            <div class="admin-cal-month-nav">
+              <button type="button" class="btn-mini" style="padding:0.28rem 0.65rem;" onclick="changeAdminMonth(-1)" title="Mes anterior">◀</button>
+              <strong id="admin-cal-month-title" style="font-family:var(--font-heading); font-size:1.18rem; color:var(--color-forest); min-width:130px; text-align:center;">Noviembre 2026</strong>
+              <button type="button" class="btn-mini" style="padding:0.28rem 0.65rem;" onclick="changeAdminMonth(1)" title="Ver meses posteriores">▶</button>
             </div>
-            <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            <div class="admin-cal-presets">
               <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-fri')" title="Habilitar todos los Lunes a Viernes de este mes">Lun–Vie</button>
               <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-sat')" title="Habilitar todos los Lunes a Sábado de este mes">Lun–Sáb</button>
               <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('default')" title="Restaurar Martes, Jueves y Viernes de este mes">Mar/Jue/Vie</button>
@@ -1142,35 +1185,37 @@
               : '');
 
         return `
-          <tr>
-            <td><strong style="color:var(--color-bronze); font-family:monospace;">${b.folio}</strong></td>
-            <td>
+          <tr class="res-row-card">
+            <td data-label="Folio"><strong style="color:var(--color-bronze); font-family:monospace; font-size:0.92rem;">${b.folio}</strong></td>
+            <td data-label="Paciente">
               <div style="font-weight:700; color:var(--color-forest);">${b.patientName}</div>
-              <div style="font-size:0.74rem; color:var(--color-sage-dark);">${b.patientEmail} · ${b.patientPhone}</div>
+              <div style="font-size:0.74rem; color:var(--color-sage-dark); word-break:break-word;">${b.patientEmail} · ${b.patientPhone}</div>
             </td>
-            <td>
-              <div style="font-weight:700; font-size:0.81rem;">${typeText}</div>
-              <span class="status-pill ${modClass}" style="margin-top:0.2rem;">${modText}</span>
+            <td data-label="Consulta">
+              <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span style="font-weight:700; font-size:0.81rem;">${typeText}</span>
+                <span class="status-pill ${modClass}">${modText}</span>
+              </div>
               <div style="font-size:0.72rem; color:var(--color-sage-dark); margin-top:0.2rem;">${b.focus || ''}</div>
             </td>
-            <td>
+            <td data-label="Fecha y Hora">
               <div style="font-weight:700;">${b.dateLabel}</div>
               <div style="font-size:0.77rem; color:var(--color-pine); font-weight:700;">${VDT.slotLabel(b.time)} hrs</div>
               ${reschedBadge}
-              <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.4rem;">
-                <button type="button" class="btn-mini" style="padding:0.24rem 0.55rem; font-size:0.7rem;" onclick="openRescheduleModal('${b.folio}', 'direct')">
+              <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.45rem;">
+                <button type="button" class="btn-mini" style="padding:0.32rem 0.65rem; font-size:0.72rem;" onclick="openRescheduleModal('${b.folio}', 'direct')">
                   Cambiar Fecha
                 </button>
-                <button type="button" class="btn-mini danger" style="padding:0.24rem 0.55rem; font-size:0.7rem;" onclick="openRescheduleModal('${b.folio}', 'emergency')">
+                <button type="button" class="btn-mini danger" style="padding:0.32rem 0.65rem; font-size:0.72rem;" onclick="openRescheduleModal('${b.folio}', 'emergency')">
                   Emergencia / Correo
                 </button>
               </div>
             </td>
-            <td>
+            <td data-label="Tarifa">
               <div style="font-weight:700; color:var(--color-forest);">$${Number(b.price).toLocaleString('es-MX')} MXN</div>
               <span class="status-pill status-paid">✓ Pagado</span>
             </td>
-            <td>${qBadge}</td>
+            <td data-label="Cuestionario">${qBadge}</td>
           </tr>
         `;
       }).join('');
