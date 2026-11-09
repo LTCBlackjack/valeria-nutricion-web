@@ -1865,10 +1865,21 @@
 
       listEl.innerHTML = draftSpecialties.map((sp, idx) => `
         <div class="q-editor-item spec-editor-item" data-idx="${idx}">
-          <div style="display:grid; grid-template-columns: 0.9fr 1.6fr 0.8fr 0.8fr auto; gap:0.65rem; align-items:center;">
+          <div style="display:grid; grid-template-columns: 1fr 0.9fr 1.4fr 0.75fr 0.75fr auto; gap:0.65rem; align-items:center;">
             <div>
-              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Etiqueta / Icono</label>
-              <input type="text" class="input-sm sp-tag-input" value="${(sp.tag || '').replace(/"/g, '&quot;')}" placeholder="🌿 Equilibrio Metabólico" />
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Símbolo de Marca</label>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span class="sp-icon-preview" style="color:var(--color-bronze); display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; background:#FFFFFF; border:1px solid rgba(167,114,55,0.3); flex-shrink:0;">
+                  ${VDT.getIconSVG(sp.icon || 'loto')}
+                </span>
+                <select class="input-sm sp-icon-select">
+                  ${Object.entries(VDT.BRAND_ICONS).map(([k, meta]) => `<option value="${k}" ${(sp.icon || 'loto') === k ? 'selected' : ''}>${meta.label}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Etiqueta Superior</label>
+              <input type="text" class="input-sm sp-tag-input" value="${(sp.tag || '').replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+\s*/, '').replace(/"/g, '&quot;')}" placeholder="Equilibrio Metabólico" />
             </div>
             <div>
               <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Título de la Especialidad *</label>
@@ -1898,6 +1909,11 @@
 
       listEl.querySelectorAll('.spec-editor-item').forEach(item => {
         const idx = parseInt(item.dataset.idx, 10);
+        const iconSel = item.querySelector('.sp-icon-select');
+        const iconPrev = item.querySelector('.sp-icon-preview');
+        iconSel.addEventListener('change', () => {
+          iconPrev.innerHTML = VDT.getIconSVG(iconSel.value);
+        });
         item.querySelector('.sp-del-btn').addEventListener('click', () => {
           syncSpecialtiesFromDOM();
           draftSpecialties.splice(idx, 1);
@@ -1911,7 +1927,8 @@
       items.forEach((item, idx) => {
         const sp = draftSpecialties[idx];
         if (!sp) return;
-        sp.tag = item.querySelector('.sp-tag-input').value.trim() || '🌿 Especialidad';
+        sp.icon = item.querySelector('.sp-icon-select').value || 'loto';
+        sp.tag = item.querySelector('.sp-tag-input').value.trim() || 'Especialidad';
         sp.title = item.querySelector('.sp-title-input').value.trim() || `Especialidad ${idx + 1}`;
         sp.priceText = item.querySelector('.sp-price-input').value.trim() || 'Desde $650 MXN';
         sp.type = item.querySelector('.sp-type-select').value;
@@ -1923,7 +1940,8 @@
       syncSpecialtiesFromDOM();
       draftSpecialties.push({
         id: VDT.newId('sp'),
-        tag: '🌿 Nueva Especialidad',
+        icon: 'loto',
+        tag: 'Nueva Especialidad',
         title: 'Nueva Área de Atención Hormonal',
         desc: 'Describe aquí los beneficios y síntomas que atiendes en esta especialidad.',
         priceText: 'Desde $650 MXN',

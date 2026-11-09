@@ -19,11 +19,44 @@ const VDT = {
     specialties: 'vdt_specialties_v1'
   },
 
+  // Catálogo de iconos vectoriales de marca (Paleta Bronce/Dorado y Verde Bosque)
+  BRAND_ICONS: {
+    loto: {
+      label: 'Flor de Loto (Armonía)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5C9.5 6.5 7 9.5 7 13a5 5 0 0 0 10 0c0-3.5-2.5-6.5-5-10.5z"/><path d="M5 12c2.5 0 4.5 1.5 5.5 3.5"/><path d="M19 12c-2.5 0-4.5 1.5-5.5 3.5"/></svg>`
+    },
+    hoja: {
+      label: 'Hoja Botánica (Metabolismo)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`
+    },
+    destello: {
+      label: 'Estrella Dorada (Vitalidad)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>`
+    },
+    ciclo: {
+      label: 'Ciclo Lunar (Salud Cíclica)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+    },
+    seguimiento: {
+      label: 'Ciclo Continuo (Seguimiento)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`
+    },
+    corazon: {
+      label: 'Bienestar Integral (Corazón)',
+      svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
+    }
+  },
+
+  getIconSVG(key) {
+    return (this.BRAND_ICONS[key] || this.BRAND_ICONS.loto).svg;
+  },
+
   defaultSpecialties() {
     return [
       {
         id: 'sp1',
-        tag: '🌿 Equilibrio Metabólico',
+        icon: 'hoja',
+        tag: 'Equilibrio Metabólico',
         title: 'Síndrome de Ovario Poliquístico (SOP)',
         desc: 'Estrategia nutricional para mejorar la sensibilidad a la insulina, reducir inflamación crónica, acné hormonal y regular la ovulación.',
         priceText: 'Desde $650 MXN',
@@ -31,7 +64,8 @@ const VDT = {
       },
       {
         id: 'sp2',
-        tag: '✨ Vitalidad y Tiroides',
+        icon: 'destello',
+        tag: 'Vitalidad y Tiroides',
         title: 'Salud Tiroidea y Energía',
         desc: 'Abordaje nutricional con micronutrientes clave para hipotiroidismo, tiroiditis de Hashimoto, fatiga persistente y control de peso saludable.',
         priceText: 'Desde $650 MXN',
@@ -39,7 +73,8 @@ const VDT = {
       },
       {
         id: 'sp3',
-        tag: '🌸 Salud Cíclica',
+        icon: 'ciclo',
+        tag: 'Salud Cíclica',
         title: 'Ciclo Menstrual, Endometriosis y Fertilidad',
         desc: 'Alimentación antiinflamatoria sincronizada con las fases de tu ciclo para disminuir cólicos, síndrome premenstrual y preparar la fertilidad.',
         priceText: 'Desde $650 MXN',
@@ -47,7 +82,8 @@ const VDT = {
       },
       {
         id: 'sp4',
-        tag: '🔄 Seguimiento',
+        icon: 'seguimiento',
+        tag: 'Seguimiento',
         title: 'Consulta Subsecuente de Control',
         desc: 'Evaluación de avances, ajuste de plan de alimentación, revisión de síntomas hormonales y actualización de objetivos (60 min).',
         priceText: 'Desde $400 MXN',
@@ -62,7 +98,12 @@ const VDT = {
       s = this.defaultSpecialties();
       this.write(this.KEYS.specialties, s);
     }
-    return s;
+    // Limpiar emojis antiguos si estaban guardados en localStorage
+    return s.map((item, idx) => ({
+      ...item,
+      icon: item.icon || (['hoja', 'destello', 'ciclo', 'seguimiento'][idx % 4]),
+      tag: (item.tag || '').replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+\s*/, '')
+    }));
   },
 
   defaultAdminCreds() {

@@ -72,10 +72,15 @@ function renderSpecialtiesSection() {
       const delayClass = idx % 4 === 1 ? 'delay-1' : idx % 4 === 2 ? 'delay-2' : idx % 4 === 3 ? 'delay-3' : '';
       const safeTitle = (sp.title || '').replace(/'/g, "\\'");
       const spType = sp.type === 'seguimiento' ? 'seguimiento' : 'primera';
+      const iconSvg = VDT.getIconSVG(sp.icon || 'loto');
+      const cleanTag = (sp.tag || 'Especialidad').replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+\s*/, '');
       return `
         <div class="spec-card tilt-card reveal-up is-visible ${delayClass}">
           <div>
-            <span class="pill-tag" style="margin-bottom: 0.8rem;">${sp.tag || '🌿 Especialidad'}</span>
+            <span class="pill-tag" style="margin-bottom: 0.8rem; display:inline-flex; align-items:center; gap:0.4rem;">
+              ${iconSvg}
+              <span>${cleanTag}</span>
+            </span>
             <h3 style="font-size: 1.55rem; margin: 0 0 0.5rem;">${sp.title}</h3>
             <p style="font-size: 0.88rem; color: var(--color-sage-dark); margin-bottom: 1.2rem;">
               ${sp.desc || ''}
@@ -450,7 +455,7 @@ function processPaymentAndBook(event) {
   event.preventDefault();
   const submitBtn = document.getElementById('pay-submit-btn');
   submitBtn.disabled = true;
-  submitBtn.textContent = '✨ Validando pago y sincronizando con calendario...';
+  submitBtn.textContent = 'Validando pago y sincronizando con calendario...';
 
   const patientName = document.getElementById('patient-name').value.trim();
   const patientEmail = document.getElementById('patient-email').value.trim().toLowerCase();
@@ -463,7 +468,7 @@ function processPaymentAndBook(event) {
     if (dayList.includes(bookingState.selectedTime)) {
       alert('Este horario acaba de ser reservado. Por favor elige otro.');
       submitBtn.disabled = false;
-      submitBtn.textContent = '🔒 Pagar Reserva Ahora y Confirmar en Calendario →';
+      submitBtn.textContent = 'Pagar Reserva Ahora y Confirmar en Calendario →';
       goToStep1();
       renderTimeSlots();
       return;
@@ -517,7 +522,7 @@ function processPaymentAndBook(event) {
     showStep3();
     launchGoldenCelebration();
     submitBtn.disabled = false;
-    submitBtn.textContent = '🔒 Pagar Reserva Ahora y Confirmar en Calendario →';
+    submitBtn.textContent = 'Pagar Reserva Ahora y Confirmar en Calendario →';
   }, 850);
 }
 
