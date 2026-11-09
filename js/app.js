@@ -323,6 +323,15 @@ function launchGoldenCelebration() {
 function renderCalendarDays() {
   const grid = document.getElementById('calendar-days-grid');
   if (!grid) return;
+  const availDays = VDT.getAvailableDays();
+  const blockedMap = getBlocked();
+
+  // Si el día seleccionado ya fue deshabilitado por la nutrióloga, saltar al primer día disponible
+  if (availDays.length > 0 && !availDays.includes(bookingState.selectedDay)) {
+    bookingState.selectedDay = availDays[0];
+    bookingState.selectedDateLabel = `${dayName(bookingState.selectedDay)} ${bookingState.selectedDay} de Noviembre, 2026`;
+  }
+
   grid.innerHTML = '';
   ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].forEach(h => {
     const div = document.createElement('div');
@@ -333,8 +342,10 @@ function renderCalendarDays() {
   for (let d = 1; d <= 30; d++) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    const isAvail = availableDaysInNov.includes(d);
-    btn.className = 'cal-day' + (!isAvail ? ' disabled' : '') + (bookingState.selectedDay === d ? ' selected' : '');
+    const dayBlockedHours = blockedMap[d] || [];
+    const allHoursFull = dayBlockedHours.length >= VDT.HOURS.length;
+    const isAvail = availDays.includes(d) && !allHoursFull;
+    btn.className = 'cal-day' + (!isAvail ? ' disabled' : '') + (bookingState.selectedDay === d && isAvail ? ' selected' : '');
     btn.textContent = d;
     if (isAvail) {
       btn.onclick = () => {

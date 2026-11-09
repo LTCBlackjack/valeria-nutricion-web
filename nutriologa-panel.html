@@ -260,26 +260,41 @@
     .day-selector {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 0.4rem;
-      margin-bottom: 1.2rem;
+      gap: 0.38rem;
+      margin-bottom: 0.9rem;
+    }
+    .day-hdr-mini {
+      text-align: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--color-sage-dark);
+      padding-bottom: 0.2rem;
     }
     .day-btn {
-      padding: 0.55rem 0.25rem;
+      padding: 0.5rem 0.2rem;
       border-radius: 10px;
-      border: 1px solid rgba(131, 145, 123, 0.35);
-      background: #FAF6F0;
+      border: 1.5px solid rgba(37, 59, 46, 0.28);
+      background: #FFFFFF;
       color: var(--color-forest);
-      font-weight: 600;
-      font-size: 0.82rem;
+      font-weight: 700;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.2s ease;
       text-align: center;
+      position: relative;
+    }
+    .day-btn.day-closed {
+      background: #EFECE6;
+      color: #9BA596;
+      border: 1px dashed rgba(131, 145, 123, 0.45);
+      font-weight: 500;
     }
     .day-btn:hover { border-color: var(--color-bronze); }
     .day-btn.active {
       background: var(--color-forest);
       color: #FEFAFA;
-      border-color: var(--color-forest);
+      border-color: var(--color-bronze);
+      box-shadow: 0 4px 12px rgba(37, 59, 46, 0.22);
     }
 
     .slot-toggle-grid {
@@ -720,25 +735,45 @@
           </div>
         </div>
 
-        <!-- Bloqueador de Horarios 13:00 a 21:00 -->
+        <!-- Bloqueador de Días y Horarios 13:00 a 21:00 -->
         <div class="panel-card">
-          <div class="panel-header">
+          <div class="panel-header" style="margin-bottom:0.85rem;">
             <div>
-              <h2 class="panel-title">Control de Horarios (13:00 – 21:00)</h2>
+              <h2 class="panel-title">Control de Días y Horarios (13:00 – 21:00)</h2>
               <p style="margin:0.2rem 0 0; font-size:0.82rem; color:var(--color-sage-dark);">
-                Bloquea o libera horas de 60 min. Se sincroniza en vivo con el calendario público.
+                Habilita o deshabilita días completos del mes y bloquea horas individuales. Todo se refleja al instante en el calendario público.
               </p>
             </div>
           </div>
 
-          <label style="display:block; font-size:0.76rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-pine); margin-bottom:0.5rem;">
-            1. Selecciona el día de Noviembre 2026:
-          </label>
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.55rem;">
+            <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-pine);">
+              1. Días de Noviembre 2026:
+            </label>
+            <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-fri')" title="Habilitar todos los Lunes a Viernes">Lun–Vie</button>
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('mon-sat')" title="Habilitar todos los Lunes a Sábado">Lun–Sáb</button>
+              <button type="button" class="btn-mini" onclick="applyQuickDaysPreset('default')" title="Restaurar Martes, Jueves y Viernes">Mar/Jue/Vie</button>
+            </div>
+          </div>
+
           <div class="day-selector" id="admin-day-selector"></div>
+
+          <!-- Interruptor para habilitar o cerrar el día completo seleccionado -->
+          <div id="admin-day-enable-bar" style="background:#FAF6F0; border:1px solid rgba(167,114,55,0.3); border-radius:12px; padding:0.7rem 0.9rem; margin-bottom:0.95rem; display:flex; align-items:center; justify-content:space-between; gap:0.6rem; flex-wrap:wrap;">
+            <div>
+              <strong id="admin-day-status-title" style="font-size:0.84rem; color:var(--color-forest); display:block;">Día 5 de Noviembre</strong>
+              <span id="admin-day-status-sub" style="font-size:0.74rem; color:var(--color-sage-dark);">Habilitado para agendar en la página principal</span>
+            </div>
+            <label style="display:inline-flex; align-items:center; gap:0.45rem; cursor:pointer; background:#FFFFFF; padding:0.42rem 0.75rem; border-radius:9px; border:1px solid rgba(167,114,55,0.4); font-size:0.78rem; font-weight:700; color:var(--color-forest);">
+              <input type="checkbox" id="admin-day-enabled-check" checked />
+              <span>Habilitar día en Web</span>
+            </label>
+          </div>
 
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.65rem;">
             <span style="font-size:0.8rem; font-weight:700; color:var(--color-forest);">
-              2. Sesiones del día <span id="selected-day-label" style="color:var(--color-bronze);">5 Nov</span> (1 hora c/u):
+              2. Sesiones del <span id="selected-day-label" style="color:var(--color-bronze);">5 Nov</span> (1 hora c/u):
             </span>
             <span style="font-size:0.72rem; color:var(--color-sage-dark);">Clic para Bloquear / Liberar</span>
           </div>
@@ -987,7 +1022,7 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js?v=20261108-3"></script>
+  <script src="js/store.js?v=20261108-4"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
     let currentAdminDay = 5;
@@ -1113,21 +1148,75 @@
 
     function renderDaySelector() {
       const container = document.getElementById('admin-day-selector');
-      container.innerHTML = ADMIN_DAYS.map(d => `
-        <button type="button" class="day-btn ${d === currentAdminDay ? 'active' : ''}" data-day="${d}">
-          ${d} Nov
-        </button>
-      `).join('');
+      const availDays = VDT.getAvailableDays();
+      const hdrs = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
+        .map(h => `<div class="day-hdr-mini">${h}</div>`).join('');
+
+      let daysHtml = '';
+      for (let d = 1; d <= 30; d++) {
+        const isEnabled = availDays.includes(d);
+        const isCurrent = d === currentAdminDay;
+        daysHtml += `
+          <button type="button" class="day-btn ${!isEnabled ? 'day-closed' : ''} ${isCurrent ? 'active' : ''}" data-day="${d}" title="${isEnabled ? 'Habilitado en la Web' : 'Deshabilitado en la Web'}">
+            ${d}
+          </button>
+        `;
+      }
+      container.innerHTML = hdrs + daysHtml;
+
+      // Actualizar barra de estado del día seleccionado
+      const isCurEnabled = availDays.includes(currentAdminDay);
+      const dayTitleEl = document.getElementById('admin-day-status-title');
+      const daySubEl   = document.getElementById('admin-day-status-sub');
+      const dayCheckEl = document.getElementById('admin-day-enabled-check');
+      const dayBarEl   = document.getElementById('admin-day-enable-bar');
+
+      if (dayTitleEl) dayTitleEl.textContent = `Día ${currentAdminDay} de Noviembre, 2026`;
+      if (daySubEl) {
+        daySubEl.textContent = isCurEnabled
+          ? '✓ Habilitado para recibir citas en la página principal'
+          : '✕ Cerrado (aparece en gris como no disponible en la página principal)';
+        daySubEl.style.color = isCurEnabled ? '#253B2E' : '#8C3B2B';
+      }
+      if (dayCheckEl) dayCheckEl.checked = isCurEnabled;
+      if (dayBarEl) {
+        dayBarEl.style.background = isCurEnabled ? '#FAF6F0' : '#F4EFEA';
+      }
+      document.getElementById('selected-day-label').textContent = `${currentAdminDay} Nov`;
 
       container.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           currentAdminDay = parseInt(btn.dataset.day, 10);
-          document.getElementById('selected-day-label').textContent = `${currentAdminDay} Nov`;
           renderDaySelector();
           renderSlotsGrid();
         });
       });
     }
+
+    document.getElementById('admin-day-enabled-check').addEventListener('change', (e) => {
+      let avail = VDT.getAvailableDays();
+      if (e.target.checked) {
+        if (!avail.includes(currentAdminDay)) avail.push(currentAdminDay);
+      } else {
+        avail = avail.filter(d => d !== currentAdminDay);
+      }
+      VDT.setAvailableDays(avail);
+      renderDaySelector();
+      renderSlotsGrid();
+    });
+
+    window.applyQuickDaysPreset = function(preset) {
+      const days = [];
+      for (let d = 1; d <= 30; d++) {
+        const dow = new Date(2026, 10, d).getDay(); // 0=Dom .. 6=Sáb
+        if (preset === 'mon-fri' && dow >= 1 && dow <= 5) days.push(d);
+        else if (preset === 'mon-sat' && dow >= 1 && dow <= 6) days.push(d);
+      }
+      const next = preset === 'default' ? VDT.defaultAvailableDays() : days;
+      VDT.setAvailableDays(next);
+      renderDaySelector();
+      renderSlotsGrid();
+    };
 
     function renderSlotsGrid() {
       const blockedMap = VDT.read(VDT.KEYS.blocked, {});

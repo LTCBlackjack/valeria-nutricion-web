@@ -16,7 +16,8 @@ const VDT = {
     session: 'vdt_patient_session',
     adminAuth: 'vdt_admin_auth_v1',
     adminCreds: 'vdt_admin_creds_v1',
-    specialties: 'vdt_specialties_v1'
+    specialties: 'vdt_specialties_v1',
+    availableDays: 'vdt_available_days_v1'
   },
 
   // Catálogo de iconos vectoriales de marca (Paleta Bronce/Dorado y Verde Bosque)
@@ -129,6 +130,25 @@ const VDT = {
 
   // Horario de atención: 13:00 a 21:00 hrs, sesiones de 1 hora (última inicia 20:00)
   HOURS: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+
+  defaultAvailableDays() {
+    return [3, 5, 6, 10, 12, 13, 17, 19, 20, 24, 26, 27];
+  },
+
+  getAvailableDays() {
+    let d = this.read(this.KEYS.availableDays, null);
+    if (!Array.isArray(d)) {
+      d = this.defaultAvailableDays();
+      this.write(this.KEYS.availableDays, d);
+    }
+    return d.map(Number).sort((a, b) => a - b);
+  },
+
+  setAvailableDays(days) {
+    const clean = Array.from(new Set(days.map(Number))).filter(n => n >= 1 && n <= 30).sort((a, b) => a - b);
+    this.write(this.KEYS.availableDays, clean);
+    return clean;
+  },
 
   // Tarifas oficiales
   PRICES: {
