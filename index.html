@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1220" />
   <title>Lic. Valeria de la Torre | Nutrición Hormonal Femenina · Reservas en Línea</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme.css?v=20261108-7" />
   <style>
     * {
       box-sizing: border-box;
@@ -287,12 +287,6 @@
       width: 100%;
     }
 
-    @media (max-width: 860px) {
-      .nav-links {
-        display: none;
-      }
-    }
-
     /* ---------------- HERO SECTION CON CANVAS DE POLVO DORADO ---------------- */
     .hero {
       position: relative;
@@ -320,13 +314,6 @@
       grid-template-columns: 1.15fr 0.85fr;
       gap: 3.5rem;
       align-items: center;
-    }
-
-    @media (max-width: 900px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
     }
 
     .pill-tag {
@@ -358,24 +345,11 @@
       max-width: 580px;
     }
 
-    @media (max-width: 900px) {
-      .hero-lead {
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
-
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
       align-items: center;
-    }
-
-    @media (max-width: 900px) {
-      .hero-actions {
-        justify-content: center;
-      }
     }
 
     .hero-card-visual {
@@ -409,12 +383,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.35rem;
-    }
-
-    @media (max-width: 860px) {
-      .trust-badges {
-        grid-template-columns: 1fr;
-      }
     }
 
     .trust-item {
@@ -596,12 +564,6 @@
       gap: 2rem;
     }
 
-    @media (max-width: 860px) {
-      .booking-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
     /* Animación de entrada de paneles de reserva */
     .panel-animate {
       animation: panelFadeSlide 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -781,7 +743,7 @@
       </ul>
 
       <div class="nav-actions">
-        <a href="paciente.html" class="btn-outline nav-btn-desktop"
+        <a href="paciente.html" class="btn-outline"
           style="padding: 0.52rem 0.95rem; font-size: 0.74rem; display:inline-flex; align-items:center; gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -790,7 +752,7 @@
           </svg>
           <span>Mi Portal</span>
         </a>
-        <a href="nutriologa-panel.html" class="btn-outline nav-btn-desktop"
+        <a href="nutriologa-panel.html" class="btn-outline"
           style="padding: 0.52rem 0.95rem; font-size: 0.74rem; display:inline-flex; align-items:center; gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -802,35 +764,6 @@
         </a>
         <a href="#reservar" class="btn-primary" style="padding: 0.58rem 1.2rem; font-size: 0.76rem;">
           Agendar Cita
-        </a>
-        <button type="button" id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Abrir menú de navegación"
-          onclick="document.getElementById('mobile-nav-drawer').classList.toggle('open')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Menú Desplegable para Celular -->
-    <div id="mobile-nav-drawer" class="mobile-nav-drawer">
-      <ul class="mobile-nav-list" onclick="document.getElementById('mobile-nav-drawer').classList.remove('open')">
-        <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#sobre-mi">Sobre Mí</a></li>
-        <li id="nav-item-especialidades-mobile"><a href="#especialidades">Especialidades</a></li>
-        <li><a href="#tarifas">Tarifas</a></li>
-        <li><a href="#testimonios">Testimonios</a></li>
-        <li><a href="#faq">Preguntas Frecuentes</a></li>
-      </ul>
-      <div class="mobile-nav-actions">
-        <a href="paciente.html" class="btn-outline" style="padding: 0.6rem 0.9rem; font-size: 0.75rem; justify-content: center;">
-          Mi Portal Paciente
-        </a>
-        <a href="nutriologa-panel.html" class="btn-outline" style="padding: 0.6rem 0.9rem; font-size: 0.75rem; justify-content: center;">
-          Panel Nutrióloga
         </a>
       </div>
     </div>
@@ -1732,8 +1665,8 @@
     </p>
   </footer>
 
-  <script src="js/store.js?v=20261108-6"></script>
-  <script src="js/app.js?v=20261108-6"></script>
+  <script src="js/store.js?v=20261108-7"></script>
+  <script src="js/app.js?v=20261108-7"></script>
 </body>
 
 </html>

@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1220" />
   <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Agenda, Expedientes, Cuestionario y Mapa de Calor</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme.css?v=20261108-7" />
   <style>
     * { box-sizing: border-box; }
     body {
@@ -211,9 +211,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
       align-items: start;
-    }
-    @media (max-width: 1024px) {
-      .dashboard-grid, .two-col-grid { grid-template-columns: 1fr; }
     }
 
     /* Tables */
@@ -1038,7 +1035,7 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js?v=20261108-6"></script>
+  <script src="js/store.js?v=20261108-7"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
     let currentAdminYear = 2026;

@@ -492,7 +492,51 @@ const VDT = {
       }
     });
     this.write(this.KEYS.analytics, { sessions: 412, docHeight: 7800, sections, clicks, elements, demo: true });
+  },
+
+  /* ----------------------------------------------------------------------
+     Escalado Proporcional Automático para Celular y Pantallas Pequeñas
+     Garantiza que toda la barra superior (todas las opciones) y las
+     columnas completas se escalen proporcionalmente a la pantalla sin
+     ocultarse ni partirse en bloques verticales.
+     ---------------------------------------------------------------------- */
+  initProportionalMobileScale() {
+    const isPatientPortal = location.pathname.includes('paciente.html');
+    const designWidth = isPatientPortal ? 920 : 1220;
+
+    const applyScale = () => {
+      // Ancho físico disponible de la pantalla o ventana sin zoom
+      const screenW = Math.min(
+        window.outerWidth || Infinity,
+        window.screen?.width || Infinity,
+        document.documentElement.clientWidth || window.innerWidth
+      );
+      const currentInner = window.innerWidth || document.documentElement.clientWidth;
+
+      // Si el navegador ya escaló vía <meta name="viewport" content="width=1220"> (ej. iOS/Android nativo),
+      // currentInner ya es >= designWidth y no hace falta aplicar zoom adicional.
+      if (currentInner >= designWidth) {
+        document.documentElement.style.zoom = '';
+        document.body.style.minWidth = designWidth + 'px';
+        return;
+      }
+
+      // Si estamos en una ventana o vista móvil donde currentInner < designWidth,
+      // escalamos proporcionalmente todo el lienzo de 1220px para que encaje exacto en la pantalla.
+      const scale = Math.max(0.25, currentInner / designWidth);
+      document.body.style.minWidth = designWidth + 'px';
+      document.documentElement.style.zoom = scale.toFixed(4);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyScale);
+    } else {
+      applyScale();
+    }
+    window.addEventListener('resize', applyScale);
+    window.addEventListener('orientationchange', applyScale);
   }
 };
 
 VDT.seedIfEmpty();
+VDT.initProportionalMobileScale();
