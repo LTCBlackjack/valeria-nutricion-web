@@ -987,7 +987,7 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js"></script>
+  <script src="js/store.js?v=20261108-3"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
     let currentAdminDay = 5;
@@ -1943,15 +1943,42 @@
         const iconPrev = item.querySelector('.sp-icon-preview');
         const visCheck = item.querySelector('.sp-visible-check');
 
-        // Auto-guardado y actualización en vivo al editar cualquier campo
-        item.querySelectorAll('input, select').forEach(inp => {
+        // Auto-guardado en campos de texto mientras escribe
+        item.querySelectorAll('input[type="text"]').forEach(inp => {
           inp.addEventListener('input', () => {
-            if (inp === iconSel) iconPrev.innerHTML = VDT.getIconSVG(iconSel.value);
             syncSpecialtiesFromDOM();
             VDT.write(VDT.KEYS.specialties, draftSpecialties);
-            if (inp === visCheck) renderSpecialtiesEditor();
-            else renderSpecialtiesLivePreview();
+            renderSpecialtiesLivePreview();
+            const fb = document.getElementById('spec-save-feedback');
+            if (fb) fb.textContent = '✓ Texto actualizado y guardado automáticamente en la página principal.';
           });
+        });
+
+        // Auto-guardado en selectores (icono y tipo de consulta)
+        item.querySelectorAll('select').forEach(sel => {
+          sel.addEventListener('change', () => {
+            if (sel === iconSel) iconPrev.innerHTML = VDT.getIconSVG(iconSel.value);
+            syncSpecialtiesFromDOM();
+            VDT.write(VDT.KEYS.specialties, draftSpecialties);
+            renderSpecialtiesLivePreview();
+            const fb = document.getElementById('spec-save-feedback');
+            if (fb) fb.textContent = '✓ Símbolo y configuración guardados automáticamente en la página principal.';
+          });
+        });
+
+        // Interruptor Mostrar/Ocultar en Web (evento change en checkbox)
+        visCheck.addEventListener('change', () => {
+          syncSpecialtiesFromDOM();
+          VDT.write(VDT.KEYS.specialties, draftSpecialties);
+          const visCount = draftSpecialties.filter(s => s.visible !== false).length;
+          const fb = document.getElementById('spec-save-feedback');
+          if (fb) {
+            fb.textContent = visCount > 0
+              ? `✓ Visibilidad actualizada: ahora se muestran ${visCount} de ${draftSpecialties.length} especialidades en la página principal.`
+              : '⚠️ Todas las especialidades están desmarcadas: la sección se ha ocultado de la página principal.';
+            fb.style.color = visCount > 0 ? '#253B2E' : '#8C5820';
+          }
+          renderSpecialtiesEditor();
         });
 
         item.querySelector('.sp-del-btn').addEventListener('click', () => {

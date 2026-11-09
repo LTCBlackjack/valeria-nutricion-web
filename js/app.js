@@ -41,6 +41,20 @@ function initApp() {
   initGoldDustCanvas();
   checkMercadoPagoReturnUrl();
   if (!IS_HEATMAP_PREVIEW) initAnalyticsTracking();
+
+  // Sincronización en tiempo real cuando la nutrióloga edita/oculta especialidades u horarios en otra pestaña o regresa con el navegador
+  const syncLiveChanges = () => {
+    renderSpecialtiesSection();
+    renderCalendarDays();
+    renderTimeSlots();
+    init3DTiltCards();
+  };
+  window.addEventListener('storage', syncLiveChanges);
+  window.addEventListener('pageshow', syncLiveChanges);
+  window.addEventListener('focus', syncLiveChanges);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) syncLiveChanges();
+  });
 }
 
 function renderSpecialtiesSection() {
