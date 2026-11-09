@@ -1549,7 +1549,7 @@
             Navega entre los meses con <strong>◀ ▶</strong>, haz clic en el nuevo día (adelantado o posterior) y selecciona la hora disponible.
           </p>
 
-          <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:1rem; align-items:start;">
+          <div class="modal-cal-split">
             <!-- Calendario Mensual Interactivo -->
             <div style="background:#FAF6F0; border:1px solid rgba(167,114,55,0.25); border-radius:14px; padding:0.85rem;">
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
@@ -1797,7 +1797,7 @@
       }).join('');
 
       return `
-        <div style="display:grid; grid-template-columns:120px 1fr; gap:1rem; align-items:center; background:#FAF6F0; padding:0.9rem 1rem; border-radius:14px; border:1px solid rgba(167,114,55,0.22);">
+        <div class="donut-card-grid">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="${r}" fill="none" stroke="#EFE7DC" stroke-width="14"/>
             ${segments}
@@ -1850,7 +1850,7 @@
 
       const container = document.getElementById('questionnaire-stats-box');
       container.innerHTML = `
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:1.2rem;">
+        <div class="q-kpi-3col">
           <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
             <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Tasa Completado</div>
             <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700;">${completionPct}%</div>
@@ -2338,7 +2338,7 @@
 
       listEl.innerHTML = draftSpecialties.map((sp, idx) => `
         <div class="q-editor-item spec-editor-item" data-idx="${idx}" style="opacity:${sp.visible === false ? '0.68' : '1'};">
-          <div style="display:grid; grid-template-columns: 1fr 0.9fr 1.35fr 0.75fr 0.75fr auto; gap:0.65rem; align-items:center;">
+          <div class="spec-editor-grid">
             <div>
               <label style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--color-sage-dark);">Símbolo de Marca</label>
               <div style="display:flex; align-items:center; gap:0.4rem;">

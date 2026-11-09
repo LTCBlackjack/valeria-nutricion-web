@@ -172,3 +172,344 @@ h1, h2, h3, h4, .font-serif-brand {
   padding: 2rem;
   box-shadow: var(--shadow-soft);
 }
+
+/* ==========================================================================
+   SISTEMA RESPONSIVO INTEGRAL PARA FORMATO CELULAR Y TABLET (TODAS LAS VISTAS)
+   ========================================================================== */
+
+/* Menú Hamburguesa Móvil (Página Principal) */
+.mobile-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-gold);
+  background: #FAF6F0;
+  color: var(--color-forest);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.mobile-nav-drawer {
+  display: none;
+  background: rgba(254, 250, 250, 0.98);
+  border-top: 1px solid rgba(167, 114, 55, 0.22);
+  border-bottom: 2px solid var(--color-gold);
+  padding: 1rem 1.25rem 1.35rem;
+  box-shadow: 0 18px 36px rgba(37, 59, 46, 0.14);
+}
+
+.mobile-nav-drawer.open {
+  display: block;
+}
+
+.mobile-nav-list {
+  list-style: none;
+  margin: 0 0 0.9rem 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.mobile-nav-list a {
+  display: block;
+  padding: 0.62rem 0.85rem;
+  border-radius: 10px;
+  background: #FAF6F0;
+  border: 1px solid rgba(167, 114, 55, 0.22);
+  color: var(--color-forest);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.mobile-nav-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+/* Grids Responsivos del Panel de Nutrióloga */
+.spec-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr 1.35fr 0.75fr 0.75fr auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.modal-cal-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.donut-card-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 1rem;
+  align-items: center;
+  background: #FAF6F0;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(167, 114, 55, 0.22);
+}
+
+.q-kpi-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+  .spec-editor-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 960px) {
+  .nav-links {
+    display: none !important;
+  }
+  .nav-actions .nav-btn-desktop {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* Botones base en móvil */
+  .btn-primary, .btn-gold, .btn-outline {
+    padding: 0.78rem 1.25rem;
+    font-size: 0.82rem;
+  }
+
+  .card-brand {
+    padding: 1.35rem !important;
+  }
+
+  /* Navbar y Hero (index.html) */
+  .nav-container {
+    padding: 0.65rem 1rem !important;
+  }
+  .nav-brand img {
+    height: 40px !important;
+    width: 40px !important;
+  }
+  .nav-brand-title {
+    font-size: 1.16rem !important;
+  }
+  .nav-brand-sub {
+    font-size: 0.56rem !important;
+    letter-spacing: 0.12em !important;
+  }
+  .hero {
+    padding: 2.3rem 1rem 3rem !important;
+  }
+  .hero-grid {
+    gap: 1.8rem !important;
+  }
+  .hero h1 {
+    font-size: 2.05rem !important;
+  }
+  .hero-lead {
+    font-size: 0.93rem !important;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-actions a {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-card-visual {
+    padding: 1.5rem 1.1rem 1.3rem !important;
+    border-radius: 22px !important;
+  }
+  .trust-badges {
+    grid-template-columns: 1fr !important;
+    margin-top: 1.7rem !important;
+    gap: 0.85rem !important;
+  }
+  .section-wrap {
+    padding: 2.8rem 1rem !important;
+  }
+  .section-header h2 {
+    font-size: 1.95rem !important;
+  }
+  .spec-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Motor de Reserva y Calendario (index.html) */
+  .booking-section {
+    padding: 2.2rem 0.75rem 3.5rem !important;
+  }
+  .booking-shell {
+    border-radius: 20px !important;
+  }
+  .booking-topbar {
+    padding: 1rem 1.1rem !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  .step-pills {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .step-pill {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .booking-body {
+    padding: 1.2rem 1rem !important;
+  }
+  .cal-grid {
+    gap: 0.28rem !important;
+  }
+  .cal-day {
+    font-size: 0.78rem !important;
+    border-radius: 8px !important;
+  }
+  .time-slots-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .summary-panel {
+    padding: 1.25rem !important;
+  }
+
+  /* Botón flotante de WhatsApp compacto en celular */
+  #whatsapp-floating-btn {
+    bottom: 14px !important;
+    right: 14px !important;
+    padding: 0.5rem 0.95rem 0.5rem 0.65rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Panel de la Nutrióloga (nutriologa-panel.html) */
+  .admin-header {
+    padding: 0.85rem 1rem !important;
+  }
+  .admin-container {
+    padding: 1.2rem 0.9rem 3rem !important;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+  .kpi-card {
+    padding: 1rem !important;
+  }
+  .kpi-value {
+    font-size: 1.65rem !important;
+  }
+  .tabs-bar {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    padding: 0.45rem !important;
+  }
+  .tab-btn {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    padding: 0.7rem 0.95rem !important;
+    font-size: 0.78rem !important;
+  }
+  .panel-card {
+    padding: 1.15rem 1rem !important;
+    border-radius: 16px !important;
+  }
+  .panel-title {
+    font-size: 1.3rem !important;
+  }
+  .clients-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .spec-editor-grid,
+  .modal-cal-split {
+    grid-template-columns: 1fr !important;
+  }
+  .slot-toggle-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.45rem !important;
+  }
+  .slot-toggle {
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.76rem !important;
+  }
+  .modal-backdrop {
+    padding: 0.65rem !important;
+  }
+  .modal-box {
+    padding: 1.15rem 1rem !important;
+    max-height: 92vh !important;
+    border-radius: 16px !important;
+  }
+  .admin-login-card {
+    padding: 1.5rem 1.2rem !important;
+  }
+  .q-kpi-3col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Portal del Paciente (paciente.html) */
+  .topbar {
+    padding: 0.75rem 1rem !important;
+  }
+  .wrap {
+    padding: 1.5rem 0.9rem 3rem !important;
+  }
+  .card {
+    padding: 1.3rem 1.1rem !important;
+    border-radius: 18px !important;
+  }
+  .scale {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+  .appt {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  .appt > div {
+    text-align: left !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .slot-toggle-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .donut-card-grid {
+    grid-template-columns: 1fr !important;
+    justify-items: center;
+    text-align: center;
+  }
+  .mobile-nav-list,
+  .mobile-nav-actions {
+    grid-template-columns: 1fr !important;
+  }
+  .nav-actions .btn-primary {
+    padding: 0.48rem 0.82rem !important;
+    font-size: 0.7rem !important;
+  }
+}

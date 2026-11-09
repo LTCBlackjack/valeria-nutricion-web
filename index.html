@@ -781,7 +781,7 @@
       </ul>
 
       <div class="nav-actions">
-        <a href="paciente.html" class="btn-outline"
+        <a href="paciente.html" class="btn-outline nav-btn-desktop"
           style="padding: 0.52rem 0.95rem; font-size: 0.74rem; display:inline-flex; align-items:center; gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -790,7 +790,7 @@
           </svg>
           <span>Mi Portal</span>
         </a>
-        <a href="nutriologa-panel.html" class="btn-outline"
+        <a href="nutriologa-panel.html" class="btn-outline nav-btn-desktop"
           style="padding: 0.52rem 0.95rem; font-size: 0.74rem; display:inline-flex; align-items:center; gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -802,6 +802,35 @@
         </a>
         <a href="#reservar" class="btn-primary" style="padding: 0.58rem 1.2rem; font-size: 0.76rem;">
           Agendar Cita
+        </a>
+        <button type="button" id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Abrir menú de navegación"
+          onclick="document.getElementById('mobile-nav-drawer').classList.toggle('open')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menú Desplegable para Celular -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer">
+      <ul class="mobile-nav-list" onclick="document.getElementById('mobile-nav-drawer').classList.remove('open')">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#sobre-mi">Sobre Mí</a></li>
+        <li id="nav-item-especialidades-mobile"><a href="#especialidades">Especialidades</a></li>
+        <li><a href="#tarifas">Tarifas</a></li>
+        <li><a href="#testimonios">Testimonios</a></li>
+        <li><a href="#faq">Preguntas Frecuentes</a></li>
+      </ul>
+      <div class="mobile-nav-actions">
+        <a href="paciente.html" class="btn-outline" style="padding: 0.6rem 0.9rem; font-size: 0.75rem; justify-content: center;">
+          Mi Portal Paciente
+        </a>
+        <a href="nutriologa-panel.html" class="btn-outline" style="padding: 0.6rem 0.9rem; font-size: 0.75rem; justify-content: center;">
+          Panel Nutrióloga
         </a>
       </div>
     </div>
@@ -971,10 +1000,10 @@
 
   <!-- ================= 2.5 SECCIÓN SOBRE LA LIC. VALERIA DE LA TORRE ================= -->
   <section id="sobre-mi" class="section-wrap" style="padding-bottom: 1rem;">
-    <div class="reveal-up"
+    <div class="reveal-up sobre-mi-card"
       style="background: linear-gradient(135deg, #FFFFFF 0%, #FAF6F0 100%); border: 1.5px solid rgba(167, 114, 55, 0.28); border-radius: 26px; padding: 3rem 2.5rem; box-shadow: var(--shadow-soft);">
       <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.8rem; align-items: center;">
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2.2rem; align-items: center;">
         <div>
           <span class="pill-tag" style="display:inline-flex; align-items:center; gap:0.45rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -999,8 +1028,8 @@
             de Ovario Poliquístico (SOP) o condiciones tiroideas, hasta la búsqueda de embarazo y plenitud metabólica.
           </p>
 
-          <div
-            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; background: #FEFAFA; padding: 1rem; border-radius: 14px; border: 1px solid rgba(167,114,55,0.2);">
+          <div class="sobre-mi-pillars"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; background: #FEFAFA; padding: 1rem; border-radius: 14px; border: 1px solid rgba(167,114,55,0.2);">
             <div>
               <strong
                 style="font-family: var(--font-heading); font-size: 1.35rem; color: var(--color-pine); display: block;">1.
@@ -1309,7 +1338,7 @@
               </p>
 
               <form id="payment-form" onsubmit="processPaymentAndBook(event)">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
                   <div>
                     <label style="font-size: 0.78rem; font-weight: 600;">Nombre Completo del Paciente *</label>
                     <input type="text" id="patient-name" class="form-input" placeholder="Ej. María Fernanda Gómez"

@@ -65,6 +65,7 @@ function renderSpecialtiesSection() {
   const sec = document.getElementById('especialidades');
   const grid = document.getElementById('specialties-grid');
   const navItem = document.getElementById('nav-item-especialidades');
+  const navItemMobile = document.getElementById('nav-item-especialidades-mobile');
   const heroBtn = document.getElementById('hero-btn-especialidades');
   const focusSel = document.getElementById('focus-select');
 
@@ -72,6 +73,7 @@ function renderSpecialtiesSection() {
   if (!list || list.length === 0) {
     if (sec) sec.style.display = 'none';
     if (navItem) navItem.style.display = 'none';
+    if (navItemMobile) navItemMobile.style.display = 'none';
     if (heroBtn) heroBtn.style.display = 'none';
     if (focusSel) {
       focusSel.innerHTML = `<option value="Valoración General">Valoración General</option>`;
@@ -82,6 +84,7 @@ function renderSpecialtiesSection() {
 
   if (sec) sec.style.display = '';
   if (navItem) navItem.style.display = '';
+  if (navItemMobile) navItemMobile.style.display = '';
   if (heroBtn) heroBtn.style.display = '';
 
   if (grid) {
