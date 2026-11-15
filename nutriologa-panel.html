@@ -1425,9 +1425,13 @@
         return;
       }
 
+      const qConfig = VDT.getQuestionnaire();
       grid.innerHTML = list.map(c => {
         const resp = responses.find(r => r.patientEmail.toLowerCase() === c.email.toLowerCase());
         const goal = resp?.answers?.q9 || resp?.answers?.q7 || resp?.answers?.q5 || 'Pendiente de responder';
+        const applicableCount = resp
+          ? qConfig.questions.filter(q => VDT.isQuestionEnabled ? VDT.isQuestionEnabled(q, resp.answers || {}) : true).length
+          : 0;
 
         return `
           <div class="client-card">
@@ -1438,7 +1442,7 @@
                   <div style="font-size:0.76rem; color:var(--color-sage-dark);">${c.email} · ${c.phone}</div>
                 </div>
                 <span class="status-pill ${resp ? 'status-paid' : 'status-pending'}">
-                  ${resp ? '✓ Cuestionario Listo' : '⏳ Sin Cuestionario'}
+                  ${resp ? `✓ Expediente (${applicableCount} preg.)` : '⏳ Sin Cuestionario'}
                 </span>
               </div>
 
@@ -1519,20 +1523,24 @@
           </div>
         `;
       } else {
+        const applicableQuestions = qConfig.questions.filter(q =>
+          VDT.isQuestionEnabled ? VDT.isQuestionEnabled(q, resp.answers || {}) : true
+        );
         html += `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin:0 0 0.65rem;">
-            <h4 style="margin:0; font-size:1.05rem;">Respuestas del Cuestionario de 1ª Consulta</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin:0 0 0.65rem;">
+            <div>
+              <h4 style="margin:0; font-size:1.05rem;">Respuestas del Cuestionario de 1ª Consulta</h4>
+              <div style="font-size:0.75rem; color:var(--color-sage-dark); margin-top:0.15rem;">
+                Se muestran únicamente las <strong>${applicableQuestions.length} preguntas</strong> que aplicaron al expediente de esta paciente.
+              </div>
+            </div>
             <button type="button" class="btn-mini" onclick="exportSinglePatientCSV('${email}')">Descargar en Excel (.CSV)</button>
           </div>
         `;
-        html += qConfig.questions.map((q, idx) => {
-          const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (idx + 1);
-          const enabled = VDT.isQuestionEnabled ? VDT.isQuestionEnabled(q, resp.answers || {}) : true;
+        html += applicableQuestions.map((q, idx) => {
           const val = resp.answers?.[q.id];
           const formatted = VDT.formatAnswer ? VDT.formatAnswer(val) : (Array.isArray(val) ? val.join(', ') : (val ?? ''));
-          const displayVal = !enabled
-            ? '<em style="color:var(--color-sage-dark);">No aplica (condicional desactivada por respuesta anterior)</em>'
-            : (formatted ? escHtml(formatted) : '<em style="color:var(--color-sage-dark);">Sin responder</em>');
+          const displayVal = formatted ? escHtml(formatted) : '<em style="color:var(--color-sage-dark);">Sin responder</em>';
           const secHeader = q.section ? `
             <div style="margin:1.1rem 0 0.45rem; padding:0.5rem 0.85rem; background:#253B2E; color:#EBBE7C; border-radius:10px; font-weight:700; font-size:0.84rem;">
               ${escHtml(q.section)}
@@ -1541,7 +1549,7 @@
           return `
             ${secHeader}
             <div style="padding:0.65rem 0; border-bottom:1px solid #EFE7DC; font-size:0.84rem;">
-              <div style="font-weight:700; color:var(--color-forest);">P${qNum}. ${escHtml(q.label)}</div>
+              <div style="font-weight:700; color:var(--color-forest);">${idx + 1}. ${escHtml(q.label)}</div>
               <div style="color:var(--color-pine); margin-top:0.2rem;">${displayVal}</div>
             </div>
           `;
@@ -2126,13 +2134,15 @@
         rows.push([b.folio, b.type === 'primera' ? '1ª Consulta' : 'Seguimiento', b.modality, b.focus || '', b.dateLabel, VDT.slotLabel(b.time), b.price]);
       });
 
-      rows.push([], ['RESPUESTAS AL CUESTIONARIO DE 1ª CONSULTA (P6–P75)'], ['Pregunta', 'Respuesta de la Paciente']);
-      qConfig.questions.forEach((q, idx) => {
-        const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (idx + 1);
+      const applicableQuestions = qConfig.questions.filter(q =>
+        VDT.isQuestionEnabled ? VDT.isQuestionEnabled(q, resp?.answers || {}) : true
+      );
+      rows.push([], [`RESPUESTAS AL CUESTIONARIO DE 1ª CONSULTA (${applicableQuestions.length} PREGUNTAS EN SU EXPEDIENTE)`], ['Pregunta', 'Respuesta de la Paciente']);
+      applicableQuestions.forEach((q, idx) => {
         const v = resp?.answers?.[q.id];
         const formatted = VDT.formatAnswer ? VDT.formatAnswer(v) : (Array.isArray(v) ? v.join(' | ') : (v ?? ''));
         const txt = formatted || 'Sin responder';
-        rows.push([`P${qNum}. ${q.label}`, txt]);
+        rows.push([`${idx + 1}. ${q.label}`, txt]);
       });
 
       const safeName = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
