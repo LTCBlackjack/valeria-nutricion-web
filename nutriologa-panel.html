@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de la Nutrióloga | Lic. Valeria de la Torre · Agenda, Expedientes, Cuestionario y Mapa de Calor</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/isotipo-simbolo-dorado.svg" />
-  <link rel="stylesheet" href="css/theme.css?v=20261108-9" />
+  <link rel="stylesheet" href="css/theme.css?v=20261115-1" />
   <style>
     * { box-sizing: border-box; }
     body {
@@ -1078,7 +1078,7 @@
   </footer>
 
   <!-- ================= LÓGICA DEL PANEL DE LA NUTRIÓLOGA ================= -->
-  <script src="js/store.js?v=20261108-8"></script>
+  <script src="js/store.js?v=20261115-1"></script>
   <script>
     const ADMIN_DAYS = [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21];
     let currentAdminYear = 2026;
@@ -1099,10 +1099,12 @@
     const TYPE_LABELS = {
       textarea: 'Respuesta abierta larga',
       text:     'Respuesta abierta corta',
+      date:     'Fecha (día/mes/año)',
       single:   'Opción múltiple (1 respuesta)',
       multiple: 'Casillas múltiples (varias)',
-      scale:    'Escala del 1 al 10',
-      yesno:    'Sí / No'
+      scale:    'Escala numérica',
+      yesno:    'Sí / No',
+      grid:     'Cuadrícula de frecuencia'
     };
 
     /* ----------------------------------------------------------------------
@@ -1425,8 +1427,7 @@
 
       grid.innerHTML = list.map(c => {
         const resp = responses.find(r => r.patientEmail.toLowerCase() === c.email.toLowerCase());
-        const energyScore = resp?.answers?.q4 ? `${resp.answers.q4}/10` : '—';
-        const goal = resp?.answers?.q5 || 'Pendiente de responder';
+        const goal = resp?.answers?.q9 || resp?.answers?.q7 || resp?.answers?.q5 || 'Pendiente de responder';
 
         return `
           <div class="client-card">
@@ -1524,12 +1525,23 @@
             <button type="button" class="btn-mini" onclick="exportSinglePatientCSV('${email}')">Descargar en Excel (.CSV)</button>
           </div>
         `;
-        html += qConfig.questions.map(q => {
-          const val = resp.answers[q.id];
-          const displayVal = Array.isArray(val) ? val.join(', ') : (val !== undefined && val !== '' ? val : 'Sin responder');
+        html += qConfig.questions.map((q, idx) => {
+          const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (idx + 1);
+          const enabled = VDT.isQuestionEnabled ? VDT.isQuestionEnabled(q, resp.answers || {}) : true;
+          const val = resp.answers?.[q.id];
+          const formatted = VDT.formatAnswer ? VDT.formatAnswer(val) : (Array.isArray(val) ? val.join(', ') : (val ?? ''));
+          const displayVal = !enabled
+            ? '<em style="color:var(--color-sage-dark);">No aplica (condicional desactivada por respuesta anterior)</em>'
+            : (formatted ? escHtml(formatted) : '<em style="color:var(--color-sage-dark);">Sin responder</em>');
+          const secHeader = q.section ? `
+            <div style="margin:1.1rem 0 0.45rem; padding:0.5rem 0.85rem; background:#253B2E; color:#EBBE7C; border-radius:10px; font-weight:700; font-size:0.84rem;">
+              ${escHtml(q.section)}
+            </div>
+          ` : '';
           return `
-            <div style="padding:0.7rem 0; border-bottom:1px solid #EFE7DC; font-size:0.85rem;">
-              <div style="font-weight:700; color:var(--color-forest);">${q.label}</div>
+            ${secHeader}
+            <div style="padding:0.65rem 0; border-bottom:1px solid #EFE7DC; font-size:0.84rem;">
+              <div style="font-weight:700; color:var(--color-forest);">P${qNum}. ${escHtml(q.label)}</div>
               <div style="color:var(--color-pine); margin-top:0.2rem;">${displayVal}</div>
             </div>
           `;
@@ -1851,6 +1863,10 @@
       `;
     }
 
+    function escHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     function renderQuestionnaireStats() {
       const bookings = VDT.read(VDT.KEYS.bookings, []);
       const responses = VDT.read(VDT.KEYS.responses, []);
@@ -1858,36 +1874,50 @@
       const firstTime = bookings.filter(b => b.type === 'primera');
       const completionPct = firstTime.length ? Math.round((responses.length / firstTime.length) * 100) : 100;
 
-      // Promedio de energía (q4)
-      const energies = responses.map(r => Number(r.answers?.q4)).filter(n => !isNaN(n) && n > 0);
-      const avgEnergy = energies.length ? (energies.reduce((a, b) => a + b, 0) / energies.length).toFixed(1) : '—';
+      // Promedio de Disposición al Cambio (q73, 0-10) o Vitalidad previa (q4)
+      const readinessScores = responses
+        .map(r => Number(r.answers?.q73 ?? r.answers?.q4))
+        .filter(n => !isNaN(n) && n > 0);
+      const avgEnergy = readinessScores.length
+        ? (readinessScores.reduce((a, b) => a + b, 0) / readinessScores.length).toFixed(1)
+        : '—';
 
-      // Conteo de diagnósticos (q2)
+      // Conteo de diagnósticos médicos y ginecológicos (q11 + q28 o q2)
       const diagCounts = {};
       responses.forEach(r => {
-        const arr = Array.isArray(r.answers?.q2) ? r.answers.q2 : (r.answers?.q2 ? [r.answers.q2] : []);
-        arr.forEach(d => { diagCounts[d] = (diagCounts[d] || 0) + 1; });
+        const med = Array.isArray(r.answers?.q11) ? r.answers.q11 : (r.answers?.q2 ? (Array.isArray(r.answers.q2) ? r.answers.q2 : [r.answers.q2]) : []);
+        const gyn = Array.isArray(r.answers?.q28) ? r.answers.q28 : [];
+        [...med, ...gyn]
+          .filter(d => d && !String(d).toLowerCase().includes('ningun'))
+          .forEach(d => { diagCounts[d] = (diagCounts[d] || 0) + 1; });
       });
 
-      // Conteo de ciclo menstrual (q3)
+      // Conteo de ciclo menstrual (q23 o q3)
       const cycleCounts = {};
       responses.forEach(r => {
-        const c = r.answers?.q3;
+        const c = r.answers?.q23 || r.answers?.q3;
         if (c) cycleCounts[c] = (cycleCounts[c] || 0) + 1;
       });
 
-      // Conteo de objetivos (q5)
+      // Conteo de objetivos / síntomas digestivos frecuentes (q39 o q9/q5)
       const goalCounts = {};
       responses.forEach(r => {
-        const g = r.answers?.q5;
-        if (g) goalCounts[g] = (goalCounts[g] || 0) + 1;
+        if (Array.isArray(r.answers?.q39) && r.answers.q39.length) {
+          r.answers.q39
+            .filter(x => x && !String(x).toLowerCase().includes('ninguno'))
+            .forEach(g => { goalCounts[g] = (goalCounts[g] || 0) + 1; });
+        } else {
+          const g = r.answers?.q9 || r.answers?.q5;
+          if (g) goalCounts[g] = (goalCounts[g] || 0) + 1;
+        }
       });
 
-      // Conteo de estudios de laboratorio (q6)
+      // Conteo de estudios de laboratorio (q18 o q6)
       const labCounts = { 'Con laboratorios recientes': 0, 'Sin laboratorios': 0 };
       responses.forEach(r => {
-        if (r.answers?.q6 === 'Sí') labCounts['Con laboratorios recientes'] += 1;
-        else if (r.answers?.q6 === 'No') labCounts['Sin laboratorios'] += 1;
+        const labAns = String(r.answers?.q18 || r.answers?.q6 || '');
+        if (labAns.startsWith('Sí')) labCounts['Con laboratorios recientes'] += 1;
+        else if (labAns.startsWith('No')) labCounts['Sin laboratorios'] += 1;
       });
 
       const container = document.getElementById('questionnaire-stats-box');
@@ -1899,29 +1929,29 @@
             <div style="font-size:0.72rem; color:var(--color-pine);">${responses.length} de ${firstTime.length} pacientes 1ª vez</div>
           </div>
           <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
-            <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Vitalidad Promedio</div>
+            <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Compromiso Promedio</div>
             <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700; color:var(--color-bronze);">${avgEnergy} / 10</div>
-            <div style="font-size:0.72rem; color:var(--color-pine);">Escala inicial (1–10)</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">Disposición al cambio (0–10)</div>
           </div>
           <div style="background:#FAF6F0; padding:0.85rem; border-radius:14px; text-align:center; border:1px solid rgba(167,114,55,0.2);">
             <div style="font-size:0.68rem; text-transform:uppercase; color:var(--color-sage-dark); font-weight:700;">Preguntas Activas</div>
             <div style="font-family:var(--font-heading); font-size:1.7rem; font-weight:700;">${qConfig.questions.length}</div>
-            <div style="font-size:0.72rem; color:var(--color-pine);">100% personalizables</div>
+            <div style="font-size:0.72rem; color:var(--color-pine);">P6–P75 con condicionales</div>
           </div>
         </div>
 
         <h4 style="font-size:0.9rem; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
-          Grafo 1 · Distribución de Ciclo Menstrual
+          Grafo 1 · Distribución de Ciclo Menstrual (P23)
         </h4>
         ${buildDonutSVG(Object.entries(cycleCounts), responses.length, responses.length, 'PACIENTES')}
 
         <h4 style="font-size:0.9rem; margin:1.1rem 0 0.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
-          Grafo 2 · Estudios de Laboratorio Recientes (Últimos 6 meses)
+          Grafo 2 · Estudios de Laboratorio Recientes (P18)
         </h4>
         ${buildDonutSVG(Object.entries(labCounts), responses.length, `${Math.round(((labCounts['Con laboratorios recientes'] || 0) / Math.max(1, responses.length)) * 100)}%`, 'CON LABS')}
 
         <h4 style="font-size:0.9rem; margin:1.1rem 0 0.55rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
-          Grafo 3 · Diagnósticos Hormonales y Metabólicos Reportados
+          Grafo 3 · Diagnósticos Hormonales, Ginecológicos y Metabólicos (P11 / P28)
         </h4>
         ${Object.entries(diagCounts).map(([label, count]) => {
           const pct = Math.round((count / Math.max(1, responses.length)) * 100);
@@ -1934,7 +1964,7 @@
         }).join('') || '<p style="font-size:0.82rem;">Sin respuestas registradas.</p>'}
 
         <h4 style="font-size:0.9rem; margin:1.1rem 0 0.55rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-pine);">
-          Grafo 4 · Objetivos Clínicos Principales
+          Grafo 4 · Síntomas Digestivos y Metas Clínicas (P39 / P9)
         </h4>
         ${Object.entries(goalCounts).map(([label, count]) => {
           const pct = Math.round((count / Math.max(1, responses.length)) * 100);
@@ -1959,7 +1989,10 @@
                 <tr>
                   <th>Folio</th>
                   <th>Paciente</th>
-                  ${qConfig.questions.map((q, i) => `<th>P${i + 1}: ${q.label.slice(0, 34)}${q.label.length > 34 ? '…' : ''}</th>`).join('')}
+                  ${qConfig.questions.map((q, i) => {
+                    const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (i + 1);
+                    return `<th>P${qNum}: ${escHtml(q.label.slice(0, 34))}${q.label.length > 34 ? '…' : ''}</th>`;
+                  }).join('')}
                   <th>Exportar</th>
                 </tr>
               </thead>
@@ -1973,8 +2006,8 @@
                     </td>
                     ${qConfig.questions.map(q => {
                       const val = r.answers?.[q.id];
-                      const txt = Array.isArray(val) ? val.join(', ') : (val !== undefined && val !== '' ? val : '—');
-                      return `<td style="font-size:0.79rem; max-width:200px;">${txt}</td>`;
+                      const txt = VDT.formatAnswer ? VDT.formatAnswer(val) : (Array.isArray(val) ? val.join(', ') : (val ?? ''));
+                      return `<td style="font-size:0.78rem; max-width:220px;">${txt ? escHtml(txt) : '—'}</td>`;
                     }).join('')}
                     <td>
                       <button type="button" class="btn-mini" onclick="exportSinglePatientCSV('${r.patientEmail}')">Excel (.CSV)</button>
@@ -2012,12 +2045,15 @@
     document.getElementById('btn-export-questionnaire-excel').addEventListener('click', () => {
       const qConfig = VDT.getQuestionnaire();
       const responses = VDT.read(VDT.KEYS.responses, []);
-      const headers = ['Folio', 'Nombre Paciente', 'Correo Electrónico', 'Fecha Respuesta', ...qConfig.questions.map(q => q.label)];
+      const headers = ['Folio', 'Nombre Paciente', 'Correo Electrónico', 'Fecha Respuesta', ...qConfig.questions.map((q, i) => {
+        const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (i + 1);
+        return `P${qNum}. ${q.label}`;
+      })];
       const rows = [headers];
       responses.forEach(r => {
         const ansCells = qConfig.questions.map(q => {
           const v = r.answers?.[q.id];
-          return Array.isArray(v) ? v.join(' | ') : (v ?? '');
+          return VDT.formatAnswer ? VDT.formatAnswer(v) : (Array.isArray(v) ? v.join(' | ') : (v ?? ''));
         });
         rows.push([r.folio, r.patientName, r.patientEmail, (r.submittedAt || '').slice(0, 10), ...ansCells]);
       });
@@ -2047,7 +2083,10 @@
       const headers = [
         'Paciente', 'Correo', 'Teléfono', 'Total Consultas', 'Consultas 1a Vez', 'Consultas Seguimiento',
         'Modalidad Virtual', 'Modalidad Presencial', 'Inversión Total (MXN)', 'Enfoque Clínico', 'Cuestionario Respondido',
-        ...qConfig.questions.map(q => q.label)
+        ...qConfig.questions.map((q, i) => {
+          const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (i + 1);
+          return `P${qNum}. ${q.label}`;
+        })
       ];
       const rows = [headers];
 
@@ -2055,7 +2094,7 @@
         const resp = responses.find(r => r.patientEmail.toLowerCase() === c.email.toLowerCase());
         const ansCells = qConfig.questions.map(q => {
           const v = resp?.answers?.[q.id];
-          return Array.isArray(v) ? v.join(' | ') : (v ?? '');
+          return VDT.formatAnswer ? VDT.formatAnswer(v) : (Array.isArray(v) ? v.join(' | ') : (v ?? ''));
         });
         rows.push([
           c.name, c.email, c.phone, c.count, c.primera, c.seg, c.virt, c.pres,
@@ -2087,11 +2126,13 @@
         rows.push([b.folio, b.type === 'primera' ? '1ª Consulta' : 'Seguimiento', b.modality, b.focus || '', b.dateLabel, VDT.slotLabel(b.time), b.price]);
       });
 
-      rows.push([], ['RESPUESTAS AL CUESTIONARIO DE 1ª CONSULTA'], ['Pregunta', 'Respuesta de la Paciente']);
-      qConfig.questions.forEach(q => {
+      rows.push([], ['RESPUESTAS AL CUESTIONARIO DE 1ª CONSULTA (P6–P75)'], ['Pregunta', 'Respuesta de la Paciente']);
+      qConfig.questions.forEach((q, idx) => {
+        const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (idx + 1);
         const v = resp?.answers?.[q.id];
-        const txt = Array.isArray(v) ? v.join(' | ') : (v !== undefined && v !== '' ? v : 'Sin responder');
-        rows.push([q.label, txt]);
+        const formatted = VDT.formatAnswer ? VDT.formatAnswer(v) : (Array.isArray(v) ? v.join(' | ') : (v ?? ''));
+        const txt = formatted || 'Sin responder';
+        rows.push([`P${qNum}. ${q.label}`, txt]);
       });
 
       const safeName = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
@@ -2104,10 +2145,26 @@
       const list = document.getElementById('questions-editor-list');
       list.innerHTML = draftQuestionnaire.questions.map((q, idx) => {
         const needsOptions = q.type === 'single' || q.type === 'multiple';
+        const qNum = /^q(\d+)$/.test(q.id) ? q.id.slice(1) : (idx + 1);
+        const secBanner = q.section ? `
+          <div style="margin:0.75rem 0 0.45rem; padding:0.45rem 0.85rem; background:#253B2E; color:#EBBE7C; border-radius:9px; font-weight:700; font-size:0.82rem;">
+            ${escHtml(q.section)}
+          </div>
+        ` : '';
+        const depBadge = q.dependsOn ? `
+          <div style="font-size:0.72rem; color:#8C5820; background:#FFF4E0; border:1px solid #DEB074; display:inline-block; padding:0.15rem 0.55rem; border-radius:999px; font-weight:700; margin-bottom:0.35rem;">
+            ↳ Condicional: Se habilita según respuesta de P${q.dependsOn.id.replace(/^q/, '')}
+          </div>
+        ` : '';
         return `
-          <div class="q-editor-item" data-idx="${idx}">
+          ${secBanner}
+          <div class="q-editor-item" data-idx="${idx}" style="${q.dependsOn ? 'border-left:4px solid #DEB074; margin-left:0.65rem;' : ''}">
+            ${depBadge}
             <div class="q-editor-row">
-              <input type="text" class="input-sm q-label-input" value="${q.label.replace(/"/g, '&quot;')}" placeholder="Escribe la pregunta para la paciente..." />
+              <div style="display:flex; align-items:center; gap:0.45rem;">
+                <span style="font-weight:700; font-size:0.78rem; color:var(--color-bronze); min-width:30px;">P${qNum}</span>
+                <input type="text" class="input-sm q-label-input" value="${escHtml(q.label)}" placeholder="Escribe la pregunta para la paciente..." />
+              </div>
               <select class="input-sm q-type-select">
                 ${Object.entries(TYPE_LABELS).map(([val, text]) => `<option value="${val}" ${q.type === val ? 'selected' : ''}>${text}</option>`).join('')}
               </select>
@@ -2119,7 +2176,7 @@
               </div>
             </div>
             <div class="q-options-wrap" style="display:${needsOptions ? 'block' : 'none'};">
-              <input type="text" class="input-sm q-options-input" value="${(q.options || []).join(', ')}" placeholder="Opciones separadas por coma (ej. Regular, Irregular, Ausente)" />
+              <input type="text" class="input-sm q-options-input" value="${escHtml((q.options || []).join(', '))}" placeholder="Opciones separadas por coma (ej. Regular, Irregular, Ausente)" />
             </div>
           </div>
         `;
@@ -2153,9 +2210,9 @@
         q.type = item.querySelector('.q-type-select').value;
         q.required = item.querySelector('.q-req-check').checked;
         const rawOpts = item.querySelector('.q-options-input').value;
-        q.options = (q.type === 'single' || q.type === 'multiple')
-          ? rawOpts.split(',').map(s => s.trim()).filter(Boolean)
-          : [];
+        if (q.type === 'single' || q.type === 'multiple') {
+          q.options = rawOpts.split(',').map(s => s.trim()).filter(Boolean);
+        }
       });
     }
 
